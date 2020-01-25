@@ -1,9 +1,11 @@
 #!/usr/bin/env sh
 
+cd $(dirname $0)
+
 if [[ $# -eq 0 ]]
   then
-    java -jar build/libs/kafka-dsf-all.jar
+    java -jar kafka-dsf-all.jar
   else
-    java -jar build/libs/kafka-dsf-all.jar "$*"
+    java -jar kafka-dsf-all.jar "$*"
 fi
 

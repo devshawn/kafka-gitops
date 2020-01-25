@@ -43,3 +43,10 @@ jar {
         )
     }
 }
+
+task buildRelease(type: Zip, group: "build") {
+    from("$buildDir/libs")
+    from("./kafka-dsf")
+}
+
+buildRelease.dependsOn shadowJar
