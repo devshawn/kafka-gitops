@@ -19,6 +19,19 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew buildRelease
       
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
+      - name: Build & Push Docker Image
+        uses: mr-smithers-excellent/docker-build-push@v2
+        with:
+          image: devshawn/kafka-dsf
+          tag: ${{ steps.get_version.outputs.VERSION }}
+          registry: docker.io
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1.0.0
