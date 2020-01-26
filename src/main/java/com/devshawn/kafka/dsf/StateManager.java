@@ -78,6 +78,7 @@ public class StateManager {
 
     private void planTopics(DesiredState desiredState, DesiredPlan.Builder desiredPlan) {
         List<TopicListing> topics = kafkaService.getTopics();
+        List<String> prefixesToIgnore = getPrefixedTopicsToIgnore(desiredState);
 
         desiredState.getTopics().forEach((key, value) -> {
             TopicPlan.Builder topicPlan = new TopicPlan.Builder()
@@ -99,6 +100,12 @@ public class StateManager {
         });
 
         topics.forEach(currentTopic -> {
+            boolean shouldIgnore = prefixesToIgnore.stream().anyMatch(it -> currentTopic.name().startsWith(it));
+            if (shouldIgnore) {
+                log.info("[PLAN] Ignoring topic {} due to prefix", currentTopic.name());
+                return;
+            }
+
             if (desiredState.getTopics().getOrDefault(currentTopic.name(), null) == null) {
                 TopicPlan topicPlan = new TopicPlan.Builder()
                         .setName(currentTopic.name())
@@ -244,6 +251,14 @@ public class StateManager {
                 LogUtil.printPostApply();
             }
         });
+    }
+
+    private List<String> getPrefixedTopicsToIgnore(DesiredState desiredState) {
+        try {
+            return desiredState.getSettings().get().getTopics().get().getBlacklist().get().getPrefixed();
+        } catch (NoSuchElementException ex) {
+            return Collections.emptyList();
+        }
     }
 
     private void initializeLogger(boolean verbose) {
