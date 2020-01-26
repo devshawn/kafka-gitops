@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 
-cd $(dirname $0)
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 if [[ $# -eq 0 ]]
   then
-    java -jar kafka-dsf-all.jar
+    java -jar "$DIR/kafka-dsf-all.jar"
   else
-    java -jar kafka-dsf-all.jar "$@"
+    java -jar "$DIR/kafka-dsf-all.jar" "$@"
 fi
-
