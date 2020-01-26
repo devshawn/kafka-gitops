@@ -6,6 +6,6 @@ if [[ $# -eq 0 ]]
   then
     java -jar kafka-dsf-all.jar
   else
-    java -jar kafka-dsf-all.jar "$*"
+    java -jar kafka-dsf-all.jar "$@"
 fi
 
