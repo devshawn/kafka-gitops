@@ -11,7 +11,7 @@ import java.io.File;
 import java.util.concurrent.Callable;
 
 @Command(name = "kafka-dsf",
-        version = "0.0.3",
+        version = "0.0.4",
         exitCodeOnInvalidInput = 0,
         subcommands = {
                 ApplyCommand.class,
