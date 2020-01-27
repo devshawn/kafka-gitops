@@ -9,10 +9,15 @@ import com.devshawn.kafka.dsf.domain.state.AclDetails;
 import com.devshawn.kafka.dsf.domain.state.DesiredState;
 import com.devshawn.kafka.dsf.domain.state.TopicDetails;
 import com.devshawn.kafka.dsf.enums.PlanAction;
+import com.devshawn.kafka.dsf.exception.ReadPlanInputException;
+import com.devshawn.kafka.dsf.exception.WritePlanOutputException;
 import com.devshawn.kafka.dsf.service.KafkaService;
 import com.devshawn.kafka.dsf.service.ParserService;
 import com.devshawn.kafka.dsf.util.LogUtil;
 import com.devshawn.kafka.dsf.util.PlanUtil;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import org.apache.kafka.clients.admin.AlterConfigOp;
 import org.apache.kafka.clients.admin.ConfigEntry;
 import org.apache.kafka.clients.admin.TopicDescription;
@@ -22,6 +27,8 @@ import org.apache.kafka.common.config.ConfigResource;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,12 +39,17 @@ public class StateManager {
     private final ParserService parserService;
     private final KafkaDsfConfig config;
     private final KafkaService kafkaService;
+    private final ObjectMapper objectMapper;
 
-    public StateManager(boolean verbose, File file) {
+    private final File planFile;
+
+    public StateManager(boolean verbose, File file, File planFile) {
         initializeLogger(verbose);
         this.config = KafkaDsfConfigLoader.load();
         this.kafkaService = new KafkaService(config);
         this.parserService = new ParserService(file);
+        this.objectMapper = initializeObjectMapper();
+        this.planFile = planFile;
     }
 
     public void validate() {
@@ -57,7 +69,11 @@ public class StateManager {
     }
 
     public DesiredPlan apply() {
-        DesiredPlan desiredPlan = generatePlan();
+        DesiredPlan desiredPlan = readPlanFromFile();
+        if (desiredPlan == null) {
+            desiredPlan = generatePlan();
+        }
+
         validatePlanHasChanges(desiredPlan);
 
         applyTopics(desiredPlan);
@@ -173,7 +189,7 @@ public class StateManager {
                     .filter(entry -> entry.getValue().equalsAclBinding(acl))
                     .findFirst().orElse(null);
 
-            AclPlan.Builder aclPlan = new AclPlan.Builder().setAclBinding(acl);
+            AclPlan.Builder aclPlan = new AclPlan.Builder();
 
             if (detailsEntry != null) {
                 aclPlan.setName(detailsEntry.getKey());
@@ -181,6 +197,7 @@ public class StateManager {
                 aclPlan.setAction(PlanAction.NO_CHANGE);
             } else {
                 aclPlan.setName("Unnamed ACL");
+                aclPlan.setAclDetails(AclDetails.fromAclBinding(acl));
                 aclPlan.setAction(PlanAction.REMOVE);
             }
             desiredPlan.addAclPlans(aclPlan.build());
@@ -243,14 +260,39 @@ public class StateManager {
         desiredPlan.getAclPlans().forEach(aclPlan -> {
             if (aclPlan.getAction() == PlanAction.ADD) {
                 LogUtil.printAclPreApply(aclPlan);
-                kafkaService.createAcl(aclPlan.getAclDetails().get().toAclBinding());
+                kafkaService.createAcl(aclPlan.getAclDetails().toAclBinding());
                 LogUtil.printPostApply();
             } else if (aclPlan.getAction() == PlanAction.REMOVE) {
                 LogUtil.printAclPreApply(aclPlan);
-                kafkaService.deleteAcl(aclPlan.getAclBinding().get());
+                kafkaService.deleteAcl(aclPlan.getAclDetails().toAclBinding());
                 LogUtil.printPostApply();
             }
         });
+    }
+
+    public void writePlanToFile(DesiredPlan desiredPlan) {
+        if (planFile != null) {
+            try {
+                planFile.createNewFile();
+                FileWriter writer = new FileWriter(planFile);
+                writer.write(objectMapper.writeValueAsString(desiredPlan));
+                writer.close();
+            } catch (IOException ex) {
+                throw new WritePlanOutputException(ex.getMessage());
+            }
+        }
+    }
+
+    private DesiredPlan readPlanFromFile() {
+        if (planFile == null || !planFile.exists()) {
+            return null;
+        }
+
+        try {
+            return objectMapper.readValue(planFile, DesiredPlan.class);
+        } catch (IOException ex) {
+            throw new ReadPlanInputException(ex.getMessage());
+        }
     }
 
     private List<String> getPrefixedTopicsToIgnore(DesiredState desiredState) {
@@ -259,6 +301,13 @@ public class StateManager {
         } catch (NoSuchElementException ex) {
             return Collections.emptyList();
         }
+    }
+
+    private ObjectMapper initializeObjectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES);
+        objectMapper.registerModule(new Jdk8Module());
+        return objectMapper;
     }
 
     private void initializeLogger(boolean verbose) {

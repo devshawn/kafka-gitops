@@ -10,10 +10,15 @@ import com.devshawn.kafka.dsf.util.LogUtil;
 import com.devshawn.kafka.dsf.util.PlanUtil;
 import picocli.CommandLine;
 
+import java.io.File;
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(name = "apply", description = "Apply changes to Kafka resources.")
 public class ApplyCommand implements Callable<Integer> {
+
+    @CommandLine.Option(names = {"-p", "--plan"}, paramLabel = "<file>",
+            description = "Specify the plan file to use.")
+    private File planFile;
 
     @CommandLine.ParentCommand
     private MainCommand parent;
@@ -22,7 +27,7 @@ public class ApplyCommand implements Callable<Integer> {
     public Integer call() {
         try {
             System.out.println("Executing apply...\n");
-            DesiredPlan desiredPlan = new StateManager(parent.isVerboseRequested(), parent.getFile()).apply();
+            DesiredPlan desiredPlan = new StateManager(parent.isVerboseRequested(), parent.getFile(), planFile).apply();
             LogUtil.printApplyOverview(PlanUtil.getOverview(desiredPlan));
             return 0;
         } catch (MissingConfigurationException ex) {

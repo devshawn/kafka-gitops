@@ -6,13 +6,19 @@ import com.devshawn.kafka.dsf.domain.plan.DesiredPlan;
 import com.devshawn.kafka.dsf.exception.KafkaExecutionException;
 import com.devshawn.kafka.dsf.exception.MissingConfigurationException;
 import com.devshawn.kafka.dsf.exception.ValidationException;
+import com.devshawn.kafka.dsf.exception.WritePlanOutputException;
 import com.devshawn.kafka.dsf.util.LogUtil;
 import picocli.CommandLine;
 
+import java.io.File;
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(name = "plan", description = "Generate an execution plan of changes to Kafka resources.")
 public class PlanCommand implements Callable<Integer> {
+
+    @CommandLine.Option(names = {"-o", "--output"}, paramLabel = "<file>",
+            description = "Specify the output file for the plan.")
+    private File outputFile;
 
     @CommandLine.ParentCommand
     private MainCommand parent;
@@ -21,10 +27,11 @@ public class PlanCommand implements Callable<Integer> {
     public Integer call() {
         try {
             System.out.println("Generating execution plan...\n");
-            StateManager stateManager = new StateManager(parent.isVerboseRequested(), parent.getFile());
+            StateManager stateManager = new StateManager(parent.isVerboseRequested(), parent.getFile(), outputFile);
             DesiredPlan desiredPlan = stateManager.plan();
             stateManager.validatePlanHasChanges(desiredPlan);
             LogUtil.printPlan(desiredPlan);
+            stateManager.writePlanToFile(desiredPlan);
             return 0;
         } catch (MissingConfigurationException ex) {
             LogUtil.printGenericError(ex);
@@ -34,6 +41,9 @@ public class PlanCommand implements Callable<Integer> {
             return 2;
         } catch (KafkaExecutionException ex) {
             LogUtil.printKafkaExecutionError(ex);
+            return 2;
+        } catch (WritePlanOutputException ex) {
+            LogUtil.printPlanOutputError(ex);
             return 2;
         }
     }
