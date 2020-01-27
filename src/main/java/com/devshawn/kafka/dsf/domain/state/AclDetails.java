@@ -10,8 +10,6 @@ import org.apache.kafka.common.resource.ResourcePattern;
 import org.apache.kafka.common.resource.ResourceType;
 import org.inferred.freebuilder.FreeBuilder;
 
-import java.util.Optional;
-
 @FreeBuilder
 @JsonDeserialize(builder = AclDetails.Builder.class)
 public abstract class AclDetails {
@@ -30,18 +28,23 @@ public abstract class AclDetails {
 
     public abstract String getPermission();
 
-    public abstract Optional<Integer> getPrincipalId();
+    public static AclDetails fromAclBinding(AclBinding aclBinding) {
+        AclDetails.Builder aclDetails = new AclDetails.Builder()
+                .setName(aclBinding.pattern().name())
+                .setType(aclBinding.pattern().resourceType().name())
+                .setPattern(aclBinding.pattern().patternType().name())
+                .setPrincipal(aclBinding.entry().principal())
+                .setHost(aclBinding.entry().host())
+                .setOperation(aclBinding.entry().operation().name())
+                .setPermission(aclBinding.entry().permissionType().name());
+        return aclDetails.build();
+    }
 
     public boolean equalsAclBinding(AclBinding aclBinding) {
-        String principal = getPrincipal();
-        if (getPrincipalId().isPresent()) {
-            principal = String.format("User:%s", getPrincipalId().get());
-        }
-
         if (aclBinding.pattern().name().equals(getName())
                 && aclBinding.pattern().patternType().name().equals(getPattern())
                 && aclBinding.pattern().resourceType().name().equals(getType())
-                && aclBinding.entry().principal().equals(principal)
+                && aclBinding.entry().principal().equals(getPrincipal())
                 && aclBinding.entry().host().equals(getHost())
                 && aclBinding.entry().permissionType().name().equals(getPermission())
                 && aclBinding.entry().operation().name().equals(getOperation())) {
@@ -51,13 +54,9 @@ public abstract class AclDetails {
     }
 
     public AclBinding toAclBinding() {
-        String principal = getPrincipal();
-        if (getPrincipalId().isPresent()) {
-            principal = String.format("User:%s", getPrincipalId().get());
-        }
         return new AclBinding(
                 new ResourcePattern(ResourceType.valueOf(getType()), getName(), PatternType.valueOf(getPattern())),
-                new AccessControlEntry(principal, getHost(), AclOperation.valueOf(getOperation()), AclPermissionType.valueOf(getPermission()))
+                new AccessControlEntry(getPrincipal(), getHost(), AclOperation.valueOf(getOperation()), AclPermissionType.valueOf(getPermission()))
         );
     }
 

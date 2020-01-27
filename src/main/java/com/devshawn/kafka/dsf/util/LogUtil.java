@@ -5,7 +5,7 @@ import com.devshawn.kafka.dsf.domain.state.AclDetails;
 import com.devshawn.kafka.dsf.domain.state.TopicDetails;
 import com.devshawn.kafka.dsf.enums.PlanAction;
 import com.devshawn.kafka.dsf.exception.KafkaExecutionException;
-import org.apache.kafka.common.acl.AclBinding;
+import com.devshawn.kafka.dsf.exception.WritePlanOutputException;
 import picocli.CommandLine;
 
 public class LogUtil {
@@ -71,9 +71,10 @@ public class LogUtil {
     }
 
     private static void printAclPlan(AclPlan aclPlan) {
+        AclDetails aclDetails = aclPlan.getAclDetails();
+
         switch (aclPlan.getAction()) {
             case ADD:
-                AclDetails aclDetails = aclPlan.getAclDetails().get();
                 System.out.println(green(String.format("+ [ACL] %s", aclPlan.getName())));
                 System.out.println(green(String.format("\t + resource_name: %s", aclDetails.getName())));
                 System.out.println(green(String.format("\t + resource_type: %s", aclDetails.getType())));
@@ -85,15 +86,14 @@ public class LogUtil {
                 System.out.println("\n");
                 break;
             case REMOVE:
-                AclBinding aclBinding = aclPlan.getAclBinding().get();
-                System.out.println(red(String.format("- [ACL] %s", aclPlan.getName())));
-                System.out.println(red(String.format("\t - resource_name: %s", aclBinding.pattern().name())));
-                System.out.println(red(String.format("\t - resource_type: %s", aclBinding.pattern().resourceType())));
-                System.out.println(red(String.format("\t - resource_pattern: %s", aclBinding.pattern().patternType())));
-                System.out.println(red(String.format("\t - resource_principal: %s", aclBinding.entry().principal())));
-                System.out.println(red(String.format("\t - host: %s", aclBinding.entry().host())));
-                System.out.println(red(String.format("\t - operation: %s", aclBinding.entry().operation())));
-                System.out.println(red(String.format("\t - permission: %s", aclBinding.entry().permissionType())));
+                System.out.println(red(String.format("+ [ACL] %s", aclPlan.getName())));
+                System.out.println(red(String.format("\t + resource_name: %s", aclDetails.getName())));
+                System.out.println(red(String.format("\t + resource_type: %s", aclDetails.getType())));
+                System.out.println(red(String.format("\t + resource_pattern: %s", aclDetails.getPattern())));
+                System.out.println(red(String.format("\t + resource_principal: %s", aclDetails.getPrincipal())));
+                System.out.println(red(String.format("\t + host: %s", aclDetails.getHost())));
+                System.out.println(red(String.format("\t + operation: %s", aclDetails.getOperation())));
+                System.out.println(red(String.format("\t + permission: %s", aclDetails.getPermission())));
                 System.out.println("\n");
                 break;
         }
@@ -191,6 +191,10 @@ public class LogUtil {
         } else {
             printPlanErrorMessage();
         }
+    }
+
+    public static void printPlanOutputError(WritePlanOutputException ex) {
+        System.out.println(String.format("[%s] %s", red("ERROR"), ex.getMessage()));
     }
 
     private static void printPlanErrorMessage() {
