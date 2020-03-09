@@ -27,7 +27,7 @@ public class ApplyCommand implements Callable<Integer> {
     public Integer call() {
         try {
             System.out.println("Executing apply...\n");
-            DesiredPlan desiredPlan = new StateManager(parent.isVerboseRequested(), parent.getFile(), planFile).apply();
+            DesiredPlan desiredPlan = new StateManager(parent.isVerboseRequested(), parent.getFile(), parent.isDeleteDisabled(), planFile).apply();
             LogUtil.printApplyOverview(PlanUtil.getOverview(desiredPlan));
             return 0;
         } catch (MissingConfigurationException ex) {

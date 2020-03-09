@@ -27,7 +27,7 @@ public class PlanCommand implements Callable<Integer> {
     public Integer call() {
         try {
             System.out.println("Generating execution plan...\n");
-            StateManager stateManager = new StateManager(parent.isVerboseRequested(), parent.getFile(), outputFile);
+            StateManager stateManager = new StateManager(parent.isVerboseRequested(), parent.getFile(), parent.isDeleteDisabled(), outputFile);
             DesiredPlan desiredPlan = stateManager.plan();
             stateManager.validatePlanHasChanges(desiredPlan);
             LogUtil.printPlan(desiredPlan);
