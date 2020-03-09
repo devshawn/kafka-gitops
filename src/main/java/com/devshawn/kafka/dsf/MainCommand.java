@@ -25,6 +25,9 @@ public class MainCommand implements Callable<Integer> {
             description = "Specify the desired state file.", defaultValue = "state.yaml")
     private File file;
 
+    @Option(names = {"--no-delete"}, description = "Disable the ability to delete resources.")
+    private boolean deleteDisabled = false;
+
     @Option(names = {"-h", "--help"}, usageHelp = true, description = "Display this help message.")
     private boolean helpRequested = false;
 
@@ -54,6 +57,10 @@ public class MainCommand implements Callable<Integer> {
 
     public File getFile() {
         return file;
+    }
+
+    public boolean isDeleteDisabled() {
+        return deleteDisabled;
     }
 
     public static void main(String[] args) {

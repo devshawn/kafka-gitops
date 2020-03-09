@@ -19,7 +19,7 @@ public class ValidateCommand implements Callable<Integer> {
     @Override
     public Integer call() {
         try {
-            new StateManager(parent.isVerboseRequested(), parent.getFile(), null).validate();
+            new StateManager(parent.isVerboseRequested(), parent.getFile(), parent.isDeleteDisabled(), null).validate();
             LogUtil.printValidationResult("Successfully validated the desired state file.", true);
             return 0;
         } catch (ValidationException ex) {

@@ -41,14 +41,16 @@ public class StateManager {
     private final KafkaService kafkaService;
     private final ObjectMapper objectMapper;
 
+    private final boolean deleteDisabled;
     private final File planFile;
 
-    public StateManager(boolean verbose, File file, File planFile) {
+    public StateManager(boolean verbose, File file, boolean deleteDisabled, File planFile) {
         initializeLogger(verbose);
         this.config = KafkaDsfConfigLoader.load();
         this.kafkaService = new KafkaService(config);
         this.parserService = new ParserService(file);
         this.objectMapper = initializeObjectMapper();
+        this.deleteDisabled = deleteDisabled;
         this.planFile = planFile;
     }
 
@@ -122,7 +124,7 @@ public class StateManager {
                 return;
             }
 
-            if (desiredState.getTopics().getOrDefault(currentTopic.name(), null) == null) {
+            if (!deleteDisabled && desiredState.getTopics().getOrDefault(currentTopic.name(), null) == null) {
                 TopicPlan topicPlan = new TopicPlan.Builder()
                         .setName(currentTopic.name())
                         .setAction(PlanAction.REMOVE)
@@ -195,12 +197,16 @@ public class StateManager {
                 aclPlan.setName(detailsEntry.getKey());
                 aclPlan.setAclDetails(detailsEntry.getValue());
                 aclPlan.setAction(PlanAction.NO_CHANGE);
+                desiredPlan.addAclPlans(aclPlan.build());
             } else {
                 aclPlan.setName("Unnamed ACL");
                 aclPlan.setAclDetails(AclDetails.fromAclBinding(acl));
                 aclPlan.setAction(PlanAction.REMOVE);
+
+                if (!deleteDisabled) {
+                    desiredPlan.addAclPlans(aclPlan.build());
+                }
             }
-            desiredPlan.addAclPlans(aclPlan.build());
         });
 
         desiredState.getAcls().forEach((key, value) -> {
@@ -227,7 +233,7 @@ public class StateManager {
                 LogUtil.printTopicPreApply(topicPlan);
                 topicPlan.getTopicConfigPlans().forEach(topicConfigPlan -> applyTopicConfiguration(topicPlan, topicConfigPlan));
                 LogUtil.printPostApply();
-            } else if (topicPlan.getAction() == PlanAction.REMOVE) {
+            } else if (topicPlan.getAction() == PlanAction.REMOVE && !deleteDisabled) {
                 LogUtil.printTopicPreApply(topicPlan);
                 kafkaService.deleteTopic(topicPlan.getName());
                 LogUtil.printPostApply();
@@ -262,7 +268,7 @@ public class StateManager {
                 LogUtil.printAclPreApply(aclPlan);
                 kafkaService.createAcl(aclPlan.getAclDetails().toAclBinding());
                 LogUtil.printPostApply();
-            } else if (aclPlan.getAction() == PlanAction.REMOVE) {
+            } else if (aclPlan.getAction() == PlanAction.REMOVE && !deleteDisabled) {
                 LogUtil.printAclPreApply(aclPlan);
                 kafkaService.deleteAcl(aclPlan.getAclDetails().toAclBinding());
                 LogUtil.printPostApply();
