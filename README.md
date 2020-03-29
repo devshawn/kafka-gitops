@@ -2,6 +2,10 @@
 
 Manage Apache Kafka topics and ACLs through a desired state file.
 
+<p align="center">
+    <img src="https://i.imgur.com/eAIAv0w.png"/>
+</p>
+
 ## Overview
 
 This project allows you to manage Kafka topics and ACLs through use of a desired state file, much like Terraform and similar infrastructure-as-code projects. 
