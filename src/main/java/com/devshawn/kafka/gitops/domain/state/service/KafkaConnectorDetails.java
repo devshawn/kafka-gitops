@@ -22,11 +22,12 @@ public abstract class KafkaConnectorDetails extends AbstractService {
         getProduces().forEach(topic -> acls.add(generateWriteACL(topic, principal)));
         getConsumes().forEach(topic -> acls.add(generateReadAcl(topic, principal)));
         if (!getConsumes().isEmpty()) {
-            acls.add(generateConsumerGroupAcl(String.format("connect-%s", connectorName), principal));
+            acls.add(generateConsumerGroupAcl(String.format("connect-%s", connectorName), principal, "READ"));
         }
         return acls;
     }
 
     public static class Builder extends KafkaConnectorDetails_Builder {
+
     }
 }

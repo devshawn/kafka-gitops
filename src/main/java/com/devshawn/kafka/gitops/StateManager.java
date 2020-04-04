@@ -6,8 +6,12 @@ import com.devshawn.kafka.gitops.config.KafkaGitopsConfigLoader;
 import com.devshawn.kafka.gitops.config.ManagerConfig;
 import com.devshawn.kafka.gitops.domain.confluent.ServiceAccount;
 import com.devshawn.kafka.gitops.domain.plan.DesiredPlan;
+import com.devshawn.kafka.gitops.domain.state.AclDetails;
+import com.devshawn.kafka.gitops.domain.state.CustomAclDetails;
 import com.devshawn.kafka.gitops.domain.state.DesiredState;
 import com.devshawn.kafka.gitops.domain.state.DesiredStateFile;
+import com.devshawn.kafka.gitops.domain.state.service.KafkaStreamsService;
+import com.devshawn.kafka.gitops.exception.MissingConfigurationException;
 import com.devshawn.kafka.gitops.exception.ServiceAccountNotFoundException;
 import com.devshawn.kafka.gitops.manager.ApplyManager;
 import com.devshawn.kafka.gitops.manager.PlanManager;
@@ -20,8 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class StateManager {
@@ -79,7 +82,7 @@ public class StateManager {
     private DesiredState getDesiredState() {
         DesiredStateFile desiredStateFile = parserService.parseStateFile();
         DesiredState.Builder desiredState = new DesiredState.Builder()
-                .setSettings(desiredStateFile.getSettings())
+                .addAllPrefixedTopicsToIgnore(getPrefixedTopicsToIgnore(desiredStateFile))
                 .putAllTopics(desiredStateFile.getTopics());
 
         if (isConfluentCloudEnabled(desiredStateFile)) {
@@ -95,12 +98,23 @@ public class StateManager {
         List<ServiceAccount> serviceAccounts = confluentCloudService.getServiceAccounts();
         desiredStateFile.getServices().forEach((name, service) -> {
             AtomicReference<Integer> index = new AtomicReference<>(0);
+
+            Optional<ServiceAccount> serviceAccount = serviceAccounts.stream().filter(it -> it.getName().equals(name)).findFirst();
+            String serviceAccountId = serviceAccount.orElseThrow(() -> new ServiceAccountNotFoundException(name)).getId();
+
             service.getAcls(name).forEach(aclDetails -> {
-                Optional<ServiceAccount> serviceAccount = serviceAccounts.stream().filter(it -> it.getName().equals(name)).findFirst();
-                String serviceAccountId = serviceAccount.orElseThrow(() -> new ServiceAccountNotFoundException(name)).getId();
                 aclDetails.setPrincipal(String.format("User:%s", serviceAccountId));
                 desiredState.putAcls(String.format("%s-%s", name, index.getAndSet(index.get() + 1)), aclDetails.build());
             });
+
+            if (desiredStateFile.getCustomServiceAcls().containsKey(name)) {
+                Map<String, CustomAclDetails> customAcls = desiredStateFile.getCustomServiceAcls().get(name);
+                customAcls.forEach((aclName, customAcl) -> {
+                    AclDetails.Builder aclDetails = AclDetails.fromCustomAclDetails(customAcl);
+                    aclDetails.setPrincipal(String.format("User:%s", serviceAccountId));
+                    desiredState.putAcls(String.format("%s-%s", name, index.getAndSet(index.get() + 1)), aclDetails.build());
+                });
+            }
         });
     }
 
@@ -110,7 +124,32 @@ public class StateManager {
             service.getAcls(name).forEach(aclDetails -> {
                 desiredState.putAcls(String.format("%s-%s", name, index.getAndSet(index.get() + 1)), aclDetails.build());
             });
+
+            if (desiredStateFile.getCustomServiceAcls().containsKey(name)) {
+                Map<String, CustomAclDetails> customAcls = desiredStateFile.getCustomServiceAcls().get(name);
+                customAcls.forEach((aclName, customAcl) -> {
+                    AclDetails.Builder aclDetails = AclDetails.fromCustomAclDetails(customAcl);
+                    aclDetails.setPrincipal(customAcl.getPrincipal().orElseThrow(() ->
+                            new MissingConfigurationException(String.format("Missing principal for custom ACL %s", aclName))));
+                    desiredState.putAcls(String.format("%s-%s", name, index.getAndSet(index.get() + 1)), aclDetails.build());
+                });
+            }
         });
+    }
+
+    private List<String> getPrefixedTopicsToIgnore(DesiredStateFile desiredStateFile) {
+        List<String> topics = new ArrayList<>();
+        try {
+            topics.addAll(desiredStateFile.getSettings().get().getTopics().get().getBlacklist().get().getPrefixed());
+        } catch (NoSuchElementException ex) {
+            // Do nothing, no blacklist exists
+        }
+        desiredStateFile.getServices().forEach((name, service) -> {
+            if (service instanceof KafkaStreamsService) {
+                topics.add(name);
+            }
+        });
+        return topics;
     }
 
     private boolean isConfluentCloudEnabled(DesiredStateFile desiredStateFile) {

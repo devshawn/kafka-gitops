@@ -40,6 +40,16 @@ public abstract class AclDetails {
         return aclDetails.build();
     }
 
+    public static AclDetails.Builder fromCustomAclDetails(CustomAclDetails customAclDetails) {
+        return new AclDetails.Builder()
+                .setName(customAclDetails.getName())
+                .setType(customAclDetails.getType())
+                .setPattern(customAclDetails.getPattern())
+                .setHost(customAclDetails.getHost())
+                .setOperation(customAclDetails.getOperation())
+                .setPermission(customAclDetails.getPermission());
+    }
+
     public boolean equalsAclBinding(AclBinding aclBinding) {
         if (aclBinding.pattern().name().equals(getName())
                 && aclBinding.pattern().patternType().name().equals(getPattern())

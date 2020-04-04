@@ -60,6 +60,12 @@ public class PlanManager {
         });
 
         topics.forEach(currentTopic -> {
+            boolean shouldIgnore = desiredState.getPrefixedTopicsToIgnore().stream().anyMatch(it -> currentTopic.name().startsWith(it));
+            if (shouldIgnore) {
+                log.info("[PLAN] Ignoring topic {} due to prefix", currentTopic.name());
+                return;
+            }
+
             if (!managerConfig.isDeleteDisabled() && desiredState.getTopics().getOrDefault(currentTopic.name(), null) == null) {
                 TopicPlan topicPlan = new TopicPlan.Builder()
                         .setName(currentTopic.name())

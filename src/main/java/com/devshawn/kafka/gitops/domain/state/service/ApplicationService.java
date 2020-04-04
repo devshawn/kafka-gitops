@@ -25,7 +25,7 @@ public abstract class ApplicationService extends ServiceDetails {
         getProduces().forEach(topic -> acls.add(generateWriteACL(topic, getPrincipal())));
         getConsumes().forEach(topic -> acls.add(generateReadAcl(topic, getPrincipal())));
         if (!getConsumes().isEmpty()) {
-            acls.add(generateConsumerGroupAcl(serviceName, getPrincipal()));
+            acls.add(generateConsumerGroupAcl(serviceName, getPrincipal(), "READ"));
         }
         return acls;
     }

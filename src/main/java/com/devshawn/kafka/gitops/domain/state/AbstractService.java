@@ -30,11 +30,24 @@ public abstract class AbstractService {
         return builder;
     }
 
-    public AclDetails.Builder generateConsumerGroupAcl(String consumerGroupId, Optional<String> principal) {
+    public AclDetails.Builder generatePrefixedTopicACL(String topic, Optional<String> principal, String operation) {
+        AclDetails.Builder builder = new AclDetails.Builder()
+                .setHost("*")
+                .setName(topic)
+                .setOperation(operation)
+                .setPermission("ALLOW")
+                .setPattern("PREFIXED")
+                .setType("TOPIC");
+
+        principal.ifPresent(builder::setPrincipal);
+        return builder;
+    }
+
+    public AclDetails.Builder generateConsumerGroupAcl(String consumerGroupId, Optional<String> principal, String operation) {
         AclDetails.Builder builder = new AclDetails.Builder()
                 .setHost("*")
                 .setName(consumerGroupId)
-                .setOperation("READ")
+                .setOperation(operation)
                 .setPermission("ALLOW")
                 .setPattern("LITERAL")
                 .setType("GROUP");

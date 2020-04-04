@@ -37,7 +37,7 @@ public abstract class KafkaConnectService extends ServiceDetails {
         acls.add(generateWriteACL(String.format("connect-configs-%s", serviceName), getPrincipal()));
         acls.add(generateWriteACL(String.format("connect-offsets-%s", serviceName), getPrincipal()));
         acls.add(generateWriteACL(String.format("connect-status-%s", serviceName), getPrincipal()));
-        acls.add(generateConsumerGroupAcl(serviceName, getPrincipal()));
+        acls.add(generateConsumerGroupAcl(serviceName, getPrincipal(), "READ"));
         getConnectors().forEach((connectorName, connector) -> acls.addAll(connector.getAcls(connectorName, getPrincipal())));
         return acls;
     }
