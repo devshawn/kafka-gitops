@@ -2,12 +2,12 @@ package com.devshawn.kafka.gitops.service;
 
 import com.devshawn.kafka.gitops.config.KafkaGitopsConfigLoader;
 import com.devshawn.kafka.gitops.domain.confluent.ServiceAccount;
+import com.devshawn.kafka.gitops.exception.ConfluentCloudException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 public class ConfluentCloudService {
@@ -27,10 +27,8 @@ public class ConfluentCloudService {
             return objectMapper.readValue(result, new TypeReference<List<ServiceAccount>>() {
             });
         } catch (IOException ex) {
-            log.error("There was an error listing Confluent Cloud service accounts. Are you logged in?");
-            System.exit(1);
+            throw new ConfluentCloudException("There was an error listing Confluent Cloud service accounts. Are you logged in?");
         }
-        return Collections.emptyList();
     }
 
     public ServiceAccount createServiceAccount(String name) {
@@ -39,11 +37,8 @@ public class ConfluentCloudService {
             String result = execCmd(new String[]{"ccloud", "service-account", "create", name, "--description", description, "-o", "json"});
             return objectMapper.readValue(result, ServiceAccount.class);
         } catch (IOException ex) {
-            log.error("There was an error creating Confluent Cloud service account: {}.", name);
-            log.error(ex.getMessage());
-            System.exit(1);
+            throw new ConfluentCloudException(String.format("There was an error creating Confluent Cloud service account: %s.", name));
         }
-        return null;
     }
 
     public static String execCmd(String[] cmd) throws java.io.IOException {

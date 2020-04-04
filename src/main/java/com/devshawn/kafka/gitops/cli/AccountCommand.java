@@ -1,13 +1,11 @@
 package com.devshawn.kafka.gitops.cli;
 
-import ch.qos.logback.classic.Logger;
 import com.devshawn.kafka.gitops.MainCommand;
-import com.devshawn.kafka.gitops.exception.KafkaExecutionException;
-import com.devshawn.kafka.gitops.exception.MissingConfigurationException;
-import com.devshawn.kafka.gitops.exception.ValidationException;
-import com.devshawn.kafka.gitops.exception.WritePlanOutputException;
+import com.devshawn.kafka.gitops.StateManager;
+import com.devshawn.kafka.gitops.config.ManagerConfig;
+import com.devshawn.kafka.gitops.exception.*;
+import com.devshawn.kafka.gitops.service.ParserService;
 import com.devshawn.kafka.gitops.util.LogUtil;
-import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 import java.util.concurrent.Callable;
@@ -21,13 +19,13 @@ public class AccountCommand implements Callable<Integer> {
     @Override
     public Integer call() {
         try {
-            Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-
-            System.out.println("Generating execution plan...\n");
-//            new StateManager(false, null, false, null).createServiceAccount("TestAccount7");
+            System.out.println("Creating service accounts...\n");
+            ParserService parserService = new ParserService(parent.getFile());
+            StateManager stateManager = new StateManager(generateStateManagerConfig(), parserService);
+            stateManager.createServiceAccounts();
             return 0;
-        } catch (MissingConfigurationException ex) {
-            LogUtil.printGenericError(ex);
+        } catch (MissingConfigurationException | ConfluentCloudException ex) {
+            LogUtil.printSimpleError(ex.getMessage());
             return 2;
         } catch (ValidationException ex) {
             LogUtil.printValidationResult(ex.getMessage(), false);
@@ -39,5 +37,13 @@ public class AccountCommand implements Callable<Integer> {
             LogUtil.printPlanOutputError(ex);
             return 2;
         }
+    }
+
+    private ManagerConfig generateStateManagerConfig() {
+        return new ManagerConfig.Builder()
+                .setVerboseRequested(parent.isVerboseRequested())
+                .setDeleteDisabled(parent.isDeleteDisabled())
+                .setStateFile(parent.getFile())
+                .build();
     }
 }

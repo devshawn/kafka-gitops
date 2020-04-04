@@ -11,6 +11,7 @@ import com.devshawn.kafka.gitops.domain.state.CustomAclDetails;
 import com.devshawn.kafka.gitops.domain.state.DesiredState;
 import com.devshawn.kafka.gitops.domain.state.DesiredStateFile;
 import com.devshawn.kafka.gitops.domain.state.service.KafkaStreamsService;
+import com.devshawn.kafka.gitops.exception.ConfluentCloudException;
 import com.devshawn.kafka.gitops.exception.MissingConfigurationException;
 import com.devshawn.kafka.gitops.exception.ServiceAccountNotFoundException;
 import com.devshawn.kafka.gitops.manager.ApplyManager;
@@ -18,6 +19,7 @@ import com.devshawn.kafka.gitops.manager.PlanManager;
 import com.devshawn.kafka.gitops.service.ConfluentCloudService;
 import com.devshawn.kafka.gitops.service.KafkaService;
 import com.devshawn.kafka.gitops.service.ParserService;
+import com.devshawn.kafka.gitops.util.LogUtil;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,6 +27,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class StateManager {
@@ -40,15 +43,19 @@ public class StateManager {
     private PlanManager planManager;
     private ApplyManager applyManager;
 
-    public StateManager(ManagerConfig managerConfig) {
+    public StateManager(ManagerConfig managerConfig, ParserService parserService) {
         initializeLogger(managerConfig.isVerboseRequested());
         this.managerConfig = managerConfig;
         this.objectMapper = initializeObjectMapper();
         this.kafkaService = new KafkaService(KafkaGitopsConfigLoader.load());
-        this.parserService = new ParserService(managerConfig.getStateFile());
+        this.parserService = parserService;
         this.confluentCloudService = new ConfluentCloudService(objectMapper);
         this.planManager = new PlanManager(managerConfig, kafkaService, objectMapper);
         this.applyManager = new ApplyManager(managerConfig, kafkaService);
+    }
+
+    public void validate() {
+        parserService.parseStateFile();
     }
 
     public DesiredPlan plan() {
@@ -57,7 +64,7 @@ public class StateManager {
         return desiredPlan;
     }
 
-    public DesiredPlan generatePlan() {
+    private DesiredPlan generatePlan() {
         DesiredState desiredState = getDesiredState();
         DesiredPlan.Builder desiredPlan = new DesiredPlan.Builder();
         planManager.planAcls(desiredState, desiredPlan);
@@ -77,6 +84,27 @@ public class StateManager {
         applyManager.applyAcls(desiredPlan);
 
         return desiredPlan;
+    }
+
+    public void createServiceAccounts() {
+        DesiredStateFile desiredStateFile = parserService.parseStateFile();
+        List<ServiceAccount> serviceAccounts = confluentCloudService.getServiceAccounts();
+        AtomicInteger count = new AtomicInteger();
+        if (isConfluentCloudEnabled(desiredStateFile)) {
+            desiredStateFile.getServices().forEach((name, service) -> {
+                if (serviceAccounts.stream().noneMatch(it -> it.getName().equals(name))) {
+                    confluentCloudService.createServiceAccount(name);
+                    LogUtil.printSimpleSuccess(String.format("Successfully created service account: %s", name));
+                    count.getAndIncrement();
+                }
+            });
+        } else {
+            throw new ConfluentCloudException("Confluent Cloud must be enabled in the state file to use this command.");
+        }
+
+        if (count.get() == 0) {
+            LogUtil.printSimpleSuccess("No service accounts were created as there are no new service accounts.");
+        }
     }
 
     private DesiredState getDesiredState() {

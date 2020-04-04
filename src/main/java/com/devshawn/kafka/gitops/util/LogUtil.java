@@ -167,6 +167,14 @@ public class LogUtil {
                 planOverview.getAdd(), planOverview.getUpdate(), planOverview.getRemove()));
     }
 
+    public static void printSimpleSuccess(String message) {
+        System.out.println(String.format("[%s] %s\n", green("SUCCESS"), message));
+    }
+
+    public static void printSimpleError(String message) {
+        System.out.println(String.format("[%s] %s\n", red("ERROR"), message));
+    }
+
     public static void printGenericError(RuntimeException ex) {
         printGenericError(ex, false);
     }

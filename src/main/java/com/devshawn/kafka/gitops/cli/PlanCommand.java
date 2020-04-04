@@ -8,6 +8,7 @@ import com.devshawn.kafka.gitops.exception.KafkaExecutionException;
 import com.devshawn.kafka.gitops.exception.MissingConfigurationException;
 import com.devshawn.kafka.gitops.exception.ValidationException;
 import com.devshawn.kafka.gitops.exception.WritePlanOutputException;
+import com.devshawn.kafka.gitops.service.ParserService;
 import com.devshawn.kafka.gitops.util.LogUtil;
 import picocli.CommandLine;
 
@@ -28,7 +29,8 @@ public class PlanCommand implements Callable<Integer> {
     public Integer call() {
         try {
             System.out.println("Generating execution plan...\n");
-            StateManager stateManager = new StateManager(generateStateManagerConfig());
+            ParserService parserService = new ParserService(parent.getFile());
+            StateManager stateManager = new StateManager(generateStateManagerConfig(), parserService);
             DesiredPlan desiredPlan = stateManager.plan();
             LogUtil.printPlan(desiredPlan);
             return 0;
