@@ -1,0 +1,34 @@
+settings:
+  topics:
+    blacklist:
+      prefixed:
+        - _confluent
+
+topics:
+  test-topic:
+    partitions: 6
+    replication: 3
+    configs:
+      retention.ms: 10000
+
+  docker-connect-configs:
+    partitions: 1
+    replication: 3
+    configs:
+      cleanup.policy: compact
+
+  docker-connect-offsets:
+    partitions: 25
+    replication: 3
+    configs:
+      cleanup.policy: compact
+
+acls:
+  test-service-read-acl:
+    name: aws.streams.test
+    type: TOPIC
+    pattern: LITERAL
+    principal: User:12345
+    host: "*"
+    operation: WRITE
+    permission: ALLOW
