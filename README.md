@@ -16,7 +16,17 @@ This tool also generates the needed ACLs for each type of application. There is 
 
 This tool supports self-hosted Kafka, managed Kafka, and Confluent Cloud clusters.
 
-## Documentation
+## Features
+
+- 🚀  **Built For CI/CD**: Made for CI/CD pipelines to automate the management of topics & ACLs.
+- 🔥  **Configuration as code**: Describe your desired state and manage it from a version-controlled declarative file.
+- 👍  **Easy to use**: Deep knowledge of Kafka administration or ACL management is **NOT** required. 
+- ⚡️️  **Plan & Apply**: Generate and view a plan with or without executing it against your cluster.
+- 💻  **Portable**: Works across self-hosted clusters, managed clusters, and even Confluent Cloud clusters.
+- 🦄  **Idempotency**: Executing the same desired state file on an up-to-date cluster will yield the same result.
+- ☀️  **Continue from failures**: If a specific step fails during an apply, you can fix your desired state and re-run the command. You can execute `kafka-gitops` again without needing to rollback any partial successes.
+
+## Getting Started
 
 Documentation on how to install and use this tool can be found on our [documentation site][documentation].
 
