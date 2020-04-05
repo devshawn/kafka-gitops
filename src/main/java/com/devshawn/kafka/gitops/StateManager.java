@@ -19,6 +19,7 @@ import com.devshawn.kafka.gitops.manager.PlanManager;
 import com.devshawn.kafka.gitops.service.ConfluentCloudService;
 import com.devshawn.kafka.gitops.service.KafkaService;
 import com.devshawn.kafka.gitops.service.ParserService;
+import com.devshawn.kafka.gitops.service.RoleService;
 import com.devshawn.kafka.gitops.util.LogUtil;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -38,6 +39,7 @@ public class StateManager {
     private final ObjectMapper objectMapper;
     private final ParserService parserService;
     private final KafkaService kafkaService;
+    private final RoleService roleService;
     private final ConfluentCloudService confluentCloudService;
 
     private PlanManager planManager;
@@ -49,6 +51,7 @@ public class StateManager {
         this.objectMapper = initializeObjectMapper();
         this.kafkaService = new KafkaService(KafkaGitopsConfigLoader.load());
         this.parserService = parserService;
+        this.roleService = new RoleService();
         this.confluentCloudService = new ConfluentCloudService(objectMapper);
         this.planManager = new PlanManager(managerConfig, kafkaService, objectMapper);
         this.applyManager = new ApplyManager(managerConfig, kafkaService);
@@ -93,11 +96,12 @@ public class StateManager {
         AtomicInteger count = new AtomicInteger();
         if (isConfluentCloudEnabled(desiredStateFile)) {
             desiredStateFile.getServices().forEach((name, service) -> {
-                if (serviceAccounts.stream().noneMatch(it -> it.getName().equals(name))) {
-                    confluentCloudService.createServiceAccount(name);
-                    LogUtil.printSimpleSuccess(String.format("Successfully created service account: %s", name));
-                    count.getAndIncrement();
-                }
+                createServiceAccount(name, serviceAccounts, count);
+            });
+
+            desiredStateFile.getUsers().forEach((name, user) -> {
+                String serviceAccountName = String.format("user-%s", name);
+                createServiceAccount(serviceAccountName, serviceAccounts, count);
             });
         } else {
             throw new ConfluentCloudException("Confluent Cloud must be enabled in the state file to use this command.");
@@ -105,6 +109,14 @@ public class StateManager {
 
         if (count.get() == 0) {
             LogUtil.printSimpleSuccess("No service accounts were created as there are no new service accounts.");
+        }
+    }
+
+    private void createServiceAccount(String name, List<ServiceAccount> serviceAccounts, AtomicInteger count) {
+        if (serviceAccounts.stream().noneMatch(it -> it.getName().equals(name))) {
+            confluentCloudService.createServiceAccount(name);
+            LogUtil.printSimpleSuccess(String.format("Successfully created service account: %s", name));
+            count.getAndIncrement();
         }
     }
 
@@ -116,6 +128,7 @@ public class StateManager {
 
         if (isConfluentCloudEnabled(desiredStateFile)) {
             generateConfluentCloudServiceAcls(desiredState, desiredStateFile);
+            generateConfluentCloudUserAcls(desiredState, desiredStateFile);
         } else {
             generateServiceAcls(desiredState, desiredStateFile);
         }
@@ -144,6 +157,22 @@ public class StateManager {
                     desiredState.putAcls(String.format("%s-%s", name, index.getAndSet(index.get() + 1)), aclDetails.build());
                 });
             }
+        });
+    }
+
+    private void generateConfluentCloudUserAcls(DesiredState.Builder desiredState, DesiredStateFile desiredStateFile) {
+        List<ServiceAccount> serviceAccounts = confluentCloudService.getServiceAccounts();
+        desiredStateFile.getUsers().forEach((name, user) -> {
+            AtomicReference<Integer> index = new AtomicReference<>(0);
+            String serviceAccountName = String.format("user-%s", name);
+
+            Optional<ServiceAccount> serviceAccount = serviceAccounts.stream().filter(it -> it.getName().equals(serviceAccountName)).findFirst();
+            String serviceAccountId = serviceAccount.orElseThrow(() -> new ServiceAccountNotFoundException(serviceAccountName)).getId();
+
+            user.getRoles().forEach(role -> {
+                List<AclDetails.Builder> acls = roleService.getAcls(role, String.format("User:%s", serviceAccountId));
+                acls.forEach(acl -> desiredState.putAcls(String.format("%s-%s", name, index.getAndSet(index.get() + 1)), acl.build()));
+            });
         });
     }
 

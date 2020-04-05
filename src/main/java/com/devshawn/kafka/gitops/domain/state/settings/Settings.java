@@ -13,6 +13,8 @@ public interface Settings {
 
     Optional<SettingsTopics> getTopics();
 
+    Optional<SettingsFiles> getFiles();
+
     class Builder extends Settings_Builder {
     }
 }
