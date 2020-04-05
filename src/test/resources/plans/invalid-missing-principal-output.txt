@@ -1,0 +1,5 @@
+Generating execution plan...
+
+[ERROR] Missing required configuration: Not set: [principal] for service: test-service
+
+[ERROR] An error has occurred during the planning process. No plan was created.

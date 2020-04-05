@@ -1,0 +1,5 @@
+services:
+  test-service:
+    type: application
+    produces:
+      - test-topic
