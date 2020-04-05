@@ -1,0 +1,5 @@
+topics:
+  test-topic:
+    test: invalid
+    partitions: 1
+    replication: 1

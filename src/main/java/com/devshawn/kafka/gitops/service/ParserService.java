@@ -1,6 +1,7 @@
 package com.devshawn.kafka.gitops.service;
 
 import com.devshawn.kafka.gitops.domain.state.DesiredStateFile;
+import com.devshawn.kafka.gitops.domain.state.settings.SettingsFiles;
 import com.devshawn.kafka.gitops.exception.ValidationException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,10 +38,32 @@ public class ParserService {
     }
 
     public DesiredStateFile parseStateFile() {
+        DesiredStateFile desiredStateFile = parseStateFile(file);
+        if (desiredStateFile.getSettings().isPresent() && desiredStateFile.getSettings().get().getFiles().isPresent()) {
+            DesiredStateFile.Builder builder = new DesiredStateFile.Builder().mergeFrom(desiredStateFile);
+            SettingsFiles settingsFiles = desiredStateFile.getSettings().get().getFiles().get();
+            if (settingsFiles.getServices().isPresent()) {
+                DesiredStateFile servicesFile = loadServiceFile(settingsFiles.getServices().get());
+                builder.putAllServices(servicesFile.getServices());
+            }
+            if (settingsFiles.getTopics().isPresent()) {
+                DesiredStateFile topicsFile = loadTopicsFile(settingsFiles.getTopics().get());
+                builder.putAllTopics(topicsFile.getTopics());
+            }
+            if (settingsFiles.getUsers().isPresent()) {
+                DesiredStateFile usersFile = loadUsersFile(settingsFiles.getUsers().get());
+                builder.putAllUsers(usersFile.getUsers());
+            }
+            return builder.build();
+        }
+        return desiredStateFile;
+    }
+
+    public DesiredStateFile parseStateFile(File stateFile) {
         log.info("Parsing desired state file...");
 
         try {
-            return objectMapper.readValue(file, DesiredStateFile.class);
+            return objectMapper.readValue(stateFile, DesiredStateFile.class);
         } catch (ValueInstantiationException ex) {
             List<String> fields = getYamlFields(ex);
             String joinedFields = String.join(" -> ", fields);
@@ -62,6 +86,34 @@ public class ParserService {
         } catch (IOException ex) {
             throw new ValidationException(String.format("Invalid state file. Unknown error: %s", ex.getMessage()));
         }
+    }
+
+    private DesiredStateFile loadServiceFile(String servicesFileName) {
+        File servicesFile = getAdditionalFile(servicesFileName);
+        if (!servicesFile.exists()) {
+            throw new ValidationException(String.format("Services file '%s' could not be found.", servicesFileName));
+        }
+        return parseStateFile(servicesFile);
+    }
+
+    private DesiredStateFile loadTopicsFile(String topicsFileName) {
+        File topicsFile = getAdditionalFile(topicsFileName);
+        if (!topicsFile.exists()) {
+            throw new ValidationException(String.format("Topics file '%s' could not be found.", topicsFileName));
+        }
+        return parseStateFile(topicsFile);
+    }
+
+    private DesiredStateFile loadUsersFile(String usersFileName) {
+        File usersFile = getAdditionalFile(usersFileName);
+        if (!usersFile.exists()) {
+            throw new ValidationException(String.format("Users file '%s' could not be found.", usersFileName));
+        }
+        return parseStateFile(usersFile);
+    }
+
+    private File getAdditionalFile(String fileName) {
+        return new File(Paths.get(file.getAbsoluteFile().getParent(), fileName).toString());
     }
 
     private List<String> getYamlFields(JsonMappingException ex) {

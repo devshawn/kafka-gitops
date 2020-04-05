@@ -117,7 +117,8 @@ class PlanCommandIntegrationSpec extends Specification {
         where:
         planName << [
                 "invalid-missing-principal",
-                "invalid-topic"
+                "invalid-topic",
+                "unrecognized-property"
         ]
     }
 }
