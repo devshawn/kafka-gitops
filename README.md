@@ -1,4 +1,4 @@
-# kafka-dsf
+# kafka-gitops
 
 Manage Apache Kafka topics and ACLs through a desired state file.
 
@@ -8,22 +8,42 @@ Manage Apache Kafka topics and ACLs through a desired state file.
 
 ## Overview
 
-This project allows you to manage Kafka topics and ACLs through use of a desired state file, much like Terraform and similar infrastructure-as-code projects. 
+Kafka GitOps is an Apache Kafka resources-as-code tool which allows you to automate the management of your Apache Kafka topics and ACLs from version controlled code. It allows you to define topics and services through the use of a desired state file, much like Terraform and other infrastructure-as-code tools.
 
-Topics and ACLs get defined in a YAML file. When run, `kafka-dsf` compares your desired state to the actual state of the cluster and generates a plan to execute against the cluster. This will make your topics and ACLs match your desired state.
+Topics and services get defined in a YAML file. When run, `kafka-gitops` compares your desired state to the actual state of the cluster and generates a plan to execute against the cluster. This will make your topics and ACLs match your desired state.
+
+This tool also generates the needed ACLs for each type of application. There is no need to manually create a bunch of ACLs for Kafka Connect, Kafka Streams, etc. By defining your services, `kafka-gitops` will build the necessary ACLs.
+
+This tool supports self-hosted Kafka, managed Kafka, and Confluent Cloud clusters.
+
+## Features
+
+- 🚀  **Built For CI/CD**: Made for CI/CD pipelines to automate the management of topics & ACLs.
+- 🔥  **Configuration as code**: Describe your desired state and manage it from a version-controlled declarative file.
+- 👍  **Easy to use**: Deep knowledge of Kafka administration or ACL management is **NOT** required. 
+- ⚡️️  **Plan & Apply**: Generate and view a plan with or without executing it against your cluster.
+- 💻  **Portable**: Works across self-hosted clusters, managed clusters, and even Confluent Cloud clusters.
+- 🦄  **Idempotency**: Executing the same desired state file on an up-to-date cluster will yield the same result.
+- ☀️  **Continue from failures**: If a specific step fails during an apply, you can fix your desired state and re-run the command. You can execute `kafka-gitops` again without needing to rollback any partial successes.
+
+## Getting Started
+
+Documentation on how to install and use this tool can be found on our [documentation site][documentation].
 
 ## Usage
 
-Run `kafka-dsf` to view the help output.
+Run `kafka-gitops` to view the help output.
 
 ```bash
-Usage: kafka-dsf [-hvV] [-f=<file>] [COMMAND]
+Usage: kafka-gitops [-hvV] [--no-delete] [-f=<file>] [COMMAND]
 Manage Kafka resources with a desired state file.
   -f, --file=<file>   Specify the desired state file.
   -h, --help          Display this help message.
+      --no-delete     Disable the ability to delete resources.
   -v, --verbose       Show more detail during execution.
   -V, --version       Print the current version of this tool.
 Commands:
+  account   Create Confluent Cloud service accounts.
   apply     Apply changes to Kafka resources.
   plan      Generate an execution plan of changes to Kafka resources.
   validate  Validates the desired state file.
@@ -51,7 +71,7 @@ The following configuration is generated:
 
 ## State File
 
-By default, `kafka-dsf` looks for `state.yaml` in the current directory. You can also use `kafka-dsf -f` to pass a file.
+By default, `kafka-gitops` looks for `state.yaml` in the current directory. You can also use `kafka-gitops -f` to pass a file.
 
 An example desired state file:
 
@@ -63,15 +83,13 @@ topics:
     configs:
       cleanup.policy: compact
 
-acls:
-  example-topic-read-acl:
-    name: example-topic
-    type: TOPIC
-    pattern: LITERAL
-    principal: User:super.admin
-    host: "*"
-    operation: WRITE
-    permission: ALLOW
+services:
+  example-service:
+    type: application
+    produces:
+      - example-topic
+    consumes:
+      - example-topic
 ```
 
 ## Contributing
@@ -84,5 +102,6 @@ Copyright (c) 2020 Shawn Seymour.
 
 Licensed under the [Apache 2.0 license][license].
 
+[documentation]: https://kafkagitops.devshawn.com
 [contributing]: ./CONTRIBUTING.md
 [license]: ./LICENSE
