@@ -7,6 +7,7 @@ import com.devshawn.kafka.gitops.domain.state.DesiredState;
 import com.devshawn.kafka.gitops.domain.state.TopicDetails;
 import com.devshawn.kafka.gitops.enums.PlanAction;
 import com.devshawn.kafka.gitops.exception.ReadPlanInputException;
+import com.devshawn.kafka.gitops.exception.WritePlanOutputException;
 import com.devshawn.kafka.gitops.service.KafkaService;
 import com.devshawn.kafka.gitops.util.LogUtil;
 import com.devshawn.kafka.gitops.util.PlanUtil;
@@ -17,6 +18,7 @@ import org.apache.kafka.clients.admin.TopicListing;
 import org.apache.kafka.common.acl.AclBinding;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -182,6 +184,19 @@ public class PlanManager {
             return objectMapper.readValue(managerConfig.getPlanFile().get(), DesiredPlan.class);
         } catch (IOException ex) {
             throw new ReadPlanInputException(ex.getMessage());
+        }
+    }
+
+    public void writePlanToFile(DesiredPlan desiredPlan) {
+        if (managerConfig.getPlanFile().isPresent()) {
+            try {
+                managerConfig.getPlanFile().get().createNewFile();
+                FileWriter writer = new FileWriter(managerConfig.getPlanFile().get());
+                writer.write(objectMapper.writeValueAsString(desiredPlan));
+                writer.close();
+            } catch (IOException ex) {
+                throw new WritePlanOutputException(ex.getMessage());
+            }
         }
     }
 }

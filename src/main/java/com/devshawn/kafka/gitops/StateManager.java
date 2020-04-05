@@ -61,6 +61,7 @@ public class StateManager {
     public DesiredPlan plan() {
         DesiredPlan desiredPlan = generatePlan();
         planManager.validatePlanHasChanges(desiredPlan);
+        planManager.writePlanToFile(desiredPlan);
         return desiredPlan;
     }
 

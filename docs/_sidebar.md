@@ -1,0 +1,7 @@
+- **Getting Started**
+- [Introduction](/documentation.md)
+- [Quick Start](/quick-start.md)
+- [Specification](/specification.md)
+- **Links**
+- [Contributing](https://github.com/devshawn/kafka-gitops/blob/master/CONTRIBUTING.md)
+- [GitHub](https://github.com/devshawn/kafka-gitops)
