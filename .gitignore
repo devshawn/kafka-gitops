@@ -3,5 +3,6 @@
 .gradle/
 build/
 out/
+docker/data/
 state.yaml
 plan.json

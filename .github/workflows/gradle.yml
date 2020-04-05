@@ -2,7 +2,9 @@ name: Java CI
 
 on:
   push:
-    tags-ignore: 
+    branches:
+      - '*'
+    tags-ignore:
       - '*'
 
 jobs:
@@ -16,9 +18,17 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-    
+
+    - name: Start docker compose for integration tests
+      run: docker-compose -f docker/docker-compose.yml up -d
+
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./gradlew build jacocoTestReport
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        file: ./build/reports/jacoco/report.xml
 
     - name: Upload build artifact
       uses: actions/upload-artifact@v1

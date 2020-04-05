@@ -1,0 +1,33 @@
+{
+    "topicPlans": [
+        {
+            "name": "test-topic",
+            "action": "UPDATE",
+            "topicDetails": {
+                "partitions": 1,
+                "replication": 1,
+                "configs": {
+                    "retention.ms": "60000"
+                }
+            },
+            "topicConfigPlans": [
+                {
+                    "key": "retention.ms",
+                    "value": "60000",
+                    "action": "ADD"
+                }
+            ]
+        },
+        {
+            "name": "new-topic",
+            "action": "ADD",
+            "topicDetails": {
+                "partitions": 6,
+                "replication": 1,
+                "configs": {}
+            },
+            "topicConfigPlans": []
+        }
+    ],
+    "aclPlans": []
+}

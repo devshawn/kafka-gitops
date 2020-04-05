@@ -151,7 +151,7 @@ public class StateManager {
         desiredStateFile.getServices().forEach((name, service) -> {
             AtomicReference<Integer> index = new AtomicReference<>(0);
             service.getAcls(name).forEach(aclDetails -> {
-                desiredState.putAcls(String.format("%s-%s", name, index.getAndSet(index.get() + 1)), aclDetails.build());
+                desiredState.putAcls(String.format("%s-%s", name, index.getAndSet(index.get() + 1)), buildAclDetails(name, aclDetails));
             });
 
             if (desiredStateFile.getCustomServiceAcls().containsKey(name)) {
@@ -164,6 +164,14 @@ public class StateManager {
                 });
             }
         });
+    }
+
+    private AclDetails buildAclDetails(String service, AclDetails.Builder aclDetails) {
+        try {
+            return aclDetails.build();
+        } catch (IllegalStateException ex) {
+            throw new MissingConfigurationException(String.format("%s for service: %s", ex.getMessage(), service));
+        }
     }
 
     private List<String> getPrefixedTopicsToIgnore(DesiredStateFile desiredStateFile) {

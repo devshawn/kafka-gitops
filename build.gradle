@@ -3,6 +3,7 @@ plugins {
     id 'groovy'
     id 'application'
     id 'idea'
+    id 'jacoco'
     id 'org.inferred.processors' version '1.2.10'
     id "net.ltgt.apt" version "0.21"
     id 'com.github.johnrengelman.shadow' version '4.0.4'
@@ -37,7 +38,25 @@ dependencies {
     testCompile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.4.4'
     testCompile group: 'org.spockframework', name: 'spock-core', version: '1.0-groovy-2.4'
     testCompile group: 'cglib', name: 'cglib-nodep', version: '2.2'
+    testCompile group: 'com.github.stefanbirkner', name: 'system-rules', version: '1.19.0'
+    testCompile group: 'org.skyscreamer', name: 'jsonassert', version: '1.5.0'
+}
 
+jacocoTestReport {
+    reports {
+        xml.enabled = true
+        html.enabled = true
+        xml.destination "${buildDir}/reports/jacoco/report.xml"
+    }
+
+    afterEvaluate {
+        classDirectories = files(classDirectories.files.collect {
+            fileTree(dir: it,
+                    excludes: [
+                            '**/*_Builder*/**',
+                    ])
+        })
+    }
 }
 
 jar {
