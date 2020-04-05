@@ -1,6 +1,9 @@
 - **Getting Started**
 - [Introduction](/documentation.md)
+- [Installation](/installation.md)
 - [Quick Start](/quick-start.md)
+- [Services](/services.md)
+- [Confluent Cloud](/confluent-cloud.md)
 - [Specification](/specification.md)
 - **Links**
 - [Contributing](https://github.com/devshawn/kafka-gitops/blob/master/CONTRIBUTING.md)

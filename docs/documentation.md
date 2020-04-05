@@ -26,6 +26,16 @@ This tool also generates the needed ACLs for each type of application. There is 
 
 Check out the **[Quick Start](/quick-start.md)** documentation to install `kafka-gitops` and get started.
 
+## Ideology
+
+The idea behind this project is to manage Kafka topics and ACLs through desired state files. These files define what your cluster should look like and `kafka-gitops` modifies your cluster's actual state to match the desired state file. Typically, this looks like:
+
+- State files are stored in version control, such as a git repository.
+- Developers add, change, and remove topics & services from files and open a PR.
+- Operations teams valdiate and merge the PR.
+- A CI/CD pipeline generates a plan using `kafka-gitops`. 
+- A human then validates the plan and applies the changes to the cluster.
+
 ## Contributing
 
 Contributions are very welcome. See [CONTRIBUTING.md][contributing] for details.
