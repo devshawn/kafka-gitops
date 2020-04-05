@@ -23,5 +23,5 @@ jobs:
     - name: Upload build artifact
       uses: actions/upload-artifact@v1
       with:
-        name: kafka-dsf.jar
-        path: build/libs/kafka-dsf-all.jar
+        name: kafka-gitops.jar
+        path: build/libs/kafka-gitops-all.jar

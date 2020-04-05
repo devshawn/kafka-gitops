@@ -26,7 +26,7 @@ jobs:
       - name: Build & Push Docker Image
         uses: mr-smithers-excellent/docker-build-push@v2
         with:
-          image: devshawn/kafka-dsf
+          image: devshawn/kafka-gitops
           tag: ${{ steps.get_version.outputs.VERSION }}
           registry: docker.io
           username: ${{ secrets.DOCKER_USERNAME }}
@@ -50,6 +50,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} 
-          asset_path: ./build/distributions/kafka-dsf.zip
-          asset_name: kafka-dsf.zip
+          asset_path: ./build/distributions/kafka-gitops.zip
+          asset_name: kafka-gitops.zip
           asset_content_type: application/zip

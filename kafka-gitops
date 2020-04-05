@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+if [[ $# -eq 0 ]]
+  then
+    java -jar "$DIR/kafka-gitops-all.jar"
+  else
+    java -jar "$DIR/kafka-gitops-all.jar" "$@"
+fi
