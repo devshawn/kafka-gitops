@@ -1,0 +1,4 @@
+users:
+  john-doe:
+    roles:
+      - operator

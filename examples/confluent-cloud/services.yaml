@@ -1,0 +1,5 @@
+services:
+  my-test-service:
+    type: application
+    consumes:
+      - my-test-topic

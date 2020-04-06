@@ -41,7 +41,7 @@ To use `kafka-gitops` with Confluent Cloud, you'll need to set a few environment
 
 * `KAFKA_BOOTSTRAP_SERVERS`: Your Confluent Cloud cluster URL
 * `KAFKA_SASL_JAAS_USERNAME`: Your Confluent Cloud API key
-* `KAFKA_SASL_JAAS_USERNAME`: Your Confluent Cloud API secret
+* `KAFKA_SASL_JAAS_PASSWORD`: Your Confluent Cloud API secret
 * `KAFKA_SECURITY_PROTOCOL`: `SASL_SSL`
 * `KAFKA_SASL_MECHANISM`: `PLAIN`
 * `KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM`: `HTTPS`
