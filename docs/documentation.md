@@ -1,6 +1,6 @@
 <div align="center">
     <h1>GitOps for Apache Kafka</h1>
-    <img src="https://i.imgur.com/eAIAv0w.png"/>
+    <img src="https://i.imgur.com/jnDwYp8.png"/>
     <span>Manage Apache Kafka topics, services, and ACLs through a desired state file.</span>
 </div>
 

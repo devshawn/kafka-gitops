@@ -3,7 +3,7 @@
 Manage Apache Kafka topics and ACLs through a desired state file.
 
 <p align="center">
-    <img src="https://i.imgur.com/eAIAv0w.png"/>
+    <img src="https://i.imgur.com/jnDwYp8.png"/>
 </p>
 
 ## Overview
