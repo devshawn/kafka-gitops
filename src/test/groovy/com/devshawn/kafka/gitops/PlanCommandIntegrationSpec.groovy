@@ -54,7 +54,8 @@ class PlanCommandIntegrationSpec extends Specification {
                 "application-service",
                 "kafka-connect-service",
                 "kafka-streams-service",
-                "topics-and-services"
+                "topics-and-services",
+                "multi-file"
         ]
     }
 
@@ -118,7 +119,31 @@ class PlanCommandIntegrationSpec extends Specification {
         planName << [
                 "invalid-missing-principal",
                 "invalid-topic",
-                "unrecognized-property"
+                "unrecognized-property",
+                "invalid-format"
         ]
+    }
+
+    void 'test file that does not exist - #planName'() {
+        setup:
+        ByteArrayOutputStream err = new ByteArrayOutputStream()
+        ByteArrayOutputStream out = new ByteArrayOutputStream()
+        PrintStream oldErr = System.err
+        PrintStream oldOut = System.out
+        System.setErr(new PrintStream(err))
+        System.setOut(new PrintStream(out))
+        MainCommand mainCommand = new MainCommand()
+        CommandLine cmd = new CommandLine(mainCommand)
+
+        when:
+        int exitCode = cmd.execute("-f", "null", "plan")
+
+        then:
+        exitCode == 2
+        out.toString() == TestUtils.getResourceFileContent("plans/null-file-output.txt")
+
+        cleanup:
+        System.setErr(oldErr)
+        System.setOut(oldOut)
     }
 }

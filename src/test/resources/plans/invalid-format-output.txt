@@ -1,0 +1,3 @@
+Generating execution plan...
+
+[INVALID] Value 'a' is not a valid format for: [partitions] in state file definition: topics -> test-topic

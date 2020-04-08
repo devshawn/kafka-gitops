@@ -43,15 +43,15 @@ public class ParserService {
             DesiredStateFile.Builder builder = new DesiredStateFile.Builder().mergeFrom(desiredStateFile);
             SettingsFiles settingsFiles = desiredStateFile.getSettings().get().getFiles().get();
             if (settingsFiles.getServices().isPresent()) {
-                DesiredStateFile servicesFile = loadServiceFile(settingsFiles.getServices().get());
+                DesiredStateFile servicesFile = loadExternalFile(settingsFiles.getServices().get(), "Services");
                 builder.putAllServices(servicesFile.getServices());
             }
             if (settingsFiles.getTopics().isPresent()) {
-                DesiredStateFile topicsFile = loadTopicsFile(settingsFiles.getTopics().get());
+                DesiredStateFile topicsFile = loadExternalFile(settingsFiles.getTopics().get(), "Topics");
                 builder.putAllTopics(topicsFile.getTopics());
             }
             if (settingsFiles.getUsers().isPresent()) {
-                DesiredStateFile usersFile = loadUsersFile(settingsFiles.getUsers().get());
+                DesiredStateFile usersFile = loadExternalFile(settingsFiles.getUsers().get(), "Users");
                 builder.putAllUsers(usersFile.getUsers());
             }
             return builder.build();
@@ -88,28 +88,12 @@ public class ParserService {
         }
     }
 
-    private DesiredStateFile loadServiceFile(String servicesFileName) {
-        File servicesFile = getAdditionalFile(servicesFileName);
-        if (!servicesFile.exists()) {
-            throw new ValidationException(String.format("Services file '%s' could not be found.", servicesFileName));
+    private DesiredStateFile loadExternalFile(String fileName, String type) {
+        File externalFile = getAdditionalFile(fileName);
+        if (!externalFile.exists()) {
+            throw new ValidationException(String.format("%s file '%s' could not be found.", type, fileName));
         }
-        return parseStateFile(servicesFile);
-    }
-
-    private DesiredStateFile loadTopicsFile(String topicsFileName) {
-        File topicsFile = getAdditionalFile(topicsFileName);
-        if (!topicsFile.exists()) {
-            throw new ValidationException(String.format("Topics file '%s' could not be found.", topicsFileName));
-        }
-        return parseStateFile(topicsFile);
-    }
-
-    private DesiredStateFile loadUsersFile(String usersFileName) {
-        File usersFile = getAdditionalFile(usersFileName);
-        if (!usersFile.exists()) {
-            throw new ValidationException(String.format("Users file '%s' could not be found.", usersFileName));
-        }
-        return parseStateFile(usersFile);
+        return parseStateFile(externalFile);
     }
 
     private File getAdditionalFile(String fileName) {

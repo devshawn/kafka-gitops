@@ -1,0 +1,8 @@
+services:
+  test-service:
+    type: application
+    principal: User:test
+    produces:
+      - test-topic
+    consumes:
+      - another-test-topic

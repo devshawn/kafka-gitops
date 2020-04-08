@@ -1,0 +1,8 @@
+version: "2"
+checks:
+  method-count:
+    config:
+      threshold: 40
+  similar-code:
+    config:
+      threshold: 60
