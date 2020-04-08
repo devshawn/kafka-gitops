@@ -1,6 +1,6 @@
 # kafka-gitops
 
-![Java CI](https://github.com/devshawn/kafka-gitops/workflows/Java%20CI/badge.svg) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+![Java CI](https://github.com/devshawn/kafka-gitops/workflows/Java%20CI/badge.svg) [![Maintainability](https://api.codeclimate.com/v1/badges/373371aac3f69c292031/maintainability)](https://codeclimate.com/github/devshawn/kafka-gitops/maintainability) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
 Manage Apache Kafka topics and ACLs through a desired state file.
 

@@ -36,17 +36,14 @@ public class PlanCommand implements Callable<Integer> {
             return 0;
         } catch (MissingConfigurationException ex) {
             LogUtil.printGenericError(ex);
-            return 2;
         } catch (ValidationException ex) {
             LogUtil.printValidationResult(ex.getMessage(), false);
-            return 2;
         } catch (KafkaExecutionException ex) {
             LogUtil.printKafkaExecutionError(ex);
-            return 2;
         } catch (WritePlanOutputException ex) {
             LogUtil.printPlanOutputError(ex);
-            return 2;
         }
+        return 2;
     }
 
     private ManagerConfig generateStateManagerConfig() {

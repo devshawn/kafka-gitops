@@ -28,8 +28,8 @@ public class ValidateCommand implements Callable<Integer> {
             return 0;
         } catch (ValidationException ex) {
             LogUtil.printValidationResult(ex.getMessage(), false);
-            return 2;
         }
+        return 2;
     }
 
     private ManagerConfig generateStateManagerConfig() {
