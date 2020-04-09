@@ -1,3 +1,0 @@
-Generating execution plan...
-
-[ERROR] Error writing execution plan to file: Read-only file system
