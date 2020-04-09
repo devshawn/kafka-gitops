@@ -22,11 +22,8 @@ jobs:
     - name: Start docker compose for integration tests
       run: docker-compose -f docker/docker-compose.yml up -d
 
-    - name: Make test file unwriteable
-      run: touch /test.json && chmod 004 /test.json
-
     - name: Build with Gradle
-      run: ./gradlew build jacocoTestReport
+      run: ./gradlew --info build jacocoTestReport
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
