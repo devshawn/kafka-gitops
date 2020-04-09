@@ -44,4 +44,45 @@ class ApplyCommandIntegrationSpec extends Specification {
         ]
     }
 
+    void 'test reading missing file throws ReadPlanInputException'() {
+        setup:
+        ByteArrayOutputStream out = new ByteArrayOutputStream()
+        PrintStream oldOut = System.out
+        System.setOut(new PrintStream(out))
+        MainCommand mainCommand = new MainCommand()
+        CommandLine cmd = new CommandLine(mainCommand)
+        String file = TestUtils.getResourceFilePath("plans/simple.yaml")
+
+        when:
+        int exitCode = cmd.execute("-f", file, "apply", "-p", "null")
+
+        then:
+        exitCode == 2
+        out.toString() == TestUtils.getResourceFileContent("plans/read-input-exception-output.txt")
+
+        cleanup:
+        System.setOut(oldOut)
+    }
+
+    void 'test reading invalid file throws ReadPlanInputException'() {
+        setup:
+        ByteArrayOutputStream out = new ByteArrayOutputStream()
+        PrintStream oldOut = System.out
+        System.setOut(new PrintStream(out))
+        MainCommand mainCommand = new MainCommand()
+        CommandLine cmd = new CommandLine(mainCommand)
+        String file = TestUtils.getResourceFilePath("plans/simple.yaml")
+        String planFile = TestUtils.getResourceFilePath("plans/invalid-plan.json")
+
+        when:
+        int exitCode = cmd.execute("-f", file, "apply", "-p", planFile)
+
+        then:
+        exitCode == 2
+        out.toString() == TestUtils.getResourceFileContent("plans/invalid-plan-output.txt")
+
+        cleanup:
+        System.setOut(oldOut)
+    }
+
 }

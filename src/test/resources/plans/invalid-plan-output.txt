@@ -1,0 +1,8 @@
+Executing apply...
+
+[ERROR] Error reading execution plan from file: Cannot deserialize instance of `java.util.ArrayList<com.devshawn.kafka.gitops.domain.plan.TopicPlan>` out of START_OBJECT token
+ at [Source: (File); line: 2, column: 19] (through reference chain: com.devshawn.kafka.gitops.domain.plan.DesiredPlan$Builder["topicPlans"])
+
+[ERROR] An error has occurred during the apply process.
+[ERROR] The apply process has stopped in place. There is no rollback.
+[ERROR] Fix the error, re-create a plan, and apply the new plan to continue.

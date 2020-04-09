@@ -146,4 +146,24 @@ class PlanCommandIntegrationSpec extends Specification {
         System.setErr(oldErr)
         System.setOut(oldOut)
     }
+
+    void 'test writing file throws a WritePlanOutputException'() {
+        setup:
+        ByteArrayOutputStream out = new ByteArrayOutputStream()
+        PrintStream oldOut = System.out
+        System.setOut(new PrintStream(out))
+        MainCommand mainCommand = new MainCommand()
+        CommandLine cmd = new CommandLine(mainCommand)
+        String file = TestUtils.getResourceFilePath("plans/simple.yaml")
+
+        when:
+        int exitCode = cmd.execute("-f", file, "plan", "-o", "/test.json")
+
+        then:
+        exitCode == 2
+        out.toString() == TestUtils.getResourceFileContent("plans/write-exception-output.txt")
+
+        cleanup:
+        System.setOut(oldOut)
+    }
 }

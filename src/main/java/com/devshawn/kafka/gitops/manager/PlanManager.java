@@ -176,7 +176,7 @@ public class PlanManager {
     }
 
     public DesiredPlan readPlanFromFile() {
-        if (!managerConfig.getPlanFile().isPresent() || !managerConfig.getPlanFile().get().exists()) {
+        if (!managerConfig.getPlanFile().isPresent()) {
             return null;
         }
 
