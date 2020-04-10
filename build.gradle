@@ -68,9 +68,13 @@ jar {
     }
 }
 
-task buildRelease(type: Zip, group: "build") {
-    from("$buildDir/libs")
-    from("./kafka-gitops")
+task buildExecutableJar(type: Exec) {
+    commandLine "bash", "build.sh"
 }
 
-buildRelease.dependsOn shadowJar
+task buildRelease(type: Zip, group: "build") {
+    from("$buildDir/output")
+}
+
+buildRelease.dependsOn buildExecutableJar
+buildExecutableJar.dependsOn shadowJar

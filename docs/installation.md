@@ -4,7 +4,7 @@ Installing `kafka-gitops` requires either **Java** or **Docker**.
 
 ## Local
 
-Install `kafka-gitops` by downloading the zip file from our [releases][releases] page. Move the `kafka-gitops` file and the `kafka-gitops-all.jar` file to somewhere on your `$PATH`, such as `/usr/local/bin`. 
+Install `kafka-gitops` by downloading the zip file from our [releases][releases] page. Move the `kafka-gitops` file to somewhere on your `$PATH`, such as `/usr/local/bin`. 
 
 
 Ensure the command is working by running:
