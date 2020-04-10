@@ -9,23 +9,29 @@ import java.util.EnumSet;
 
 public class PlanUtil {
 
-    public static PlanOverview getOverview(DesiredPlan desiredPlan) {
+    public static PlanOverview getOverview(DesiredPlan desiredPlan, boolean deleteDisabled) {
         EnumMap<PlanAction, Long> map = getPlanActionMap();
-        desiredPlan.getTopicPlans().forEach(it -> map.put(it.getAction(), map.get(it.getAction()) + 1));
-        desiredPlan.getAclPlans().forEach(it -> map.put(it.getAction(), map.get(it.getAction()) + 1));
+        desiredPlan.getTopicPlans().forEach(it -> addToMap(map, it.getAction(), deleteDisabled));
+        desiredPlan.getAclPlans().forEach(it -> addToMap(map, it.getAction(), deleteDisabled));
         return buildPlanOverview(map);
     }
 
-    public static PlanOverview getTopicPlanOverview(DesiredPlan desiredPlan) {
+    public static PlanOverview getTopicPlanOverview(DesiredPlan desiredPlan, boolean deleteDisabled) {
         EnumMap<PlanAction, Long> map = getPlanActionMap();
-        desiredPlan.getTopicPlans().forEach(it -> map.put(it.getAction(), map.get(it.getAction()) + 1));
+        desiredPlan.getTopicPlans().forEach(it -> addToMap(map, it.getAction(), deleteDisabled));
         return buildPlanOverview(map);
     }
 
-    public static PlanOverview getAclPlanOverview(DesiredPlan desiredPlan) {
+    public static PlanOverview getAclPlanOverview(DesiredPlan desiredPlan, boolean deleteDisabled) {
         EnumMap<PlanAction, Long> map = getPlanActionMap();
-        desiredPlan.getAclPlans().forEach(it -> map.put(it.getAction(), map.get(it.getAction()) + 1));
+        desiredPlan.getAclPlans().forEach(it -> addToMap(map, it.getAction(), deleteDisabled));
         return buildPlanOverview(map);
+    }
+
+    private static void addToMap(EnumMap<PlanAction, Long> map, PlanAction planAction, boolean deleteDisabled) {
+        if (!(deleteDisabled && planAction == PlanAction.REMOVE)) {
+            map.put(planAction, map.get(planAction) + 1);
+        }
     }
 
     private static EnumMap<PlanAction, Long> getPlanActionMap() {

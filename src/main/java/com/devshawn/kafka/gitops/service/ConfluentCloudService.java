@@ -1,6 +1,5 @@
 package com.devshawn.kafka.gitops.service;
 
-import com.devshawn.kafka.gitops.config.KafkaGitopsConfigLoader;
 import com.devshawn.kafka.gitops.domain.confluent.ServiceAccount;
 import com.devshawn.kafka.gitops.exception.ConfluentCloudException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -12,7 +11,7 @@ import java.util.List;
 
 public class ConfluentCloudService {
 
-    private static org.slf4j.Logger log = LoggerFactory.getLogger(KafkaGitopsConfigLoader.class);
+    private static org.slf4j.Logger log = LoggerFactory.getLogger(ConfluentCloudService.class);
 
     private final ObjectMapper objectMapper;
 
@@ -21,7 +20,7 @@ public class ConfluentCloudService {
     }
 
     public List<ServiceAccount> getServiceAccounts() {
-        log.info("Test");
+        log.info("Fetching service account list from Confluent Cloud via ccloud tool.");
         try {
             String result = execCmd(new String[]{"ccloud", "service-account", "list", "-o", "json"});
             return objectMapper.readValue(result, new TypeReference<List<ServiceAccount>>() {
@@ -32,6 +31,7 @@ public class ConfluentCloudService {
     }
 
     public ServiceAccount createServiceAccount(String name) {
+        log.info("Creating service account {} in Confluent Cloud via ccloud tool.", name);
         try {
             String description = String.format("Service account: %s", name);
             String result = execCmd(new String[]{"ccloud", "service-account", "create", name, "--description", description, "-o", "json"});

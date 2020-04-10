@@ -1,0 +1,19 @@
+topics:
+  test-topic:
+    partitions: 1
+    replication: 1
+    configs:
+      retention.ms: 60000
+
+  topic-with-configs-1:
+    partitions: 3
+    replication: 1
+    configs:
+      retention.ms: 100000
+
+services:
+  test-service:
+    principal: "User:test"
+    type: application
+    consumes:
+      - test-topic

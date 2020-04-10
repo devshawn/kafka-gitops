@@ -167,8 +167,8 @@ public class PlanManager {
         });
     }
 
-    public void validatePlanHasChanges(DesiredPlan desiredPlan) {
-        PlanOverview planOverview = PlanUtil.getOverview(desiredPlan);
+    public void validatePlanHasChanges(DesiredPlan desiredPlan, boolean deleteDisabled) {
+        PlanOverview planOverview = PlanUtil.getOverview(desiredPlan, deleteDisabled);
         if (planOverview.getAdd() == 0 && planOverview.getUpdate() == 0 && planOverview.getRemove() == 0) {
             LogUtil.printNoChangesMessage();
             System.exit(0);

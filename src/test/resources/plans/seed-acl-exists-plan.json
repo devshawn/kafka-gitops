@@ -1,0 +1,78 @@
+{
+    "topicPlans": [
+        {
+            "name": "test-topic",
+            "action": "UPDATE",
+            "topicDetails": {
+                "partitions": 1,
+                "replication": 1,
+                "configs": {
+                    "retention.ms": "60000"
+                }
+            },
+            "topicConfigPlans": [
+                {
+                    "key": "retention.ms",
+                    "value": "60000",
+                    "action": "ADD"
+                }
+            ]
+        },
+        {
+            "name": "topic-with-configs-1",
+            "action": "UPDATE",
+            "topicDetails": {
+                "partitions": 3,
+                "replication": 1,
+                "configs": {
+                    "retention.ms": "100000"
+                }
+            },
+            "topicConfigPlans": [
+                {
+                    "key": "cleanup.policy",
+                    "value": null,
+                    "action": "REMOVE"
+                },
+                {
+                    "key": "segment.bytes",
+                    "value": null,
+                    "action": "REMOVE"
+                },
+                {
+                    "key": "retention.ms",
+                    "value": "100000",
+                    "action": "ADD"
+                }
+            ]
+        }
+    ],
+    "aclPlans": [
+        {
+            "name": "test-service-0",
+            "aclDetails": {
+                "name": "test-topic",
+                "type": "TOPIC",
+                "pattern": "LITERAL",
+                "principal": "User:test",
+                "host": "*",
+                "operation": "READ",
+                "permission": "ALLOW"
+            },
+            "action": "NO_CHANGE"
+        },
+        {
+            "name": "test-service-1",
+            "aclDetails": {
+                "name": "test-service",
+                "type": "GROUP",
+                "pattern": "LITERAL",
+                "principal": "User:test",
+                "host": "*",
+                "operation": "READ",
+                "permission": "ALLOW"
+            },
+            "action": "ADD"
+        }
+    ]
+}

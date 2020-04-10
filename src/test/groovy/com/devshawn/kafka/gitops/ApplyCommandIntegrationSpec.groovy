@@ -22,11 +22,14 @@ class ApplyCommandIntegrationSpec extends Specification {
     }
 
     void cleanupSpec() {
-        TestUtils.cleanUpCluster()
+//        TestUtils.cleanUpCluster()
     }
 
     void 'test various successful applies - #planFile'() {
         setup:
+        ByteArrayOutputStream out = new ByteArrayOutputStream()
+        PrintStream oldOut = System.out
+        System.setOut(new PrintStream(out))
         String file = TestUtils.getResourceFilePath("plans/${planFile}-plan.json")
         MainCommand mainCommand = new MainCommand()
         CommandLine cmd = new CommandLine(mainCommand)
@@ -36,12 +39,55 @@ class ApplyCommandIntegrationSpec extends Specification {
 
         then:
         exitCode == 0
+        out.toString() == TestUtils.getResourceFileContent("plans/${planFile}-apply-output.txt")
+
+        cleanup:
+        System.setOut(oldOut)
 
         where:
         planFile << [
                 "simple",
-                "application-service"
+                "application-service",
+                "multi-file"
         ]
+    }
+
+    void 'test various valid applies with seed - #planFile #deleteDisabled'() {
+        setup:
+        TestUtils.seedCluster()
+        ByteArrayOutputStream out = new ByteArrayOutputStream()
+        PrintStream oldOut = System.out
+        System.setOut(new PrintStream(out))
+        String file = TestUtils.getResourceFilePath("plans/${planFile}-plan.json")
+        MainCommand mainCommand = new MainCommand()
+        CommandLine cmd = new CommandLine(mainCommand)
+
+        when:
+        int exitCode = -1
+        if (deleteDisabled) {
+            exitCode = cmd.execute("-f", file, "--no-delete", "apply", "-p", file)
+        } else {
+            exitCode = cmd.execute("-f", file, "apply", "-p", file)
+        }
+
+        then:
+        exitCode == 0
+        if (deleteDisabled) {
+            assert out.toString() == TestUtils.getResourceFileContent("plans/${planFile}-no-delete-apply-output.txt")
+        } else {
+            assert out.toString() == TestUtils.getResourceFileContent("plans/${planFile}-apply-output.txt")
+        }
+
+        cleanup:
+        System.setOut(oldOut)
+
+        where:
+        planFile                    | deleteDisabled
+        "seed-topic-modification"   | true
+        "seed-topic-modification"   | false
+        "seed-topic-modification-3" | true
+        "seed-topic-modification-3" | false
+        "seed-acl-exists"           | false
     }
 
     void 'test reading missing file throws ReadPlanInputException'() {

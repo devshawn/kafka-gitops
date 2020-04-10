@@ -10,18 +10,18 @@ import picocli.CommandLine;
 
 public class LogUtil {
 
-    public static void printPlan(DesiredPlan desiredPlan) {
-        PlanOverview planOverview = PlanUtil.getOverview(desiredPlan);
+    public static void printPlan(DesiredPlan desiredPlan, boolean deleteDisabled) {
+        PlanOverview planOverview = PlanUtil.getOverview(desiredPlan, deleteDisabled);
 
         printLegend(planOverview);
 
-        printTopicOverview(desiredPlan);
+        printTopicOverview(desiredPlan, deleteDisabled);
         desiredPlan.getTopicPlans().forEach(LogUtil::printTopicPlan);
 
-        printAclOverview(desiredPlan);
+        printAclOverview(desiredPlan, deleteDisabled);
         desiredPlan.getAclPlans().forEach(LogUtil::printAclPlan);
 
-        printOverview(desiredPlan);
+        printOverview(desiredPlan, deleteDisabled);
     }
 
     public static void printValidationResult(String message, boolean success) {
@@ -121,20 +121,20 @@ public class LogUtil {
      * Helpers
      */
 
-    private static void printOverview(DesiredPlan desiredPlan) {
-        PlanOverview planOverview = PlanUtil.getOverview(desiredPlan);
+    private static void printOverview(DesiredPlan desiredPlan, boolean deleteDisabled) {
+        PlanOverview planOverview = PlanUtil.getOverview(desiredPlan, deleteDisabled);
         System.out.println(String.format("%s: %s, %s, %s.", bold("Plan"), toCreate(planOverview.getAdd()),
                 toUpdate(planOverview.getUpdate()), toDelete(planOverview.getRemove())));
     }
 
-    private static void printTopicOverview(DesiredPlan desiredPlan) {
-        PlanOverview topicPlanOverview = PlanUtil.getTopicPlanOverview(desiredPlan);
+    private static void printTopicOverview(DesiredPlan desiredPlan, boolean deleteDisabled) {
+        PlanOverview topicPlanOverview = PlanUtil.getTopicPlanOverview(desiredPlan, deleteDisabled);
         System.out.println(String.format("Topics: %s, %s, %s.\n", toCreate(topicPlanOverview.getAdd()),
                 toUpdate(topicPlanOverview.getUpdate()), toDelete(topicPlanOverview.getRemove())));
     }
 
-    private static void printAclOverview(DesiredPlan desiredPlan) {
-        PlanOverview aclPlanOverview = PlanUtil.getAclPlanOverview(desiredPlan);
+    private static void printAclOverview(DesiredPlan desiredPlan, boolean deleteDisabled) {
+        PlanOverview aclPlanOverview = PlanUtil.getAclPlanOverview(desiredPlan, deleteDisabled);
         System.out.println(String.format("ACLs: %s, %s, %s.\n", toCreate(aclPlanOverview.getAdd()),
                 toUpdate(aclPlanOverview.getUpdate()), toDelete(aclPlanOverview.getRemove())));
     }

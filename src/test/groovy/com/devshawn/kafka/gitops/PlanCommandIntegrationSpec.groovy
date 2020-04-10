@@ -89,7 +89,10 @@ class PlanCommandIntegrationSpec extends Specification {
         where:
         planName                            | deleteDisabled
         "seed-topic-modification"           | false
+        "seed-topic-modification-2"         | false
+        "seed-topic-modification-3"         | false
         "seed-topic-modification-no-delete" | true
+        "seed-acl-exists"                   | true
     }
 
     void 'test invalid plans - #planName'() {

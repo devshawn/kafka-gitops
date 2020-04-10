@@ -32,7 +32,7 @@ public class PlanCommand implements Callable<Integer> {
             ParserService parserService = new ParserService(parent.getFile());
             StateManager stateManager = new StateManager(generateStateManagerConfig(), parserService);
             DesiredPlan desiredPlan = stateManager.plan();
-            LogUtil.printPlan(desiredPlan);
+            LogUtil.printPlan(desiredPlan, parent.isDeleteDisabled());
             return 0;
         } catch (MissingConfigurationException ex) {
             LogUtil.printGenericError(ex);

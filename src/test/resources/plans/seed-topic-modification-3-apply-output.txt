@@ -1,0 +1,56 @@
+Executing apply...
+
+Applying: [UPDATE]
+
+~ [TOPIC] test-topic
+	+ retention.ms: 60000
+
+
+Successfully applied.
+
+Applying: [CREATE]
+
++ [TOPIC] new-topic
+
+
+Successfully applied.
+
+Applying: [UPDATE]
+
+~ [TOPIC] topic-with-configs-1
+	- segment.bytes
+	+ retention.ms: 100000
+
+
+Successfully applied.
+
+Applying: [UPDATE]
+
+~ [TOPIC] topic-with-configs-2
+	~ retention.ms: 100000
+
+
+Successfully applied.
+
+Applying: [DELETE]
+
+- [TOPIC] delete-topic
+
+
+Successfully applied.
+
+Applying: [DELETE]
+
++ [ACL] Unnamed ACL
+	 + resource_name: test-topic
+	 + resource_type: TOPIC
+	 + resource_pattern: LITERAL
+	 + resource_principal: User:test
+	 + host: *
+	 + operation: READ
+	 + permission: ALLOW
+
+
+Successfully applied.
+
+[SUCCESS] Apply complete! Resources: 1 created, 3 updated, 2 deleted.

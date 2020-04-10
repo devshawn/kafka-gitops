@@ -63,7 +63,7 @@ public class StateManager {
 
     public DesiredPlan plan() {
         DesiredPlan desiredPlan = generatePlan();
-        planManager.validatePlanHasChanges(desiredPlan);
+        planManager.validatePlanHasChanges(desiredPlan, managerConfig.isDeleteDisabled());
         planManager.writePlanToFile(desiredPlan);
         return desiredPlan;
     }
@@ -82,7 +82,7 @@ public class StateManager {
             desiredPlan = generatePlan();
         }
 
-        planManager.validatePlanHasChanges(desiredPlan);
+        planManager.validatePlanHasChanges(desiredPlan, managerConfig.isDeleteDisabled());
 
         applyManager.applyTopics(desiredPlan);
         applyManager.applyAcls(desiredPlan);

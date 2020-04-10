@@ -53,6 +53,7 @@ class TestUtils {
             println "Finished cleaning up cluster"
         } catch (Exception ex) {
             println "Error cleaning up kafka cluster"
+            println ex
         }
 
     }
@@ -64,11 +65,13 @@ class TestUtils {
             AdminClient adminClient = AdminClient.create(getKafkaConfig())
             createTopic("delete-topic", 1, adminClient)
             createTopic("test-topic", 1, adminClient)
+            createTopic("topic-with-configs-1", 3, adminClient, ["cleanup.policy": "compact", "segment.bytes": "100000"])
+            createTopic("topic-with-configs-2", 6, adminClient, ["retention.ms": "60000"])
             createAcl(adminClient)
 
             conditions.eventually {
                 Set<String> newTopics = adminClient.listTopics().names().get()
-                assert newTopics.size() == 2
+                assert newTopics.size() == 4
 
                 List<AclBinding> newAcls = new ArrayList<>(adminClient.describeAcls(getWildcardFilter()).values().get())
                 assert newAcls.size() == 1
@@ -80,7 +83,14 @@ class TestUtils {
     }
 
     static void createTopic(String name, int partitions, AdminClient adminClient) {
+        createTopic(name, partitions, adminClient, null)
+    }
+
+    static void createTopic(String name, int partitions, AdminClient adminClient, Map<String, String> configs) {
         NewTopic newTopic = new NewTopic(name, partitions, (short) 1)
+        if (configs != null) {
+            newTopic.configs(configs)
+        }
         adminClient.createTopics(Collections.singletonList(newTopic)).all().get()
     }
 
