@@ -18,6 +18,7 @@ topics:
 
 services:
   my-application:
+    type: application
     principal: User:myapp
     consumes:
       - test-topic
@@ -47,6 +48,7 @@ topics:
 
 services:
   my-stream:
+    type: kafka-streams
     principal: User:mystream
     consumes:
       - test-topic
@@ -100,6 +102,7 @@ topics:
 
 services:
   my-connect-cluster:
+    type: kafka-connect
     principal: User:mystream
     connectors:
       rabbitmq-sink:
