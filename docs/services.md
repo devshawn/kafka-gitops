@@ -103,7 +103,7 @@ topics:
 services:
   my-connect-cluster:
     type: kafka-connect
-    principal: User:mystream
+    principal: User:myconnectcluster
     connectors:
       rabbitmq-sink:
         consumes:
