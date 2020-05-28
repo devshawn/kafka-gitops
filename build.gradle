@@ -69,7 +69,7 @@ jar {
 }
 
 task buildExecutableJar(type: Exec) {
-    commandLine "bash", "build.sh"
+    commandLine "sh", "build.sh"
 }
 
 task buildRelease(type: Zip, group: "build") {
