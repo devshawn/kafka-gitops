@@ -66,7 +66,7 @@ public class KafkaGitopsConfigLoader {
                 loginModule = "org.apache.kafka.common.security.scram.ScramLoginModule";
             }
             else {
-               throw new MissingConfigurationException("KAFKA_SASL_MECHANISM"); 
+               throw new MissingConfigurationException("KAFKA_SASL_MECHANISM" + config.get("sasl.mechanism")); 
             }
 
             String value = String.format("%s required username=\"%s\" password=\"%s\";",
