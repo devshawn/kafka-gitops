@@ -17,8 +17,8 @@ steps:
     settings:
       tasks:
         - build
-        - test
+        # - test
       # options:
       # - stacktrace
-      # exclude_tasks:
-      # - test
+      exclude_tasks:
+      - test
