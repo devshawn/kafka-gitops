@@ -86,14 +86,14 @@ public class LogUtil {
                 System.out.println("\n");
                 break;
             case REMOVE:
-                System.out.println(red(String.format("+ [ACL] %s", aclPlan.getName())));
-                System.out.println(red(String.format("\t + resource_name: %s", aclDetails.getName())));
-                System.out.println(red(String.format("\t + resource_type: %s", aclDetails.getType())));
-                System.out.println(red(String.format("\t + resource_pattern: %s", aclDetails.getPattern())));
-                System.out.println(red(String.format("\t + resource_principal: %s", aclDetails.getPrincipal())));
-                System.out.println(red(String.format("\t + host: %s", aclDetails.getHost())));
-                System.out.println(red(String.format("\t + operation: %s", aclDetails.getOperation())));
-                System.out.println(red(String.format("\t + permission: %s", aclDetails.getPermission())));
+                System.out.println(red(String.format("- [ACL] %s", aclPlan.getName())));
+                System.out.println(red(String.format("\t - resource_name: %s", aclDetails.getName())));
+                System.out.println(red(String.format("\t - resource_type: %s", aclDetails.getType())));
+                System.out.println(red(String.format("\t - resource_pattern: %s", aclDetails.getPattern())));
+                System.out.println(red(String.format("\t - resource_principal: %s", aclDetails.getPrincipal())));
+                System.out.println(red(String.format("\t - host: %s", aclDetails.getHost())));
+                System.out.println(red(String.format("\t - operation: %s", aclDetails.getOperation())));
+                System.out.println(red(String.format("\t - permission: %s", aclDetails.getPermission())));
                 System.out.println("\n");
                 break;
         }
@@ -152,7 +152,7 @@ public class LogUtil {
         }
 
         if (planOverview.getRemove() > 0) {
-            System.out.println(red("  ~ delete"));
+            System.out.println(red("  - delete"));
         }
         System.out.println("\nThe following actions will be performed:\n");
 
