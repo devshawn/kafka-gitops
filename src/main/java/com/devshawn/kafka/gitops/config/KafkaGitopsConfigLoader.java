@@ -56,8 +56,21 @@ public class KafkaGitopsConfigLoader {
 
     private static void handleAuthentication(AtomicReference<String> username, AtomicReference<String> password, Map<String, Object> config) {
         if (username.get() != null && password.get() != null) {
-            String value = String.format("org.apache.kafka.common.security.plain.PlainLoginModule required username=\"%s\" password=\"%s\";",
-                    username.get(), password.get());
+            
+            // Do we need the Plain or SCRAM module?
+            String loginModule = null;
+            if (config.get("sasl.mechanism") == "PLAIN") {
+                loginModule = "org.apache.kafka.common.security.plain.PlainLoginModule";
+            }
+            else if (config.get("sasl.mechanism") == "SCRAM-SHA-256") {
+                loginModule = "org.apache.kafka.common.security.scram.ScramLoginModule"
+            }
+            else {
+               throw new MissingConfigurationException("KAFKA_SASL_MECHANISM"); 
+            }
+
+            String value = String.format("%s required username=\"%s\" password=\"%s\";",
+                    loginModule, username.get(), password.get());
             config.put("sasl.jaas.config", value);
         } else if (username.get() != null) {
             throw new MissingConfigurationException("KAFKA_SASL_JAAS_PASSWORD");
