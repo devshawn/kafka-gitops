@@ -17,6 +17,7 @@ steps:
     settings:
       tasks:
         - build
+        - buildExecutableJar
         # - test
       # options:
       # - stacktrace
