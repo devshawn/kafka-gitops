@@ -22,3 +22,16 @@ steps:
       # - stacktrace
       exclude_tasks:
       - test
+
+  - name: deploy
+    depends_on:
+      - build
+    image: plugins/docker
+    settings:
+      repo: supplystack/kafka-gitops
+      tags:
+      - latest
+      username:
+        from_secret: DOCKER_USER
+      password:
+        from_secret: DOCKER_ACCESS_TOKEN
