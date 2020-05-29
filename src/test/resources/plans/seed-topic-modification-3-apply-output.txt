@@ -41,14 +41,14 @@ Successfully applied.
 
 Applying: [DELETE]
 
-+ [ACL] Unnamed ACL
-	 + resource_name: test-topic
-	 + resource_type: TOPIC
-	 + resource_pattern: LITERAL
-	 + resource_principal: User:test
-	 + host: *
-	 + operation: READ
-	 + permission: ALLOW
+- [ACL] Unnamed ACL
+	 - resource_name: test-topic
+	 - resource_type: TOPIC
+	 - resource_pattern: LITERAL
+	 - resource_principal: User:test
+	 - host: *
+	 - operation: READ
+	 - permission: ALLOW
 
 
 Successfully applied.
