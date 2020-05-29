@@ -61,7 +61,7 @@ public class KafkaGitopsConfigLoader {
             String loginModule = null;
             if (config.get(SaslConfigs.SASL_MECHANISM).equals("PLAIN")) {
                 loginModule = "org.apache.kafka.common.security.plain.PlainLoginModule";
-            } else if (config.get(SaslConfigs.SASL_MECHANISM).equals("SCRAM-SHA-256")) {
+            } else if (config.get(SaslConfigs.SASL_MECHANISM).equals("SCRAM-SHA-256") || config.get(SaslConfigs.SASL_MECHANISM).equals("SCRAM-SHA-512")) {
                 loginModule = "org.apache.kafka.common.security.scram.ScramLoginModule";
             } else {
                 throw new MissingConfigurationException("KAFKA_SASL_MECHANISM");
