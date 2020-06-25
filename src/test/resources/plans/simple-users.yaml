@@ -1,0 +1,12 @@
+topics:
+  test-topic:
+    partitions: 6
+    replication: 1
+
+users:
+  test-user:
+    principal: User:test
+    roles:
+      - operator
+      - reader
+      - writer

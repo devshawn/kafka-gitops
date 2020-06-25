@@ -27,7 +27,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -131,6 +135,7 @@ public class StateManager {
             generateConfluentCloudUserAcls(desiredState, desiredStateFile);
         } else {
             generateServiceAcls(desiredState, desiredStateFile);
+            generateUserAcls(desiredState, desiredStateFile);
         }
 
         return desiredState.build();
@@ -173,6 +178,15 @@ public class StateManager {
                 List<AclDetails.Builder> acls = roleService.getAcls(role, String.format("User:%s", serviceAccountId));
                 acls.forEach(acl -> desiredState.putAcls(String.format("%s-%s", name, index.getAndSet(index.get() + 1)), acl.build()));
             });
+
+            if (desiredStateFile.getCustomUserAcls().containsKey(name)) {
+                Map<String, CustomAclDetails> customAcls = desiredStateFile.getCustomUserAcls().get(name);
+                customAcls.forEach((aclName, customAcl) -> {
+                    AclDetails.Builder aclDetails = AclDetails.fromCustomAclDetails(customAcl);
+                    aclDetails.setPrincipal(String.format("User:%s", serviceAccountId));
+                    desiredState.putAcls(String.format("%s-%s", name, index.getAndSet(index.get() + 1)), aclDetails.build());
+                });
+            }
         });
     }
 
@@ -188,7 +202,29 @@ public class StateManager {
                 customAcls.forEach((aclName, customAcl) -> {
                     AclDetails.Builder aclDetails = AclDetails.fromCustomAclDetails(customAcl);
                     aclDetails.setPrincipal(customAcl.getPrincipal().orElseThrow(() ->
-                            new MissingConfigurationException(String.format("Missing principal for custom ACL %s", aclName))));
+                            new MissingConfigurationException(String.format("Missing principal for custom service ACL %s", aclName))));
+                    desiredState.putAcls(String.format("%s-%s", name, index.getAndSet(index.get() + 1)), aclDetails.build());
+                });
+            }
+        });
+    }
+
+    private void generateUserAcls(DesiredState.Builder desiredState, DesiredStateFile desiredStateFile) {
+        desiredStateFile.getUsers().forEach((name, user) -> {
+            AtomicReference<Integer> index = new AtomicReference<>(0);
+            String userPrincipal = user.getPrincipal()
+                    .orElseThrow(() -> new MissingConfigurationException(String.format("Missing principal for user %s", name)));
+
+            user.getRoles().forEach(role -> {
+                List<AclDetails.Builder> acls = roleService.getAcls(role, userPrincipal);
+                acls.forEach(acl -> desiredState.putAcls(String.format("%s-%s", name, index.getAndSet(index.get() + 1)), acl.build()));
+            });
+
+            if (desiredStateFile.getCustomUserAcls().containsKey(name)) {
+                Map<String, CustomAclDetails> customAcls = desiredStateFile.getCustomUserAcls().get(name);
+                customAcls.forEach((aclName, customAcl) -> {
+                    AclDetails.Builder aclDetails = AclDetails.fromCustomAclDetails(customAcl);
+                    aclDetails.setPrincipal(customAcl.getPrincipal().orElse(userPrincipal));
                     desiredState.putAcls(String.format("%s-%s", name, index.getAndSet(index.get() + 1)), aclDetails.build());
                 });
             }

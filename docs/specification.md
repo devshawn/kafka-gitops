@@ -9,7 +9,9 @@ The desired state file consists of:
 - **Settings** [Optional]: Specific settings for configuring `kafka-gitops`.
 - **Topics** [Optional]: Topics and topic configuration definitions.
 - **Services** [Optional]: Service definitions for generating ACLs.
+- **Users** [Optional]: User definitions for generating ACLs.
 - **Custom Service ACLs** [Optional]: Definitions for custom, non-generated ACLs.
+- **Custom User ACLs** [Optional]: Definitions for custom, non-generated ACLs.
 
 ## Settings
 
@@ -114,6 +116,31 @@ services:
 
 Under the cover, `kafka-gitops` generates ACLs based on these definitions.
 
+## Users
+
+**Synopsis**: Define the users that will utilize your Kafka cluster. These user definitions allow `kafka-gitops` to generate ACLs for you. Yay!
+
+?> **NOTE**: If using Confluent Cloud, users are service accounts that are prefixed with `user-`.
+
+```yaml
+users:
+  my-user:
+    principal: User:my-user
+    roles:
+      - writer
+      - reader
+      - operator
+```
+
+Currently, three predefined roles exist:
+
+- **writer**: access to write to all topics
+- **reader**: access to read all topics using any consumer group
+- **operator**: access to view topics, topic configs, and to read topics and move their offsets
+
+Outside of these very simple roles, you can define custom ACLs per-user by using the `customUserAcls` block.
+
+
 ## Custom Service ACLs
 
 **Synopsis**: Define custom ACLs for a specific service. 
@@ -130,7 +157,7 @@ customServiceAcls:
       type: TOPIC
       pattern: PREFIXED
       host: "*"
-      principal: 
+      principal: User:my-test-service
       operation: READ
       permission: ALLOW
     read-all-service:
@@ -138,7 +165,30 @@ customServiceAcls:
       type: TOPIC
       pattern: PREFIXED
       host: "*"
-      principal: 
+      principal: User:my-test-service
       operation: READ
       permission: ALLOW
 ```
+
+## Custom User ACLs
+
+**Synopsis**: Define custom ACLs for a specific user. 
+
+For example, if a specific user needs to produce to all topics prefixed with `kafka.` and `service.`, you may not want to define them all in your desired state file. 
+
+If you have a user `my-test-user` defined, you can define custom ACLs as so:
+
+```yaml
+customUserAcls:
+  my-test-user:
+    read-all-kafka:
+      name: kafka.
+      type: TOPIC
+      pattern: PREFIXED
+      host: "*"
+      operation: READ
+      permission: ALLOW
+```
+
+?> **NOTE**: The `principal` field can be left out here and it will be inherited from the user definition.
+

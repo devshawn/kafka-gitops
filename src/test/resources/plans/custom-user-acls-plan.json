@@ -1,0 +1,18 @@
+{
+    "topicPlans": [],
+    "aclPlans": [
+        {
+            "name": "test-user-0",
+            "aclDetails": {
+                "name": "kafka.",
+                "type": "TOPIC",
+                "pattern": "PREFIXED",
+                "principal": "User:test",
+                "host": "*",
+                "operation": "READ",
+                "permission": "ALLOW"
+            },
+            "action": "ADD"
+        }
+    ]
+}
