@@ -22,6 +22,8 @@ public interface DesiredStateFile {
 
     Map<String, Map<String, CustomAclDetails>> getCustomServiceAcls();
 
+    Map<String, Map<String, CustomAclDetails>> getCustomUserAcls();
+
     class Builder extends DesiredStateFile_Builder {
     }
 }

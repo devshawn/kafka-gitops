@@ -1,0 +1,120 @@
+{
+    "topicPlans": [
+        {
+            "name": "test-topic",
+            "action": "ADD",
+            "topicDetails": {
+                "partitions": 6,
+                "replication": 1,
+                "configs": {}
+            },
+            "topicConfigPlans": []
+        }
+    ],
+    "aclPlans": [
+        {
+            "name": "test-user-0",
+            "aclDetails": {
+                "name": "kafka-cluster",
+                "type": "CLUSTER",
+                "pattern": "LITERAL",
+                "principal": "User:test",
+                "host": "*",
+                "operation": "DESCRIBE",
+                "permission": "ALLOW"
+            },
+            "action": "ADD"
+        },
+        {
+            "name": "test-user-1",
+            "aclDetails": {
+                "name": "*",
+                "type": "TOPIC",
+                "pattern": "LITERAL",
+                "principal": "User:test",
+                "host": "*",
+                "operation": "DESCRIBE",
+                "permission": "ALLOW"
+            },
+            "action": "ADD"
+        },
+        {
+            "name": "test-user-2",
+            "aclDetails": {
+                "name": "*",
+                "type": "TOPIC",
+                "pattern": "LITERAL",
+                "principal": "User:test",
+                "host": "*",
+                "operation": "DESCRIBE_CONFIGS",
+                "permission": "ALLOW"
+            },
+            "action": "ADD"
+        },
+        {
+            "name": "test-user-3",
+            "aclDetails": {
+                "name": "*",
+                "type": "GROUP",
+                "pattern": "LITERAL",
+                "principal": "User:test",
+                "host": "*",
+                "operation": "READ",
+                "permission": "ALLOW"
+            },
+            "action": "ADD"
+        },
+        {
+            "name": "test-user-4",
+            "aclDetails": {
+                "name": "*",
+                "type": "GROUP",
+                "pattern": "LITERAL",
+                "principal": "User:test",
+                "host": "*",
+                "operation": "DESCRIBE",
+                "permission": "ALLOW"
+            },
+            "action": "ADD"
+        },
+        {
+            "name": "test-user-5",
+            "aclDetails": {
+                "name": "*",
+                "type": "TOPIC",
+                "pattern": "LITERAL",
+                "principal": "User:test",
+                "host": "*",
+                "operation": "READ",
+                "permission": "ALLOW"
+            },
+            "action": "ADD"
+        },
+        {
+            "name": "test-user-6",
+            "aclDetails": {
+                "name": "*",
+                "type": "GROUP",
+                "pattern": "LITERAL",
+                "principal": "User:test",
+                "host": "*",
+                "operation": "READ",
+                "permission": "ALLOW"
+            },
+            "action": "ADD"
+        },
+        {
+            "name": "test-user-7",
+            "aclDetails": {
+                "name": "*",
+                "type": "TOPIC",
+                "pattern": "LITERAL",
+                "principal": "User:test",
+                "host": "*",
+                "operation": "WRITE",
+                "permission": "ALLOW"
+            },
+            "action": "ADD"
+        }
+    ]
+}

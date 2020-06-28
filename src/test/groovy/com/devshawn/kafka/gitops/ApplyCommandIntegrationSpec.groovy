@@ -48,7 +48,10 @@ class ApplyCommandIntegrationSpec extends Specification {
         planFile << [
                 "simple",
                 "application-service",
-                "multi-file"
+                "multi-file",
+                "simple-users",
+                "custom-service-acls",
+                "custom-user-acls"
         ]
     }
 

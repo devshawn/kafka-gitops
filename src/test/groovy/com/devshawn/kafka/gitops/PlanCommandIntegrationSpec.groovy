@@ -55,7 +55,10 @@ class PlanCommandIntegrationSpec extends Specification {
                 "kafka-connect-service",
                 "kafka-streams-service",
                 "topics-and-services",
-                "multi-file"
+                "multi-file",
+                "simple-users",
+                "custom-service-acls",
+                "custom-user-acls"
         ]
     }
 
@@ -123,7 +126,8 @@ class PlanCommandIntegrationSpec extends Specification {
                 "invalid-missing-principal",
                 "invalid-topic",
                 "unrecognized-property",
-                "invalid-format"
+                "invalid-format",
+                "invalid-missing-user-principal"
         ]
     }
 
