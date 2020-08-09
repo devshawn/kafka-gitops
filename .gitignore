@@ -6,3 +6,4 @@ out/
 docker/data/
 state.yaml
 plan.json
+test.py

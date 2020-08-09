@@ -6,20 +6,22 @@ import com.devshawn.kafka.gitops.domain.state.AclDetails;
 import com.devshawn.kafka.gitops.domain.state.DesiredState;
 import com.devshawn.kafka.gitops.domain.state.TopicDetails;
 import com.devshawn.kafka.gitops.enums.PlanAction;
+import com.devshawn.kafka.gitops.exception.PlanIsUpToDateException;
 import com.devshawn.kafka.gitops.exception.ReadPlanInputException;
 import com.devshawn.kafka.gitops.exception.WritePlanOutputException;
 import com.devshawn.kafka.gitops.service.KafkaService;
-import com.devshawn.kafka.gitops.util.LogUtil;
 import com.devshawn.kafka.gitops.util.PlanUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.kafka.clients.admin.Config;
 import org.apache.kafka.clients.admin.ConfigEntry;
-import org.apache.kafka.clients.admin.TopicDescription;
 import org.apache.kafka.clients.admin.TopicListing;
 import org.apache.kafka.common.acl.AclBinding;
+import org.apache.kafka.common.config.ConfigResource;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,21 +43,21 @@ public class PlanManager {
 
     public void planTopics(DesiredState desiredState, DesiredPlan.Builder desiredPlan) {
         List<TopicListing> topics = kafkaService.getTopics();
+        List<String> topicNames = topics.stream().map(TopicListing::name).collect(Collectors.toList());
+        Map<String, List<ConfigEntry>> topicConfigs = fetchTopicConfigurations(topicNames);
 
         desiredState.getTopics().forEach((key, value) -> {
             TopicPlan.Builder topicPlan = new TopicPlan.Builder()
                     .setName(key)
                     .setTopicDetails(value);
 
-            TopicDescription topicDescription = kafkaService.describeTopic(key);
-
-            if (topicDescription == null) {
+            if (!topicNames.contains(key)) {
                 log.info("[PLAN] Topic {} does not exist; it will be created.", key);
                 topicPlan.setAction(PlanAction.ADD);
             } else {
                 log.info("[PLAN] Topic {} exists, it will not be created.", key);
                 topicPlan.setAction(PlanAction.NO_CHANGE);
-                planTopicConfigurations(key, value, topicPlan);
+                planTopicConfigurations(key, value, topicConfigs.get(key), topicPlan);
             }
 
             desiredPlan.addTopicPlans(topicPlan.build());
@@ -79,10 +81,9 @@ public class PlanManager {
         });
     }
 
-    private void planTopicConfigurations(String topicName, TopicDetails topicDetails, TopicPlan.Builder topicPlan) {
+    private void planTopicConfigurations(String topicName, TopicDetails topicDetails, List<ConfigEntry> configs, TopicPlan.Builder topicPlan) {
         Map<String, TopicConfigPlan> configPlans = new HashMap<>();
-        List<ConfigEntry> currentConfigs = kafkaService.describeTopicConfigs(topicName);
-        List<ConfigEntry> customConfigs = currentConfigs.stream()
+        List<ConfigEntry> customConfigs = configs.stream()
                 .filter(it -> it.source() == ConfigEntry.ConfigSource.DYNAMIC_TOPIC_CONFIG)
                 .collect(Collectors.toList());
 
@@ -170,8 +171,7 @@ public class PlanManager {
     public void validatePlanHasChanges(DesiredPlan desiredPlan, boolean deleteDisabled) {
         PlanOverview planOverview = PlanUtil.getOverview(desiredPlan, deleteDisabled);
         if (planOverview.getAdd() == 0 && planOverview.getUpdate() == 0 && planOverview.getRemove() == 0) {
-            LogUtil.printNoChangesMessage();
-            System.exit(0);
+            throw new PlanIsUpToDateException();
         }
     }
 
@@ -198,5 +198,12 @@ public class PlanManager {
                 throw new WritePlanOutputException(ex.getMessage());
             }
         }
+    }
+
+    private Map<String, List<ConfigEntry>> fetchTopicConfigurations(List<String> topicNames) {
+        Map<String, List<ConfigEntry>> map = new HashMap<>();
+        Map<ConfigResource, Config> configs = kafkaService.describeConfigsForTopics(topicNames);
+        configs.forEach((key, value) -> map.put(key.name(), new ArrayList<ConfigEntry>(value.entries())));
+        return map;
     }
 }

@@ -14,6 +14,7 @@ import org.apache.kafka.common.resource.ResourceType;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 public class KafkaService {
 
@@ -76,18 +77,6 @@ public class KafkaService {
         }
     }
 
-    public TopicDescription describeTopic(String topicName) {
-        try (final AdminClient adminClient = buildAdminClient()) {
-            Map<String, TopicDescription> topics = adminClient.describeTopics(Collections.singletonList(topicName)).all().get();
-            return topics.get(topicName);
-        } catch (InterruptedException | ExecutionException ex) {
-            if (!(ex.getCause() instanceof UnknownTopicOrPartitionException)) {
-                throw new KafkaExecutionException("Error thrown when attempting to describe a Kafka topic", ex.getMessage());
-            }
-        }
-        return null;
-    }
-
     public List<TopicListing> getTopics() {
         try (final AdminClient adminClient = buildAdminClient()) {
             Collection<TopicListing> topics = adminClient.listTopics().listings().get();
@@ -97,11 +86,10 @@ public class KafkaService {
         }
     }
 
-    public List<ConfigEntry> describeTopicConfigs(String topicName) {
+    public Map<ConfigResource, Config> describeConfigsForTopics(List<String> topicNames) {
         try (final AdminClient adminClient = buildAdminClient()) {
-            ConfigResource resource = new ConfigResource(ConfigResource.Type.TOPIC, topicName);
-            Config config = adminClient.describeConfigs(Collections.singletonList(resource)).all().get().get(resource);
-            return new ArrayList<>(config.entries());
+            List<ConfigResource> resources = topicNames.stream().map(it -> new ConfigResource(ConfigResource.Type.TOPIC, it)).collect(Collectors.toList());
+            return adminClient.describeConfigs(resources).all().get();
         } catch (InterruptedException | ExecutionException ex) {
             throw new KafkaExecutionException("Error thrown when attempting to describe a Kafka topic configuration", ex.getMessage());
         }

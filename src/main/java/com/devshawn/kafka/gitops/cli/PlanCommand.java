@@ -4,10 +4,7 @@ import com.devshawn.kafka.gitops.MainCommand;
 import com.devshawn.kafka.gitops.StateManager;
 import com.devshawn.kafka.gitops.config.ManagerConfig;
 import com.devshawn.kafka.gitops.domain.plan.DesiredPlan;
-import com.devshawn.kafka.gitops.exception.KafkaExecutionException;
-import com.devshawn.kafka.gitops.exception.MissingConfigurationException;
-import com.devshawn.kafka.gitops.exception.ValidationException;
-import com.devshawn.kafka.gitops.exception.WritePlanOutputException;
+import com.devshawn.kafka.gitops.exception.*;
 import com.devshawn.kafka.gitops.service.ParserService;
 import com.devshawn.kafka.gitops.util.LogUtil;
 import picocli.CommandLine;
@@ -27,12 +24,19 @@ public class PlanCommand implements Callable<Integer> {
 
     @Override
     public Integer call() {
+        long start = System.currentTimeMillis();
+
         try {
             System.out.println("Generating execution plan...\n");
             ParserService parserService = new ParserService(parent.getFile());
             StateManager stateManager = new StateManager(generateStateManagerConfig(), parserService);
             DesiredPlan desiredPlan = stateManager.plan();
             LogUtil.printPlan(desiredPlan, parent.isDeleteDisabled());
+            System.out.println(String.format("Total time: %sms", System.currentTimeMillis() - start));
+            return 0;
+        } catch (PlanIsUpToDateException ex) {
+            LogUtil.printNoChangesMessage();
+            System.out.println(String.format("Total time: %sms", System.currentTimeMillis() - start));
             return 0;
         } catch (MissingConfigurationException ex) {
             LogUtil.printGenericError(ex);
