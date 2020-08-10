@@ -173,4 +173,29 @@ class PlanCommandIntegrationSpec extends Specification {
         cleanup:
         System.setOut(oldOut)
     }
+
+    void 'test plan that has no changes'() {
+        setup:
+        TestUtils.cleanUpCluster()
+        TestUtils.seedCluster()
+        ByteArrayOutputStream out = new ByteArrayOutputStream()
+        PrintStream oldOut = System.out
+        System.setOut(new PrintStream(out))
+        String file = TestUtils.getResourceFilePath("plans/${planName}.yaml")
+        MainCommand mainCommand = new MainCommand()
+        CommandLine cmd = new CommandLine(mainCommand)
+
+        when:
+        int exitCode = cmd.execute("-f", file, "plan")
+
+        then:
+        exitCode == 0
+        out.toString() == TestUtils.getResourceFileContent("plans/no-changes-output.txt")
+
+        cleanup:
+        System.setOut(oldOut)
+
+        where:
+        planName << ["no-changes"]
+    }
 }
