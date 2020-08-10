@@ -1,0 +1,37 @@
+topics:
+  delete-topic:
+    partitions: 1
+    replication: 1
+
+  test-topic:
+    partitions: 1
+    replication: 1
+
+  topic-with-configs-1:
+    partitions: 3
+    replication: 1
+    configs:
+      cleanup.policy: compact
+      segment.bytes: 100000
+
+  topic-with-configs-2:
+    partitions: 6
+    replication: 1
+    configs:
+      retention.ms: 60000
+
+services:
+  test-service:
+    principal: "User:test"
+    type: application
+
+customServiceAcls:
+  test-service:
+    read:
+      name: test-topic
+      type: TOPIC
+      pattern: LITERAL
+      host: "*"
+      principal: User:test
+      operation: READ
+      permission: ALLOW
