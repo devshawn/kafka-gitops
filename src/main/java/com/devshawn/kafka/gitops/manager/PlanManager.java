@@ -1,7 +1,11 @@
 package com.devshawn.kafka.gitops.manager;
 
 import com.devshawn.kafka.gitops.config.ManagerConfig;
-import com.devshawn.kafka.gitops.domain.plan.*;
+import com.devshawn.kafka.gitops.domain.plan.AclPlan;
+import com.devshawn.kafka.gitops.domain.plan.DesiredPlan;
+import com.devshawn.kafka.gitops.domain.plan.PlanOverview;
+import com.devshawn.kafka.gitops.domain.plan.TopicConfigPlan;
+import com.devshawn.kafka.gitops.domain.plan.TopicPlan;
 import com.devshawn.kafka.gitops.domain.state.AclDetails;
 import com.devshawn.kafka.gitops.domain.state.DesiredState;
 import com.devshawn.kafka.gitops.domain.state.TopicDetails;
@@ -18,6 +22,7 @@ import org.apache.kafka.clients.admin.TopicListing;
 import org.apache.kafka.common.acl.AclBinding;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
@@ -182,8 +187,10 @@ public class PlanManager {
 
         try {
             return objectMapper.readValue(managerConfig.getPlanFile().get(), DesiredPlan.class);
+        } catch (FileNotFoundException ex) {
+            throw new ReadPlanInputException("The specified plan file could not be found.");
         } catch (IOException ex) {
-            throw new ReadPlanInputException(ex.getMessage());
+            throw new ReadPlanInputException();
         }
     }
 

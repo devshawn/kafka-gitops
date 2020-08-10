@@ -23,7 +23,7 @@ public class ValidateCommand implements Callable<Integer> {
         try {
             ParserService parserService = new ParserService(parent.getFile());
             StateManager stateManager = new StateManager(generateStateManagerConfig(), parserService);
-            stateManager.validate();
+            stateManager.getAndValidateStateFile();
             LogUtil.printValidationResult("Successfully validated the desired state file.", true);
             return 0;
         } catch (ValidationException ex) {

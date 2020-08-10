@@ -4,6 +4,7 @@ import com.devshawn.kafka.gitops.domain.plan.*;
 import com.devshawn.kafka.gitops.domain.state.AclDetails;
 import com.devshawn.kafka.gitops.domain.state.TopicDetails;
 import com.devshawn.kafka.gitops.enums.PlanAction;
+import com.devshawn.kafka.gitops.exception.InvalidAclDefinitionException;
 import com.devshawn.kafka.gitops.exception.KafkaExecutionException;
 import com.devshawn.kafka.gitops.exception.WritePlanOutputException;
 import picocli.CommandLine;

@@ -1,0 +1,1 @@
+[INVALID] Custom ACL definition for user 'my-user' is invalid for field 'permission'. Allowed values: [DENY, ALLOW]

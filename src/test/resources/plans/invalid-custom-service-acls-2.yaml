@@ -1,0 +1,15 @@
+services:
+  other-service:
+    type: application
+    principal: User:test
+
+customServiceAcls:
+  other-service:
+    read-all-kafka:
+      name: kafka.
+      type: TOPIC
+      pattern: PREFIXED
+      host: "*"
+      principal: User:test
+      operation: ANY
+      permission: ALLOW

@@ -1,0 +1,1 @@
+[INVALID] Custom ACL definition for service 'test-service' is invalid for field 'pattern'. Allowed values: [MATCH, LITERAL, PREFIXED]

@@ -12,8 +12,10 @@ import com.devshawn.kafka.gitops.domain.state.DesiredState;
 import com.devshawn.kafka.gitops.domain.state.DesiredStateFile;
 import com.devshawn.kafka.gitops.domain.state.service.KafkaStreamsService;
 import com.devshawn.kafka.gitops.exception.ConfluentCloudException;
+import com.devshawn.kafka.gitops.exception.InvalidAclDefinitionException;
 import com.devshawn.kafka.gitops.exception.MissingConfigurationException;
 import com.devshawn.kafka.gitops.exception.ServiceAccountNotFoundException;
+import com.devshawn.kafka.gitops.exception.ValidationException;
 import com.devshawn.kafka.gitops.manager.ApplyManager;
 import com.devshawn.kafka.gitops.manager.PlanManager;
 import com.devshawn.kafka.gitops.service.ConfluentCloudService;
@@ -61,8 +63,10 @@ public class StateManager {
         this.applyManager = new ApplyManager(managerConfig, kafkaService);
     }
 
-    public void validate() {
-        parserService.parseStateFile();
+    public DesiredStateFile getAndValidateStateFile() {
+        DesiredStateFile desiredStateFile = parserService.parseStateFile();
+        validateCustomAcls(desiredStateFile);
+        return desiredStateFile;
     }
 
     public DesiredPlan plan() {
@@ -125,7 +129,7 @@ public class StateManager {
     }
 
     private DesiredState getDesiredState() {
-        DesiredStateFile desiredStateFile = parserService.parseStateFile();
+        DesiredStateFile desiredStateFile = getAndValidateStateFile();
         DesiredState.Builder desiredState = new DesiredState.Builder()
                 .addAllPrefixedTopicsToIgnore(getPrefixedTopicsToIgnore(desiredStateFile))
                 .putAllTopics(desiredStateFile.getTopics());
@@ -252,6 +256,26 @@ public class StateManager {
             }
         });
         return topics;
+    }
+
+    private void validateCustomAcls(DesiredStateFile desiredStateFile) {
+        desiredStateFile.getCustomServiceAcls().forEach((service, details) -> {
+            try {
+                details.values().forEach(CustomAclDetails::validate);
+            } catch (InvalidAclDefinitionException ex) {
+                String message = String.format("Custom ACL definition for service '%s' is invalid for field '%s'. Allowed values: [%s]", service, ex.getField(), String.join(", ", ex.getAllowedValues()));
+                throw new ValidationException(message);
+            }
+        });
+
+        desiredStateFile.getCustomUserAcls().forEach((service, details) -> {
+            try {
+                details.values().forEach(CustomAclDetails::validate);
+            } catch (InvalidAclDefinitionException ex) {
+                String message = String.format("Custom ACL definition for user '%s' is invalid for field '%s'. Allowed values: [%s]", service, ex.getField(), String.join(", ", ex.getAllowedValues()));
+                throw new ValidationException(message);
+            }
+        });
     }
 
     private boolean isConfluentCloudEnabled(DesiredStateFile desiredStateFile) {
