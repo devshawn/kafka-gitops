@@ -3,9 +3,9 @@ name: Java CI
 on:
   push:
     branches:
-      - '*'
+      - '**'
     tags-ignore:
-      - '*'
+      - '**'
 
 jobs:
   build:
