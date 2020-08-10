@@ -1,0 +1,1 @@
+[INVALID] Custom ACL definition for service 'other-service' is invalid for field 'operation'. Allowed values: [ALL, READ, WRITE, CREATE, DELETE, ALTER, DESCRIBE, CLUSTER_ACTION, DESCRIBE_CONFIGS, ALTER_CONFIGS, IDEMPOTENT_WRITE]

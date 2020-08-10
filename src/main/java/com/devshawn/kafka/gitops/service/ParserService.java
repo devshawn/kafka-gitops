@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
@@ -83,6 +84,8 @@ public class ParserService {
             String message = ex.getCause() != null ? ex.getCause().getMessage().split("\n")[0] : ex.getMessage().split("\n")[0];
             String joinedFields = String.join(" -> ", fields);
             throw new ValidationException(String.format("%s in state file definition: %s", message, joinedFields));
+        } catch (FileNotFoundException ex) {
+            throw new ValidationException("The specified state file could not be found.");
         } catch (IOException ex) {
             throw new ValidationException(String.format("Invalid state file. Unknown error: %s", ex.getMessage()));
         }

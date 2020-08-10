@@ -1,0 +1,13 @@
+users:
+  test-user:
+    principal: User:test
+
+customUserAcls:
+  test-user:
+    read-all-kafka:
+      name: kafka.
+      type: UNKNOWN
+      pattern: PREFIXED
+      host: "*"
+      operation: READ
+      permission: ALLOW

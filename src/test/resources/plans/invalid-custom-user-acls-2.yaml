@@ -1,0 +1,13 @@
+users:
+  my-user:
+    principal: User:test
+
+customUserAcls:
+  my-user:
+    read-all-kafka:
+      name: kafka.
+      type: TOPIC
+      pattern: PREFIXED
+      host: "*"
+      operation: READ
+      permission: NONE

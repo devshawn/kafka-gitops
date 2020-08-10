@@ -1,6 +1,6 @@
 Executing apply...
 
-[ERROR] Error reading execution plan from file: null (No such file or directory)
+[ERROR] Error reading execution plan from file: The specified plan file could not be found.
 
 [ERROR] An error has occurred during the apply process.
 [ERROR] The apply process has stopped in place. There is no rollback.
