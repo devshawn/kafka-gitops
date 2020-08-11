@@ -1,0 +1,11 @@
+settings:
+  ccloud:
+    enabled: true
+  files:
+    topics: topics.yaml
+    services: services.yaml
+    users: users.yaml
+  topics:
+    blacklist:
+      prefixed:
+        - _confluent

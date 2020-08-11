@@ -1,0 +1,56 @@
+users:
+  gitops-user:
+    principal: User:gitops-user
+    roles: []
+
+customUserAcls:
+  gitops-user:
+    alter-cluster:
+      name: kafka-cluster
+      type: CLUSTER
+      pattern: LITERAL
+      host: "*"
+      operation: ALTER
+      permission: ALLOW
+    create-topics:
+      name: "*"
+      type: TOPIC
+      pattern: LITERAL
+      host: "*"
+      operation: CREATE
+      permission: ALLOW
+    alter-topics:
+      name: "*"
+      type: TOPIC
+      pattern: LITERAL
+      host: "*"
+      operation: ALTER
+      permission: ALLOW
+    describe-topics:
+      name: "*"
+      type: TOPIC
+      pattern: LITERAL
+      host: "*"
+      operation: DESCRIBE
+      permission: ALLOW
+    delete-topics:
+      name: "*"
+      type: TOPIC
+      pattern: LITERAL
+      host: "*"
+      operation: DELETE
+      permission: ALLOW
+    describe-topic-configs:
+      name: "*"
+      type: TOPIC
+      pattern: LITERAL
+      host: "*"
+      operation: DESCRIBE_CONFIGS
+      permission: ALLOW
+    alter-topic-configs:
+      name: "*"
+      type: TOPIC
+      pattern: LITERAL
+      host: "*"
+      operation: ALTER_CONFIGS
+      permission: ALLOW
