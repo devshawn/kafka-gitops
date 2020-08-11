@@ -4,6 +4,7 @@
 - [Quick Start](/quick-start.md)
 - [Services](/services.md)
 - [Confluent Cloud](/confluent-cloud.md)
+- [Permissions](/permissions.md)
 - [Specification](/specification.md)
 - **Links**
 - [Contributing](https://github.com/devshawn/kafka-gitops/blob/master/CONTRIBUTING.md)
