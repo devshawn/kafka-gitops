@@ -2,6 +2,15 @@
 
 Installing `kafka-gitops` requires either **Java** or **Docker**.
 
+## Homebrew
+
+Install `kafka-gitops` with homebrew:
+
+```bash
+brew tap devshawn/kafka-gitops
+brew install kafka-gitops
+```
+
 ## Local
 
 Install `kafka-gitops` by downloading the zip file from our [releases][releases] page. Move the `kafka-gitops` file to somewhere on your `$PATH`, such as `/usr/local/bin`. 
