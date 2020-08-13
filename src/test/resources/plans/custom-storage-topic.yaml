@@ -1,0 +1,13 @@
+services:
+  test-connect-cluster:
+    type: kafka-connect
+    principal: User:test
+    storage-topics:
+      config: test-connect-cluster-configs
+    connectors:
+      test-source:
+        produces:
+          - production-topic
+      test-sink:
+        consumes:
+          - consumption-topic
