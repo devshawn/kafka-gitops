@@ -2,7 +2,7 @@
 
 This document describes the specification for how to write your Kafka cluster's desired state file. This currently must be a `YAML` file. 
 
-?> Current version: `1.0.1`
+?> Current version: `1.0.2`
 
 The desired state file consists of:
 
@@ -84,7 +84,7 @@ services:
 
 **Example kafka connect cluster**:
 
-?> **NOTE**: The `group-id` property is optional and defaults to the service name.
+?> **NOTE**: The `group-id` property is optional and defaults to the service name. The `storage-topics` property is also optional; the defaults can be found on the [services][services] page.
 
 ```yaml
 services:
@@ -92,6 +92,10 @@ services:
     type: kafka-connect
     principal: User:my-connect-principal
     group-id: optional-group-id-override
+    storage-topics:
+      config: optional-custom-config-topic
+      offset: optional-custom-offset-topic
+      status: optional-custom-status-topic
     connectors:
       my-source-connector-name:
         produces:
@@ -195,3 +199,4 @@ customUserAcls:
 
 ?> **NOTE**: The `principal` field can be left out here and it will be inherited from the user definition.
 
+[services]: /services.md
