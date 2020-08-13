@@ -58,7 +58,10 @@ class PlanCommandIntegrationSpec extends Specification {
                 "multi-file",
                 "simple-users",
                 "custom-service-acls",
-                "custom-user-acls"
+                "custom-user-acls",
+                "custom-group-id-application",
+                "custom-group-id-connect",
+                "custom-application-id-streams"
         ]
     }
 

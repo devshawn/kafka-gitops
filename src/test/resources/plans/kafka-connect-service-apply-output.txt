@@ -1,0 +1,143 @@
+Executing apply...
+
+Applying: [CREATE]
+
++ [ACL] test-connect-cluster-0
+	 + resource_name: connect-configs-test-connect-cluster
+	 + resource_type: TOPIC
+	 + resource_pattern: LITERAL
+	 + resource_principal: User:test
+	 + host: *
+	 + operation: READ
+	 + permission: ALLOW
+
+
+Successfully applied.
+
+Applying: [CREATE]
+
++ [ACL] test-connect-cluster-1
+	 + resource_name: connect-offsets-test-connect-cluster
+	 + resource_type: TOPIC
+	 + resource_pattern: LITERAL
+	 + resource_principal: User:test
+	 + host: *
+	 + operation: READ
+	 + permission: ALLOW
+
+
+Successfully applied.
+
+Applying: [CREATE]
+
++ [ACL] test-connect-cluster-2
+	 + resource_name: connect-status-test-connect-cluster
+	 + resource_type: TOPIC
+	 + resource_pattern: LITERAL
+	 + resource_principal: User:test
+	 + host: *
+	 + operation: READ
+	 + permission: ALLOW
+
+
+Successfully applied.
+
+Applying: [CREATE]
+
++ [ACL] test-connect-cluster-3
+	 + resource_name: connect-configs-test-connect-cluster
+	 + resource_type: TOPIC
+	 + resource_pattern: LITERAL
+	 + resource_principal: User:test
+	 + host: *
+	 + operation: WRITE
+	 + permission: ALLOW
+
+
+Successfully applied.
+
+Applying: [CREATE]
+
++ [ACL] test-connect-cluster-4
+	 + resource_name: connect-offsets-test-connect-cluster
+	 + resource_type: TOPIC
+	 + resource_pattern: LITERAL
+	 + resource_principal: User:test
+	 + host: *
+	 + operation: WRITE
+	 + permission: ALLOW
+
+
+Successfully applied.
+
+Applying: [CREATE]
+
++ [ACL] test-connect-cluster-5
+	 + resource_name: connect-status-test-connect-cluster
+	 + resource_type: TOPIC
+	 + resource_pattern: LITERAL
+	 + resource_principal: User:test
+	 + host: *
+	 + operation: WRITE
+	 + permission: ALLOW
+
+
+Successfully applied.
+
+Applying: [CREATE]
+
++ [ACL] test-connect-cluster-6
+	 + resource_name: test-connect-cluster
+	 + resource_type: GROUP
+	 + resource_pattern: LITERAL
+	 + resource_principal: User:test
+	 + host: *
+	 + operation: READ
+	 + permission: ALLOW
+
+
+Successfully applied.
+
+Applying: [CREATE]
+
++ [ACL] test-connect-cluster-7
+	 + resource_name: production-topic
+	 + resource_type: TOPIC
+	 + resource_pattern: LITERAL
+	 + resource_principal: User:test
+	 + host: *
+	 + operation: WRITE
+	 + permission: ALLOW
+
+
+Successfully applied.
+
+Applying: [CREATE]
+
++ [ACL] test-connect-cluster-8
+	 + resource_name: consumption-topic
+	 + resource_type: TOPIC
+	 + resource_pattern: LITERAL
+	 + resource_principal: User:test
+	 + host: *
+	 + operation: READ
+	 + permission: ALLOW
+
+
+Successfully applied.
+
+Applying: [CREATE]
+
++ [ACL] test-connect-cluster-9
+	 + resource_name: connect-test-sink
+	 + resource_type: GROUP
+	 + resource_pattern: LITERAL
+	 + resource_principal: User:test
+	 + host: *
+	 + operation: READ
+	 + permission: ALLOW
+
+
+Successfully applied.
+
+[SUCCESS] Apply complete! Resources: 10 created, 0 updated, 0 deleted.

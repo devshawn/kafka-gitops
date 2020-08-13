@@ -33,6 +33,8 @@ For our quick start example, open a terminal where your `state.yaml` file is loc
 export KAFKA_BOOTSTRAP_SERVERS=localhost:9092
 ```
 
+!> **NOTE**: If running `kafka-gitops` against a secured Kafka cluster, it must be run with super user credentials or a user with special ACLs. [Read more on our permissions page][permissions].
+
 ## Validate
 We can validate the desired state file conforms to the [specification][specification]. To do this, run:
 
@@ -141,5 +143,6 @@ org.apache.kafka.common.errors.PolicyViolationException: Topic replication facto
 Congrats! You've successfully started using GitOps strategies to manage your cluster. If you have security on your cluster, read the [services][services] page to start defining services. 
 
 [ccloud]: /confluent-cloud.md
+[permissions]: /permissions.md
 [specification]: /specification.md
 [services]: /services.md

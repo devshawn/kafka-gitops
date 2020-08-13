@@ -1,0 +1,185 @@
+Executing apply...
+
+Applying: [CREATE]
+
++ [ACL] streams-application-0
+	 + resource_name: my-other-streams-topic
+	 + resource_type: TOPIC
+	 + resource_pattern: LITERAL
+	 + resource_principal: User:test
+	 + host: *
+	 + operation: WRITE
+	 + permission: ALLOW
+
+
+Successfully applied.
+
+Applying: [CREATE]
+
++ [ACL] streams-application-1
+	 + resource_name: another-topic
+	 + resource_type: TOPIC
+	 + resource_pattern: LITERAL
+	 + resource_principal: User:test
+	 + host: *
+	 + operation: WRITE
+	 + permission: ALLOW
+
+
+Successfully applied.
+
+Applying: [CREATE]
+
++ [ACL] streams-application-2
+	 + resource_name: my-streams-topic
+	 + resource_type: TOPIC
+	 + resource_pattern: LITERAL
+	 + resource_principal: User:test
+	 + host: *
+	 + operation: READ
+	 + permission: ALLOW
+
+
+Successfully applied.
+
+Applying: [CREATE]
+
++ [ACL] streams-application-3
+	 + resource_name: streams-application
+	 + resource_type: TOPIC
+	 + resource_pattern: PREFIXED
+	 + resource_principal: User:test
+	 + host: *
+	 + operation: READ
+	 + permission: ALLOW
+
+
+Successfully applied.
+
+Applying: [CREATE]
+
++ [ACL] streams-application-4
+	 + resource_name: streams-application
+	 + resource_type: TOPIC
+	 + resource_pattern: PREFIXED
+	 + resource_principal: User:test
+	 + host: *
+	 + operation: WRITE
+	 + permission: ALLOW
+
+
+Successfully applied.
+
+Applying: [CREATE]
+
++ [ACL] streams-application-5
+	 + resource_name: streams-application
+	 + resource_type: TOPIC
+	 + resource_pattern: PREFIXED
+	 + resource_principal: User:test
+	 + host: *
+	 + operation: DESCRIBE
+	 + permission: ALLOW
+
+
+Successfully applied.
+
+Applying: [CREATE]
+
++ [ACL] streams-application-6
+	 + resource_name: streams-application
+	 + resource_type: TOPIC
+	 + resource_pattern: PREFIXED
+	 + resource_principal: User:test
+	 + host: *
+	 + operation: DELETE
+	 + permission: ALLOW
+
+
+Successfully applied.
+
+Applying: [CREATE]
+
++ [ACL] streams-application-7
+	 + resource_name: streams-application
+	 + resource_type: TOPIC
+	 + resource_pattern: PREFIXED
+	 + resource_principal: User:test
+	 + host: *
+	 + operation: CREATE
+	 + permission: ALLOW
+
+
+Successfully applied.
+
+Applying: [CREATE]
+
++ [ACL] streams-application-8
+	 + resource_name: streams-application
+	 + resource_type: TOPIC
+	 + resource_pattern: PREFIXED
+	 + resource_principal: User:test
+	 + host: *
+	 + operation: ALTER
+	 + permission: ALLOW
+
+
+Successfully applied.
+
+Applying: [CREATE]
+
++ [ACL] streams-application-9
+	 + resource_name: streams-application
+	 + resource_type: TOPIC
+	 + resource_pattern: PREFIXED
+	 + resource_principal: User:test
+	 + host: *
+	 + operation: ALTER_CONFIGS
+	 + permission: ALLOW
+
+
+Successfully applied.
+
+Applying: [CREATE]
+
++ [ACL] streams-application-10
+	 + resource_name: streams-application
+	 + resource_type: TOPIC
+	 + resource_pattern: PREFIXED
+	 + resource_principal: User:test
+	 + host: *
+	 + operation: DESCRIBE_CONFIGS
+	 + permission: ALLOW
+
+
+Successfully applied.
+
+Applying: [CREATE]
+
++ [ACL] streams-application-11
+	 + resource_name: streams-application
+	 + resource_type: GROUP
+	 + resource_pattern: LITERAL
+	 + resource_principal: User:test
+	 + host: *
+	 + operation: READ
+	 + permission: ALLOW
+
+
+Successfully applied.
+
+Applying: [CREATE]
+
++ [ACL] streams-application-12
+	 + resource_name: streams-application
+	 + resource_type: GROUP
+	 + resource_pattern: LITERAL
+	 + resource_principal: User:test
+	 + host: *
+	 + operation: DESCRIBE
+	 + permission: ALLOW
+
+
+Successfully applied.
+
+[SUCCESS] Apply complete! Resources: 13 created, 0 updated, 0 deleted.

@@ -1,6 +1,6 @@
 # Permissions
 
-When running against a secure Kafka cluster, kafka-gitops needs to be authorized to perform actions against the cluster. This can be either a super user defined by the Kafka cluster or a custom user with specific permissions.
+When running against a secured Kafka cluster, `kafka-gitops` needs to be authorized to perform actions against the cluster. This can either be a super user defined by the Kafka cluster or a custom user with specific permissions.
 
 ## Example
 

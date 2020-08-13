@@ -8,7 +8,7 @@ A basic example shown below defines one topic, `test-topic`, and one service, `m
 
 The service `my-application` both consumes from and produces to `test-topic`. This will generate the necessary ACLs for `my-application` to do this.
 
-?> **Note**: If using Confluent Cloud, omit the principal field.
+?> **NOTE**: If using Confluent Cloud, omit the principal field.
 
 ```yaml
 topics:
@@ -32,7 +32,23 @@ Behind the scenes, this will generate three ACLs:
 - `WRITE` for topic `test-topic`
 - `READ` for consumer group `my-application`
 
-!> Currently, consumer `group.id` must match the service name.
+#### Group ID
+
+The `group.id` used for consumer ACLs defaults to the service name. You can override this by specifying the `group-id` property, as shown below:
+
+```yaml
+services:
+  my-application:
+    type: application
+    principal: User:myapp
+    group-id: my-application-service
+    consumes:
+      - test-topic
+    produces:
+      - test-topic
+```
+
+This would allow your consumer group to access kafka using `my-application-service` as the `group.id`.
 
 ## Kafka Streams Example
 
@@ -62,6 +78,24 @@ Behind the scenes, this generates ACLs such as:
 - `WRITE` for topic `test-topic`
 - `READ` for consumer group `my-stream`
 - Various ACLs for Kafka streams internal topic management
+
+#### Application ID
+
+The `application.id` used for streams ACLs defaults to the service name. You can override this by specifying the `application-id` property, as shown below:
+
+```yaml
+services:
+  my-stream:
+    type: kafka-streams
+    principal: User:mystream
+    application-id: my-stream-application
+    consumes:
+      - test-topic
+    produces:
+      - test-topic
+```
+
+This would allow your streams application to access kafka using `my-stream-application` as the `application.id`.
 
 ## Kafka Connect Example
 
@@ -116,3 +150,23 @@ Behind the scenes, this generates ACLs such as:
 - `READ` for the consumer group `connect-rabbitmq-sink`
 - `READ` and `WRITE` for the internal kafka connect topics
 - `READ` for the consumer group `my-connect-cluster`
+
+#### Group ID
+
+The `group.id` used for the connect cluster ACLs defaults to the service name. You can override this by specifying the `group-id` property, as shown below:
+
+```yaml
+services:
+  my-connect-cluster:
+    type: kafka-connect
+    principal: User:myconnectcluster
+    group-id: kafka-connect-cluster
+    connectors:
+      rabbitmq-sink:
+        consumes:
+          - rabbitmq-data
+```
+
+This allows your connect cluster to access kafka using `kafka-connect-cluster` as the `group.id`. 
+
+!> **NOTE**: The `group-id` setting only affects the connect cluster `group.id`, and not any sink connector group IDs.

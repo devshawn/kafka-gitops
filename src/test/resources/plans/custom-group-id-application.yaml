@@ -1,0 +1,9 @@
+services:
+  test-service:
+    type: application
+    group-id: test-service-application
+    principal: User:test
+    produces:
+      - test-topic
+    consumes:
+      - another-test-topic
