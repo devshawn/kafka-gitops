@@ -2,6 +2,7 @@ package com.devshawn.kafka.gitops.domain.state.service;
 
 import com.devshawn.kafka.gitops.domain.state.AclDetails;
 import com.devshawn.kafka.gitops.domain.state.ServiceDetails;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.inferred.freebuilder.FreeBuilder;
 
@@ -14,6 +15,9 @@ import java.util.Optional;
 public abstract class KafkaStreamsService extends ServiceDetails {
 
     public abstract Optional<String> getPrincipal();
+
+    @JsonProperty("application-id")
+    public abstract Optional<String> getApplicationId();
 
     public abstract List<String> getProduces();
 
@@ -29,17 +33,18 @@ public abstract class KafkaStreamsService extends ServiceDetails {
     }
 
     private List<AclDetails.Builder> getInternalAcls(String serviceName) {
+        String applicationId = getApplicationId().isPresent() ? getApplicationId().get() : serviceName;
         List<AclDetails.Builder> acls = new ArrayList<>();
-        acls.add(generatePrefixedTopicACL(serviceName, getPrincipal(), "READ"));
-        acls.add(generatePrefixedTopicACL(serviceName, getPrincipal(), "WRITE"));
-        acls.add(generatePrefixedTopicACL(serviceName, getPrincipal(), "DESCRIBE"));
-        acls.add(generatePrefixedTopicACL(serviceName, getPrincipal(), "DELETE"));
-        acls.add(generatePrefixedTopicACL(serviceName, getPrincipal(), "CREATE"));
-        acls.add(generatePrefixedTopicACL(serviceName, getPrincipal(), "ALTER"));
-        acls.add(generatePrefixedTopicACL(serviceName, getPrincipal(), "ALTER_CONFIGS"));
-        acls.add(generatePrefixedTopicACL(serviceName, getPrincipal(), "DESCRIBE_CONFIGS"));
-        acls.add(generateConsumerGroupAcl(serviceName, getPrincipal(), "READ"));
-        acls.add(generateConsumerGroupAcl(serviceName, getPrincipal(), "DESCRIBE"));
+        acls.add(generatePrefixedTopicACL(applicationId, getPrincipal(), "READ"));
+        acls.add(generatePrefixedTopicACL(applicationId, getPrincipal(), "WRITE"));
+        acls.add(generatePrefixedTopicACL(applicationId, getPrincipal(), "DESCRIBE"));
+        acls.add(generatePrefixedTopicACL(applicationId, getPrincipal(), "DELETE"));
+        acls.add(generatePrefixedTopicACL(applicationId, getPrincipal(), "CREATE"));
+        acls.add(generatePrefixedTopicACL(applicationId, getPrincipal(), "ALTER"));
+        acls.add(generatePrefixedTopicACL(applicationId, getPrincipal(), "ALTER_CONFIGS"));
+        acls.add(generatePrefixedTopicACL(applicationId, getPrincipal(), "DESCRIBE_CONFIGS"));
+        acls.add(generateConsumerGroupAcl(applicationId, getPrincipal(), "READ"));
+        acls.add(generateConsumerGroupAcl(applicationId, getPrincipal(), "DESCRIBE"));
         return acls;
     }
 

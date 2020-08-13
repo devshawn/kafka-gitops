@@ -1,0 +1,12 @@
+services:
+  test-connect-cluster:
+    type: kafka-connect
+    group-id: connect-cluster
+    principal: User:test
+    connectors:
+      test-source:
+        produces:
+          - production-topic
+      test-sink:
+        consumes:
+          - consumption-topic

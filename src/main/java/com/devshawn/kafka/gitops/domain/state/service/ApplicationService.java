@@ -2,6 +2,7 @@ package com.devshawn.kafka.gitops.domain.state.service;
 
 import com.devshawn.kafka.gitops.domain.state.AclDetails;
 import com.devshawn.kafka.gitops.domain.state.ServiceDetails;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.inferred.freebuilder.FreeBuilder;
 
@@ -15,6 +16,9 @@ public abstract class ApplicationService extends ServiceDetails {
 
     public abstract Optional<String> getPrincipal();
 
+    @JsonProperty("group-id")
+    public abstract Optional<String> getGroupId();
+
     public abstract List<String> getProduces();
 
     public abstract List<String> getConsumes();
@@ -25,7 +29,8 @@ public abstract class ApplicationService extends ServiceDetails {
         getProduces().forEach(topic -> acls.add(generateWriteACL(topic, getPrincipal())));
         getConsumes().forEach(topic -> acls.add(generateReadAcl(topic, getPrincipal())));
         if (!getConsumes().isEmpty()) {
-            acls.add(generateConsumerGroupAcl(serviceName, getPrincipal(), "READ"));
+            String groupId = getGroupId().isPresent() ? getGroupId().get() : serviceName;
+            acls.add(generateConsumerGroupAcl(groupId, getPrincipal(), "READ"));
         }
         return acls;
     }

@@ -48,10 +48,15 @@ class ApplyCommandIntegrationSpec extends Specification {
         planFile << [
                 "simple",
                 "application-service",
+                "kafka-streams-service",
+                "kafka-connect-service",
                 "multi-file",
                 "simple-users",
                 "custom-service-acls",
-                "custom-user-acls"
+                "custom-user-acls",
+                "custom-group-id-application",
+                "custom-group-id-connect",
+                "custom-application-id-streams"
         ]
     }
 

@@ -3,6 +3,7 @@ package com.devshawn.kafka.gitops.domain.state.service;
 
 import com.devshawn.kafka.gitops.domain.state.AclDetails;
 import com.devshawn.kafka.gitops.domain.state.ServiceDetails;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.inferred.freebuilder.FreeBuilder;
 
@@ -14,6 +15,9 @@ import java.util.Optional;
 @FreeBuilder
 @JsonDeserialize(builder = KafkaConnectService.Builder.class)
 public abstract class KafkaConnectService extends ServiceDetails {
+
+    @JsonProperty("group-id")
+    public abstract Optional<String> getGroupId();
 
     public abstract Optional<String> getPrincipal();
 
@@ -30,6 +34,7 @@ public abstract class KafkaConnectService extends ServiceDetails {
     }
 
     private List<AclDetails.Builder> getConnectWorkerAcls(String serviceName) {
+        String groupId = getGroupId().isPresent() ? getGroupId().get() : serviceName;
         List<AclDetails.Builder> acls = new ArrayList<>();
         acls.add(generateReadAcl(String.format("connect-configs-%s", serviceName), getPrincipal()));
         acls.add(generateReadAcl(String.format("connect-offsets-%s", serviceName), getPrincipal()));
@@ -37,7 +42,7 @@ public abstract class KafkaConnectService extends ServiceDetails {
         acls.add(generateWriteACL(String.format("connect-configs-%s", serviceName), getPrincipal()));
         acls.add(generateWriteACL(String.format("connect-offsets-%s", serviceName), getPrincipal()));
         acls.add(generateWriteACL(String.format("connect-status-%s", serviceName), getPrincipal()));
-        acls.add(generateConsumerGroupAcl(serviceName, getPrincipal(), "READ"));
+        acls.add(generateConsumerGroupAcl(groupId, getPrincipal(), "READ"));
         getConnectors().forEach((connectorName, connector) -> acls.addAll(connector.getAcls(connectorName, getPrincipal())));
         return acls;
     }

@@ -1,0 +1,9 @@
+services:
+  streams-application:
+    type: kafka-streams
+    principal: User:test
+    application-id: test-streams
+    consumes:
+      - my-streams-topic
+    produces:
+      - my-other-streams-topic

@@ -2,7 +2,7 @@
 
 This document describes the specification for how to write your Kafka cluster's desired state file. This currently must be a `YAML` file. 
 
-?> Current version: `1`
+?> Current version: `1.0.1`
 
 The desired state file consists of:
 
@@ -63,17 +63,18 @@ There are currently three service types:
 - `kafka-connect`
 - `kafka-streams`
 
-?> **NOTE**: If using Confluent Cloud, omit the `principal` fields.
+!> **NOTE**: If using Confluent Cloud, omit the `principal` fields.
 
 **Example application**:
 
-!> **NOTE**: Currently, the service name must match the consumer `group.id`.
+?> **NOTE**: The `group-id` property is optional and defaults to the service name.
 
 ```yaml
 services:
   my-application-name:
     type: application
     principal: User:my-application-principal
+    group-id: optional-group-id-override
     produces:
       - topic-name-one
     consumes:
@@ -83,13 +84,14 @@ services:
 
 **Example kafka connect cluster**:
 
-!> **NOTE**: Currently, the service name must match the connect cluster `group.id`.
+?> **NOTE**: The `group-id` property is optional and defaults to the service name.
 
 ```yaml
 services:
   my-kafka-connect-cluster-name:
     type: kafka-connect
     principal: User:my-connect-principal
+    group-id: optional-group-id-override
     connectors:
       my-source-connector-name:
         produces:
@@ -101,20 +103,21 @@ services:
 
 **Example kafka streams application**:
 
-!> **NOTE**: Currently, the service name must match the streams `application.id`.
+?> **NOTE**: The `application-id` property is optional and defaults to the service name.
 
 ```yaml
 services:
   my-kafka-streams-name:
     type: kafka-streams
     principal: User:my-streams-principal
+    application-id: optional-application-id-override
     produces:
       - topic-name-one
     consumes:
       - topic-name-two
 ```
 
-Under the cover, `kafka-gitops` generates ACLs based on these definitions.
+Behind the scenes, `kafka-gitops` generates ACLs based on these definitions.
 
 ## Users
 

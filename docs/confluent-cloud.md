@@ -109,7 +109,4 @@ Congrats! You're now using `kafka-gitops` to manage your Confluent Cloud cluster
 
 Welcome to GitOps! 
 
-
-
-
 [installation]: /installation.md
