@@ -21,6 +21,9 @@ public abstract class KafkaConnectService extends ServiceDetails {
 
     public abstract Optional<String> getPrincipal();
 
+    @JsonProperty("storage-topics")
+    public abstract Optional<KafkaConnectStorageTopics> getStorageTopics();
+
     public abstract List<String> getProduces();
 
     public abstract Map<String, KafkaConnectorDetails> getConnectors();
@@ -35,16 +38,41 @@ public abstract class KafkaConnectService extends ServiceDetails {
 
     private List<AclDetails.Builder> getConnectWorkerAcls(String serviceName) {
         String groupId = getGroupId().isPresent() ? getGroupId().get() : serviceName;
+        String configTopic = getConfigTopic(serviceName);
+        String offsetTopic = getOffsetTopic(serviceName);
+        String statusTopic = getStatusTopic(serviceName);
+
         List<AclDetails.Builder> acls = new ArrayList<>();
-        acls.add(generateReadAcl(String.format("connect-configs-%s", serviceName), getPrincipal()));
-        acls.add(generateReadAcl(String.format("connect-offsets-%s", serviceName), getPrincipal()));
-        acls.add(generateReadAcl(String.format("connect-status-%s", serviceName), getPrincipal()));
-        acls.add(generateWriteACL(String.format("connect-configs-%s", serviceName), getPrincipal()));
-        acls.add(generateWriteACL(String.format("connect-offsets-%s", serviceName), getPrincipal()));
-        acls.add(generateWriteACL(String.format("connect-status-%s", serviceName), getPrincipal()));
+        acls.add(generateReadAcl(configTopic, getPrincipal()));
+        acls.add(generateReadAcl(offsetTopic, getPrincipal()));
+        acls.add(generateReadAcl(statusTopic, getPrincipal()));
+        acls.add(generateWriteACL(configTopic, getPrincipal()));
+        acls.add(generateWriteACL(offsetTopic, getPrincipal()));
+        acls.add(generateWriteACL(statusTopic, getPrincipal()));
         acls.add(generateConsumerGroupAcl(groupId, getPrincipal(), "READ"));
         getConnectors().forEach((connectorName, connector) -> acls.addAll(connector.getAcls(connectorName, getPrincipal())));
         return acls;
+    }
+
+    private String getConfigTopic(String serviceName) {
+        if (getStorageTopics().isPresent() && getStorageTopics().get().getConfig().isPresent()) {
+            return getStorageTopics().get().getConfig().get();
+        }
+        return String.format("connect-configs-%s", serviceName);
+    }
+
+    private String getOffsetTopic(String serviceName) {
+        if (getStorageTopics().isPresent() && getStorageTopics().get().getOffset().isPresent()) {
+            return getStorageTopics().get().getOffset().get();
+        }
+        return String.format("connect-offsets-%s", serviceName);
+    }
+
+    private String getStatusTopic(String serviceName) {
+        if (getStorageTopics().isPresent() && getStorageTopics().get().getStatus().isPresent()) {
+            return getStorageTopics().get().getStatus().get();
+        }
+        return String.format("connect-status-%s", serviceName);
     }
 
     public static class Builder extends KafkaConnectService_Builder {

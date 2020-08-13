@@ -61,7 +61,9 @@ class PlanCommandIntegrationSpec extends Specification {
                 "custom-user-acls",
                 "custom-group-id-application",
                 "custom-group-id-connect",
-                "custom-application-id-streams"
+                "custom-application-id-streams",
+                "custom-storage-topic",
+                "custom-storage-topics"
         ]
     }
 
@@ -130,7 +132,8 @@ class PlanCommandIntegrationSpec extends Specification {
                 "invalid-topic",
                 "unrecognized-property",
                 "invalid-format",
-                "invalid-missing-user-principal"
+                "invalid-missing-user-principal",
+                "invalid-storage-topics"
         ]
     }
 

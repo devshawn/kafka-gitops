@@ -56,7 +56,9 @@ class ApplyCommandIntegrationSpec extends Specification {
                 "custom-user-acls",
                 "custom-group-id-application",
                 "custom-group-id-connect",
-                "custom-application-id-streams"
+                "custom-application-id-streams",
+                "custom-storage-topic",
+                "custom-storage-topics"
         ]
     }
 

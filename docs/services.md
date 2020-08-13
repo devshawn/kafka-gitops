@@ -101,15 +101,6 @@ This would allow your streams application to access kafka using `my-stream-appli
 
 A basic example which defines one Kafka Connect cluster that has one connector running. 
 
-**Connect Topics**
-Currently, kafka connect's internal topics must be defined in the following format:
-
-- `connect-configs-{service-name}`
-- `connect-offsets-{service-name}`
-- `connect-status-{service-name}`
-
-In this example, the connect cluster `group.id` should be `my-connect-cluster`. 
-
 ```yaml
 topics:
   connect-configs-my-connect-cluster:
@@ -150,6 +141,31 @@ Behind the scenes, this generates ACLs such as:
 - `READ` for the consumer group `connect-rabbitmq-sink`
 - `READ` and `WRITE` for the internal kafka connect topics
 - `READ` for the consumer group `my-connect-cluster`
+
+#### Storage Topics
+
+By default, `kafka-gitops` generates ACLs for the internal storage topics following this format:
+
+- `connect-configs-{service-name}`
+- `connect-offsets-{service-name}`
+- `connect-status-{service-name}`
+
+You can specify custom internal storage topics using the `storage-topics` property:
+
+```yaml
+services:
+  my-connect-cluster:
+    type: kafka-connect
+    principal: User:myconnectcluster
+    storage-topics:
+      config: custom-config-topic
+      offset: custom-offset-topic
+      status: custom-status-topic
+    connectors:
+      rabbitmq-sink:
+        consumes:
+          - rabbitmq-data
+```
 
 #### Group ID
 

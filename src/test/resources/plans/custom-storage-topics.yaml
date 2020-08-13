@@ -1,0 +1,15 @@
+services:
+  test-connect-cluster:
+    type: kafka-connect
+    principal: User:test
+    storage-topics:
+      config: config-custom-topic
+      status: custom-status-topic
+      offset: offset-topic-custom
+    connectors:
+      test-source:
+        produces:
+          - production-topic
+      test-sink:
+        consumes:
+          - consumption-topic
