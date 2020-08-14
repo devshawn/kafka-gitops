@@ -1,0 +1,81 @@
+{
+    "topicPlans": [
+        {
+            "name": "delete-topic",
+            "action": "NO_CHANGE",
+            "topicDetails": {
+                "partitions": 1,
+                "replication": 1,
+                "configs": {}
+            },
+            "topicConfigPlans": []
+        },
+        {
+            "name": "test-topic",
+            "action": "NO_CHANGE",
+            "topicDetails": {
+                "partitions": 1,
+                "replication": 1,
+                "configs": {}
+            },
+            "topicConfigPlans": []
+        },
+        {
+            "name": "topic-with-configs-1",
+            "action": "NO_CHANGE",
+            "topicDetails": {
+                "partitions": 3,
+                "replication": 1,
+                "configs": {
+                    "cleanup.policy": "compact",
+                    "segment.bytes": "100000"
+                }
+            },
+            "topicConfigPlans": [
+                {
+                    "key": "cleanup.policy",
+                    "value": "compact",
+                    "action": "NO_CHANGE"
+                },
+                {
+                    "key": "segment.bytes",
+                    "value": "100000",
+                    "action": "NO_CHANGE"
+                }
+            ]
+        },
+        {
+            "name": "topic-with-configs-2",
+            "action": "NO_CHANGE",
+            "topicDetails": {
+                "partitions": 6,
+                "replication": 1,
+                "configs": {
+                    "retention.ms": "60000"
+                }
+            },
+            "topicConfigPlans": [
+                {
+                    "key": "retention.ms",
+                    "value": "60000",
+                    "action": "NO_CHANGE"
+                }
+            ]
+        }
+    ],
+    "aclPlans": [
+        {
+            "name": "test-service-0",
+            "aclDetails": {
+                "name": "test-topic",
+                "type": "TOPIC",
+                "pattern": "LITERAL",
+                "principal": "User:test",
+                "host": "*",
+                "operation": "READ",
+                "permission": "ALLOW"
+            },
+            "action": "NO_CHANGE"
+        }
+    ]
+}

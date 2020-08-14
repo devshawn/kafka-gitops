@@ -6,6 +6,7 @@ import com.devshawn.kafka.gitops.config.ManagerConfig;
 import com.devshawn.kafka.gitops.domain.plan.DesiredPlan;
 import com.devshawn.kafka.gitops.exception.KafkaExecutionException;
 import com.devshawn.kafka.gitops.exception.MissingConfigurationException;
+import com.devshawn.kafka.gitops.exception.PlanIsUpToDateException;
 import com.devshawn.kafka.gitops.exception.ReadPlanInputException;
 import com.devshawn.kafka.gitops.exception.ValidationException;
 import com.devshawn.kafka.gitops.service.ParserService;
@@ -34,6 +35,9 @@ public class ApplyCommand implements Callable<Integer> {
             StateManager stateManager = new StateManager(generateStateManagerConfig(), parserService);
             DesiredPlan desiredPlan = stateManager.apply();
             LogUtil.printApplyOverview(PlanUtil.getOverview(desiredPlan, parent.isDeleteDisabled()));
+            return 0;
+        } catch (PlanIsUpToDateException ex) {
+            LogUtil.printNoChangesMessage();
             return 0;
         } catch (MissingConfigurationException | ReadPlanInputException ex) {
             LogUtil.printGenericError(ex, true);

@@ -187,16 +187,24 @@ class PlanCommandIntegrationSpec extends Specification {
         ByteArrayOutputStream out = new ByteArrayOutputStream()
         PrintStream oldOut = System.out
         System.setOut(new PrintStream(out))
+        String planOutputFile = "/tmp/plan.json"
         String file = TestUtils.getResourceFilePath("plans/${planName}.yaml")
         MainCommand mainCommand = new MainCommand()
         CommandLine cmd = new CommandLine(mainCommand)
 
         when:
-        int exitCode = cmd.execute("-f", file, "plan")
+        int exitCode = cmd.execute("-f", file, "plan", "-o", planOutputFile)
 
         then:
         exitCode == 0
         out.toString() == TestUtils.getResourceFileContent("plans/no-changes-output.txt")
+
+        when:
+        String actualPlan = TestUtils.getFileContent(planOutputFile)
+        String expectedPlan = TestUtils.getResourceFileContent("plans/${planName}-plan.json")
+
+        then:
+        JSONAssert.assertEquals(expectedPlan, actualPlan, true)
 
         cleanup:
         System.setOut(oldOut)

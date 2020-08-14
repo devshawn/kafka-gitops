@@ -71,8 +71,8 @@ public class StateManager {
 
     public DesiredPlan plan() {
         DesiredPlan desiredPlan = generatePlan();
-        planManager.validatePlanHasChanges(desiredPlan, managerConfig.isDeleteDisabled());
         planManager.writePlanToFile(desiredPlan);
+        planManager.validatePlanHasChanges(desiredPlan, managerConfig.isDeleteDisabled());
         return desiredPlan;
     }
 
