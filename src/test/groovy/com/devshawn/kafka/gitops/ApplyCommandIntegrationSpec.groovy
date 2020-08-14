@@ -98,6 +98,7 @@ class ApplyCommandIntegrationSpec extends Specification {
         "seed-topic-modification-3" | true
         "seed-topic-modification-3" | false
         "seed-acl-exists"           | false
+        "no-changes"                | false
     }
 
     void 'test reading missing file throws ReadPlanInputException'() {
