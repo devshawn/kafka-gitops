@@ -1,0 +1,3 @@
+Generating execution plan...
+
+[INVALID] Not set: [replication] in state file definition: topics -> test-topic

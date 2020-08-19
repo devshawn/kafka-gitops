@@ -2,12 +2,12 @@
 
 This document describes the specification for how to write your Kafka cluster's desired state file. This currently must be a `YAML` file. 
 
-?> Current version: `1.0.2`
+?> Current version: `1.0.3`
 
 The desired state file consists of:
 
 - **Settings** [Optional]: Specific settings for configuring `kafka-gitops`.
-- **Topics** [Optional]: Topics and topic configuration definitions.
+- **Topics** [Optional]: Topic and topic configuration definitions.
 - **Services** [Optional]: Service definitions for generating ACLs.
 - **Users** [Optional]: User definitions for generating ACLs.
 - **Custom Service ACLs** [Optional]: Definitions for custom, non-generated ACLs.
@@ -20,7 +20,9 @@ The desired state file consists of:
 **Options**:
 
 - **ccloud** [Optional]: An object which contains an `enabled` field. Set this to true if using a Confluent Cloud cluster. 
-- **topics** [Optional]: Add a prefixed topic blacklist for ignoring specific topics when using `kafka-gitops`. This allows topics to be ignored from being deleted if they are not defined in the desired state file.
+- **topics** [Optional]: 
+    - **defaults** [Optional]: Specify topic defaults so you don't need to specify them for every topic in the state file. Currently, only replication is supported. 
+    - **blacklist** [Optional]: Add a prefixed topic blacklist for ignoring specific topics when using `kafka-gitops`. This allows topics to be ignored from being deleted if they are not defined in the desired state file.
 
 **Example**:
 ```yaml
@@ -28,6 +30,8 @@ settings:
   ccloud:
     enabled: true
   topics:
+    defaults:
+      replication: 3
     blacklist:
       prefixed:
         - _confluent
@@ -50,6 +54,8 @@ topics:
       cleanup.policy: compact
       segment.bytes: 1000000
 ```
+
+If a default `replication` value is supplied in the `settings` block, then the `replication` field can be omitted. If a default `replication` value is provided and the `replication` field in the topic definition is set, the default will be overridden for that topic.
 
 ## Services
 

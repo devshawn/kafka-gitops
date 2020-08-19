@@ -3,6 +3,8 @@ Executing apply...
 Applying: [CREATE]
 
 + [TOPIC] test-topic
+	+ partitions: 6
+	+ replication: 1
 
 
 Successfully applied.

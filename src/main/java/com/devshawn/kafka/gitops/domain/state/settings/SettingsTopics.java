@@ -9,6 +9,8 @@ import java.util.Optional;
 @JsonDeserialize(builder = SettingsTopics.Builder.class)
 public interface SettingsTopics {
 
+    Optional<SettingsTopicsDefaults> getDefaults();
+
     Optional<SettingsTopicsBlacklist> getBlacklist();
 
     class Builder extends SettingsTopics_Builder {
