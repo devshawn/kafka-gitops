@@ -63,7 +63,9 @@ class PlanCommandIntegrationSpec extends Specification {
                 "custom-group-id-connect",
                 "custom-application-id-streams",
                 "custom-storage-topic",
-                "custom-storage-topics"
+                "custom-storage-topics",
+                "default-replication",
+                "default-replication-multiple"
         ]
     }
 
@@ -101,6 +103,7 @@ class PlanCommandIntegrationSpec extends Specification {
         "seed-topic-modification-3"         | false
         "seed-topic-modification-no-delete" | true
         "seed-acl-exists"                   | true
+        "seed-blacklist-topics"             | false
     }
 
     void 'test invalid plans - #planName'() {
@@ -133,7 +136,9 @@ class PlanCommandIntegrationSpec extends Specification {
                 "unrecognized-property",
                 "invalid-format",
                 "invalid-missing-user-principal",
-                "invalid-storage-topics"
+                "invalid-storage-topics",
+                "invalid-default-replication-1",
+                "invalid-default-replication-2"
         ]
     }
 

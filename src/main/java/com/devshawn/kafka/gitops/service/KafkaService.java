@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -65,10 +66,10 @@ public class KafkaService {
 
     public void createTopic(String topicName, TopicDetails topicDetails) {
         try (final AdminClient adminClient = buildAdminClient()) {
-            NewTopic newTopic = new NewTopic(topicName, topicDetails.getPartitions(), topicDetails.getReplication().shortValue());
+            NewTopic newTopic = new NewTopic(topicName, topicDetails.getPartitions(), topicDetails.getReplication().get().shortValue());
             newTopic.configs(topicDetails.getConfigs());
             adminClient.createTopics(Collections.singletonList(newTopic)).all().get();
-        } catch (InterruptedException | ExecutionException ex) {
+        } catch (InterruptedException | ExecutionException | NoSuchElementException ex) {
             throw new KafkaExecutionException("Error thrown when attempting to create a Kafka topic", ex.getMessage());
         }
     }

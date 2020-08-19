@@ -1,0 +1,15 @@
+{
+    "topicPlans": [
+        {
+            "name": "test-topic",
+            "action": "ADD",
+            "topicDetails": {
+                "partitions": 6,
+                "replication": 1,
+                "configs": {}
+            },
+            "topicConfigPlans": []
+        }
+    ],
+    "aclPlans": []
+}

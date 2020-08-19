@@ -1,0 +1,47 @@
+{
+    "topicPlans": [
+        {
+            "name": "new-topic",
+            "action": "ADD",
+            "topicDetails": {
+                "partitions": 6,
+                "replication": 1,
+                "configs": {}
+            },
+            "topicConfigPlans": []
+        },
+        {
+            "name": "delete-topic",
+            "action": "REMOVE",
+            "topicDetails": null,
+            "topicConfigPlans": []
+        },
+        {
+            "name": "topic-with-configs-2",
+            "action": "REMOVE",
+            "topicDetails": null,
+            "topicConfigPlans": []
+        },
+        {
+            "name": "topic-with-configs-1",
+            "action": "REMOVE",
+            "topicDetails": null,
+            "topicConfigPlans": []
+        }
+    ],
+    "aclPlans": [
+        {
+            "name": "Unnamed ACL",
+            "aclDetails": {
+                "name": "test-topic",
+                "type": "TOPIC",
+                "pattern": "LITERAL",
+                "principal": "User:test",
+                "host": "*",
+                "operation": "READ",
+                "permission": "ALLOW"
+            },
+            "action": "REMOVE"
+        }
+    ]
+}

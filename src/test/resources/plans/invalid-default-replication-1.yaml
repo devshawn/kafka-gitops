@@ -1,0 +1,8 @@
+settings:
+  topics:
+    defaults:
+      replication: -1
+
+topics:
+  test-topic:
+    partitions: 6

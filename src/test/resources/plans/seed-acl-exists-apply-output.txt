@@ -3,7 +3,8 @@ Executing apply...
 Applying: [UPDATE]
 
 ~ [TOPIC] test-topic
-	+ retention.ms: 60000
+	~ configs:
+		+ retention.ms: 60000
 
 
 Successfully applied.
@@ -11,9 +12,10 @@ Successfully applied.
 Applying: [UPDATE]
 
 ~ [TOPIC] topic-with-configs-1
-	- cleanup.policy
-	- segment.bytes
-	+ retention.ms: 100000
+	~ configs:
+		- cleanup.policy
+		- segment.bytes
+		+ retention.ms: 100000
 
 
 Successfully applied.

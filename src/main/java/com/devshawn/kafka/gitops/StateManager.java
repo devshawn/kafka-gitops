@@ -10,6 +10,7 @@ import com.devshawn.kafka.gitops.domain.state.AclDetails;
 import com.devshawn.kafka.gitops.domain.state.CustomAclDetails;
 import com.devshawn.kafka.gitops.domain.state.DesiredState;
 import com.devshawn.kafka.gitops.domain.state.DesiredStateFile;
+import com.devshawn.kafka.gitops.domain.state.TopicDetails;
 import com.devshawn.kafka.gitops.domain.state.service.KafkaStreamsService;
 import com.devshawn.kafka.gitops.exception.ConfluentCloudException;
 import com.devshawn.kafka.gitops.exception.InvalidAclDefinitionException;
@@ -23,6 +24,7 @@ import com.devshawn.kafka.gitops.service.KafkaService;
 import com.devshawn.kafka.gitops.service.ParserService;
 import com.devshawn.kafka.gitops.service.RoleService;
 import com.devshawn.kafka.gitops.util.LogUtil;
+import com.devshawn.kafka.gitops.util.StateUtil;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -65,6 +67,7 @@ public class StateManager {
 
     public DesiredStateFile getAndValidateStateFile() {
         DesiredStateFile desiredStateFile = parserService.parseStateFile();
+        validateTopics(desiredStateFile);
         validateCustomAcls(desiredStateFile);
         return desiredStateFile;
     }
@@ -131,8 +134,9 @@ public class StateManager {
     private DesiredState getDesiredState() {
         DesiredStateFile desiredStateFile = getAndValidateStateFile();
         DesiredState.Builder desiredState = new DesiredState.Builder()
-                .addAllPrefixedTopicsToIgnore(getPrefixedTopicsToIgnore(desiredStateFile))
-                .putAllTopics(desiredStateFile.getTopics());
+                .addAllPrefixedTopicsToIgnore(getPrefixedTopicsToIgnore(desiredStateFile));
+
+        generateTopicsState(desiredState, desiredStateFile);
 
         if (isConfluentCloudEnabled(desiredStateFile)) {
             generateConfluentCloudServiceAcls(desiredState, desiredStateFile);
@@ -143,6 +147,18 @@ public class StateManager {
         }
 
         return desiredState.build();
+    }
+
+    private void generateTopicsState(DesiredState.Builder desiredState, DesiredStateFile desiredStateFile) {
+        Optional<Integer> defaultReplication = StateUtil.fetchReplication(desiredStateFile);
+        if (defaultReplication.isPresent()) {
+            desiredStateFile.getTopics().forEach((name, details) -> {
+                Integer replication = details.getReplication().isPresent() ? details.getReplication().get() : defaultReplication.get();
+                desiredState.putTopics(name, new TopicDetails.Builder().mergeFrom(details).setReplication(replication).build());
+            });
+        } else {
+            desiredState.putAllTopics(desiredStateFile.getTopics());
+        }
     }
 
     private void generateConfluentCloudServiceAcls(DesiredState.Builder desiredState, DesiredStateFile desiredStateFile) {
@@ -276,6 +292,22 @@ public class StateManager {
                 throw new ValidationException(message);
             }
         });
+    }
+
+    private void validateTopics(DesiredStateFile desiredStateFile) {
+        Optional<Integer> defaultReplication = StateUtil.fetchReplication(desiredStateFile);
+        if (!defaultReplication.isPresent()) {
+            desiredStateFile.getTopics().forEach((name, details) -> {
+                if (!details.getReplication().isPresent()) {
+                    throw new ValidationException(String.format("Not set: [replication] in state file definition: topics -> %s", name));
+                }
+            });
+        } else {
+            if (defaultReplication.get() < 1) {
+                throw new ValidationException("The default replication factor must be a positive integer.");
+            }
+        }
+
     }
 
     private boolean isConfluentCloudEnabled(DesiredStateFile desiredStateFile) {

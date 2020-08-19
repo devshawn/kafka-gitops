@@ -1,10 +1,13 @@
 package com.devshawn.kafka.gitops.util;
 
-import com.devshawn.kafka.gitops.domain.plan.*;
+import com.devshawn.kafka.gitops.domain.plan.AclPlan;
+import com.devshawn.kafka.gitops.domain.plan.DesiredPlan;
+import com.devshawn.kafka.gitops.domain.plan.PlanOverview;
+import com.devshawn.kafka.gitops.domain.plan.TopicConfigPlan;
+import com.devshawn.kafka.gitops.domain.plan.TopicPlan;
 import com.devshawn.kafka.gitops.domain.state.AclDetails;
 import com.devshawn.kafka.gitops.domain.state.TopicDetails;
 import com.devshawn.kafka.gitops.enums.PlanAction;
-import com.devshawn.kafka.gitops.exception.InvalidAclDefinitionException;
 import com.devshawn.kafka.gitops.exception.KafkaExecutionException;
 import com.devshawn.kafka.gitops.exception.WritePlanOutputException;
 import picocli.CommandLine;
@@ -43,6 +46,7 @@ public class LogUtil {
                 break;
             case UPDATE:
                 System.out.println(yellow(String.format("~ [TOPIC] %s", topicPlan.getName())));
+                System.out.println(yellow("\t~ configs:"));
                 topicPlan.getTopicConfigPlans().forEach(LogUtil::printTopicConfigPlan);
                 System.out.println("\n");
                 break;
@@ -54,19 +58,24 @@ public class LogUtil {
     }
 
     private static void printTopicConfigPlanForNewTopics(TopicDetails topicDetails) {
-        topicDetails.getConfigs().forEach((key, value) -> System.out.println(green(String.format("\t+ %s: %s", key, value))));
+        System.out.println(green(String.format("\t+ partitions: %s", topicDetails.getPartitions())));
+        System.out.println(green(String.format("\t+ replication: %s", topicDetails.getReplication().get())));
+        if (topicDetails.getConfigs().size() > 0) {
+            System.out.println(green("\t+ configs:"));
+            topicDetails.getConfigs().forEach((key, value) -> System.out.println(green(String.format("\t\t+ %s: %s", key, value))));
+        }
     }
 
     private static void printTopicConfigPlan(TopicConfigPlan topicConfigPlan) {
         switch (topicConfigPlan.getAction()) {
             case ADD:
-                System.out.println(green(String.format("\t+ %s: %s", topicConfigPlan.getKey(), topicConfigPlan.getValue().get())));
+                System.out.println(green(String.format("\t\t+ %s: %s", topicConfigPlan.getKey(), topicConfigPlan.getValue().get())));
                 break;
             case UPDATE:
-                System.out.println(yellow(String.format("\t~ %s: %s", topicConfigPlan.getKey(), topicConfigPlan.getValue().get())));
+                System.out.println(yellow(String.format("\t\t~ %s: %s", topicConfigPlan.getKey(), topicConfigPlan.getValue().get())));
                 break;
             case REMOVE:
-                System.out.println(red(String.format("\t- %s", topicConfigPlan.getKey())));
+                System.out.println(red(String.format("\t\t- %s", topicConfigPlan.getKey())));
                 break;
         }
     }

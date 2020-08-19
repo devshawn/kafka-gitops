@@ -3,7 +3,8 @@ Executing apply...
 Applying: [UPDATE]
 
 ~ [TOPIC] test-topic
-	+ retention.ms: 60000
+	~ configs:
+		+ retention.ms: 60000
 
 
 Successfully applied.
@@ -11,6 +12,8 @@ Successfully applied.
 Applying: [CREATE]
 
 + [TOPIC] new-topic
+	+ partitions: 6
+	+ replication: 1
 
 
 Successfully applied.
