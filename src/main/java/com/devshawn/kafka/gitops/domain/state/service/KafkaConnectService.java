@@ -1,6 +1,7 @@
 package com.devshawn.kafka.gitops.domain.state.service;
 
 
+import com.devshawn.kafka.gitops.domain.options.GetAclOptions;
 import com.devshawn.kafka.gitops.domain.state.AclDetails;
 import com.devshawn.kafka.gitops.domain.state.ServiceDetails;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -29,18 +30,21 @@ public abstract class KafkaConnectService extends ServiceDetails {
     public abstract Map<String, KafkaConnectorDetails> getConnectors();
 
     @Override
-    public List<AclDetails.Builder> getAcls(String serviceName) {
+    public List<AclDetails.Builder> getAcls(GetAclOptions options) {
         List<AclDetails.Builder> acls = new ArrayList<>();
         getProduces().forEach(topic -> acls.add(generateWriteACL(topic, getPrincipal())));
-        acls.addAll(getConnectWorkerAcls(serviceName));
+        if (options.getDescribeAclEnabled()) {
+            getProduces().forEach(topic -> acls.add(generateDescribeAcl(topic, getPrincipal())));
+        }
+        acls.addAll(getConnectWorkerAcls(options));
         return acls;
     }
 
-    private List<AclDetails.Builder> getConnectWorkerAcls(String serviceName) {
-        String groupId = getGroupId().isPresent() ? getGroupId().get() : serviceName;
-        String configTopic = getConfigTopic(serviceName);
-        String offsetTopic = getOffsetTopic(serviceName);
-        String statusTopic = getStatusTopic(serviceName);
+    private List<AclDetails.Builder> getConnectWorkerAcls(GetAclOptions options) {
+        String groupId = getGroupId().isPresent() ? getGroupId().get() : options.getServiceName();
+        String configTopic = getConfigTopic(options.getServiceName());
+        String offsetTopic = getOffsetTopic(options.getServiceName());
+        String statusTopic = getStatusTopic(options.getServiceName());
 
         List<AclDetails.Builder> acls = new ArrayList<>();
         acls.add(generateReadAcl(configTopic, getPrincipal()));
@@ -50,7 +54,7 @@ public abstract class KafkaConnectService extends ServiceDetails {
         acls.add(generateWriteACL(offsetTopic, getPrincipal()));
         acls.add(generateWriteACL(statusTopic, getPrincipal()));
         acls.add(generateConsumerGroupAcl(groupId, getPrincipal(), "READ"));
-        getConnectors().forEach((connectorName, connector) -> acls.addAll(connector.getAcls(connectorName, getPrincipal())));
+        getConnectors().forEach((connectorName, connector) -> acls.addAll(connector.getAcls(connectorName, getPrincipal(), options)));
         return acls;
     }
 

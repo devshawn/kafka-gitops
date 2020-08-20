@@ -13,4 +13,11 @@ public class StateUtil {
         }
         return Optional.empty();
     }
+
+    public static boolean isDescribeTopicAclEnabled(DesiredStateFile desiredStateFile) {
+        return desiredStateFile.getSettings().isPresent() && desiredStateFile.getSettings().get().getServices().isPresent()
+                && desiredStateFile.getSettings().get().getServices().get().getAcls().isPresent()
+                && desiredStateFile.getSettings().get().getServices().get().getAcls().get().getDescribeTopicEnabled().isPresent()
+                && desiredStateFile.getSettings().get().getServices().get().getAcls().get().getDescribeTopicEnabled().get();
+    }
 }

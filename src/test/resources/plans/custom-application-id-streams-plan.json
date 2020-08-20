@@ -156,6 +156,32 @@
                 "permission": "ALLOW"
             },
             "action": "ADD"
+        },
+        {
+            "name": "streams-application-12",
+            "aclDetails": {
+                "name": "test-streams",
+                "type": "GROUP",
+                "pattern": "LITERAL",
+                "principal": "User:test",
+                "host": "*",
+                "operation": "DELETE",
+                "permission": "ALLOW"
+            },
+            "action": "ADD"
+        },
+        {
+            "name": "streams-application-13",
+            "aclDetails": {
+                "name": "kafka-cluster",
+                "type": "CLUSTER",
+                "pattern": "LITERAL",
+                "principal": "User:test",
+                "host": "*",
+                "operation": "DESCRIBE_CONFIGS",
+                "permission": "ALLOW"
+            },
+            "action": "ADD"
         }
     ]
 }

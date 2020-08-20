@@ -168,4 +168,32 @@ Applying: [CREATE]
 
 Successfully applied.
 
-[SUCCESS] Apply complete! Resources: 12 created, 0 updated, 0 deleted.
+Applying: [CREATE]
+
++ [ACL] streams-application-12
+	 + resource_name: test-streams
+	 + resource_type: GROUP
+	 + resource_pattern: LITERAL
+	 + resource_principal: User:test
+	 + host: *
+	 + operation: DELETE
+	 + permission: ALLOW
+
+
+Successfully applied.
+
+Applying: [CREATE]
+
++ [ACL] streams-application-13
+	 + resource_name: kafka-cluster
+	 + resource_type: CLUSTER
+	 + resource_pattern: LITERAL
+	 + resource_principal: User:test
+	 + host: *
+	 + operation: DESCRIBE_CONFIGS
+	 + permission: ALLOW
+
+
+Successfully applied.
+
+[SUCCESS] Apply complete! Resources: 14 created, 0 updated, 0 deleted.

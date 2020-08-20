@@ -30,11 +30,12 @@ public class ConfluentCloudService {
         }
     }
 
-    public ServiceAccount createServiceAccount(String name) {
+    public ServiceAccount createServiceAccount(String name, boolean isUser) {
         log.info("Creating service account {} in Confluent Cloud via ccloud tool.", name);
         try {
-            String description = String.format("Service account: %s", name);
-            String result = execCmd(new String[]{"ccloud", "service-account", "create", name, "--description", description, "-o", "json"});
+            String serviceName = isUser ? String.format("user-%s", name) : name;
+            String description = isUser ? String.format("User: %s", name) : String.format("Service account: %s", name);
+            String result = execCmd(new String[]{"ccloud", "service-account", "create", serviceName, "--description", description, "-o", "json"});
             return objectMapper.readValue(result, ServiceAccount.class);
         } catch (IOException ex) {
             throw new ConfluentCloudException(String.format("There was an error creating Confluent Cloud service account: %s.", name));

@@ -1,7 +1,9 @@
 package com.devshawn.kafka.gitops.domain.state.service;
 
+import com.devshawn.kafka.gitops.domain.options.GetAclOptions;
 import com.devshawn.kafka.gitops.domain.state.AclDetails;
 import com.devshawn.kafka.gitops.domain.state.ServiceDetails;
+import com.devshawn.kafka.gitops.util.HelperUtil;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.inferred.freebuilder.FreeBuilder;
@@ -24,11 +26,15 @@ public abstract class KafkaStreamsService extends ServiceDetails {
     public abstract List<String> getConsumes();
 
     @Override
-    public List<AclDetails.Builder> getAcls(String serviceName) {
+    public List<AclDetails.Builder> getAcls(GetAclOptions options) {
         List<AclDetails.Builder> acls = new ArrayList<>();
         getProduces().forEach(topic -> acls.add(generateWriteACL(topic, getPrincipal())));
         getConsumes().forEach(topic -> acls.add(generateReadAcl(topic, getPrincipal())));
-        acls.addAll(getInternalAcls(serviceName));
+        if (options.getDescribeAclEnabled()) {
+            List<String> allTopics = HelperUtil.uniqueCombine(getConsumes(), getProduces());
+            allTopics.forEach(topic -> acls.add(generateDescribeAcl(topic, getPrincipal())));
+        }
+        acls.addAll(getInternalAcls(options.getServiceName()));
         return acls;
     }
 
@@ -45,6 +51,8 @@ public abstract class KafkaStreamsService extends ServiceDetails {
         acls.add(generatePrefixedTopicACL(applicationId, getPrincipal(), "DESCRIBE_CONFIGS"));
         acls.add(generateConsumerGroupAcl(applicationId, getPrincipal(), "READ"));
         acls.add(generateConsumerGroupAcl(applicationId, getPrincipal(), "DESCRIBE"));
+        acls.add(generateConsumerGroupAcl(applicationId, getPrincipal(), "DELETE"));
+        acls.add(generateClusterAcl(getPrincipal(), "DESCRIBE_CONFIGS"));
         return acls;
     }
 
