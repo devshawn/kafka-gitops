@@ -65,7 +65,9 @@ class PlanCommandIntegrationSpec extends Specification {
                 "custom-storage-topic",
                 "custom-storage-topics",
                 "default-replication",
-                "default-replication-multiple"
+                "default-replication-multiple",
+                "describe-topic-acl-disabled",
+                "describe-topic-acl-enabled"
         ]
     }
 

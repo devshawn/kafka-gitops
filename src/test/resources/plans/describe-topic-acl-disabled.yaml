@@ -1,0 +1,34 @@
+settings:
+  services:
+    acls:
+      describeTopicEnabled: false
+
+services:
+  normal-application:
+    type: application
+    principal: User:test
+    produces:
+      - test-topic
+    consumes:
+      - first-topic
+
+  streams-application:
+    type: kafka-streams
+    principal: User:test
+    consumes:
+      - test-topic
+    produces:
+      - another-test-topic
+
+  kafka-connect-application:
+    type: kafka-connect
+    principal: User:test
+    produces:
+      - poison-topic
+    connectors:
+      test-source:
+        produces:
+          - another-test-topic
+      test-sink:
+        consumes:
+          - test-topic

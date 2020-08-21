@@ -1,5 +1,6 @@
 package com.devshawn.kafka.gitops.domain.state
 
+import com.devshawn.kafka.gitops.domain.options.GetAclOptions
 import spock.lang.Specification
 
 class ServiceDetailsSpec extends Specification {
@@ -9,7 +10,7 @@ class ServiceDetailsSpec extends Specification {
         ServiceDetails serviceDetails = new ServiceDetails() {}
 
         when:
-        serviceDetails.getAcls("serviceName")
+        serviceDetails.getAcls(new GetAclOptions.Builder().buildPartial())
 
         then:
         UnsupportedOperationException ex = thrown(UnsupportedOperationException)

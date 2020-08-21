@@ -5,6 +5,7 @@ import ch.qos.logback.classic.Logger;
 import com.devshawn.kafka.gitops.config.KafkaGitopsConfigLoader;
 import com.devshawn.kafka.gitops.config.ManagerConfig;
 import com.devshawn.kafka.gitops.domain.confluent.ServiceAccount;
+import com.devshawn.kafka.gitops.domain.options.GetAclOptions;
 import com.devshawn.kafka.gitops.domain.plan.DesiredPlan;
 import com.devshawn.kafka.gitops.domain.state.AclDetails;
 import com.devshawn.kafka.gitops.domain.state.CustomAclDetails;
@@ -53,6 +54,8 @@ public class StateManager {
     private PlanManager planManager;
     private ApplyManager applyManager;
 
+    private boolean describeAclEnabled = false;
+
     public StateManager(ManagerConfig managerConfig, ParserService parserService) {
         initializeLogger(managerConfig.isVerboseRequested());
         this.managerConfig = managerConfig;
@@ -69,6 +72,7 @@ public class StateManager {
         DesiredStateFile desiredStateFile = parserService.parseStateFile();
         validateTopics(desiredStateFile);
         validateCustomAcls(desiredStateFile);
+        this.describeAclEnabled = StateUtil.isDescribeTopicAclEnabled(desiredStateFile);
         return desiredStateFile;
     }
 
@@ -107,12 +111,11 @@ public class StateManager {
         AtomicInteger count = new AtomicInteger();
         if (isConfluentCloudEnabled(desiredStateFile)) {
             desiredStateFile.getServices().forEach((name, service) -> {
-                createServiceAccount(name, serviceAccounts, count);
+                createServiceAccount(name, serviceAccounts, count, false);
             });
 
             desiredStateFile.getUsers().forEach((name, user) -> {
-                String serviceAccountName = String.format("user-%s", name);
-                createServiceAccount(serviceAccountName, serviceAccounts, count);
+                createServiceAccount(name, serviceAccounts, count, true);
             });
         } else {
             throw new ConfluentCloudException("Confluent Cloud must be enabled in the state file to use this command.");
@@ -123,9 +126,9 @@ public class StateManager {
         }
     }
 
-    private void createServiceAccount(String name, List<ServiceAccount> serviceAccounts, AtomicInteger count) {
+    private void createServiceAccount(String name, List<ServiceAccount> serviceAccounts, AtomicInteger count, boolean isUser) {
         if (serviceAccounts.stream().noneMatch(it -> it.getName().equals(name))) {
-            confluentCloudService.createServiceAccount(name);
+            confluentCloudService.createServiceAccount(name, isUser);
             LogUtil.printSimpleSuccess(String.format("Successfully created service account: %s", name));
             count.getAndIncrement();
         }
@@ -169,7 +172,7 @@ public class StateManager {
             Optional<ServiceAccount> serviceAccount = serviceAccounts.stream().filter(it -> it.getName().equals(name)).findFirst();
             String serviceAccountId = serviceAccount.orElseThrow(() -> new ServiceAccountNotFoundException(name)).getId();
 
-            service.getAcls(name).forEach(aclDetails -> {
+            service.getAcls(buildGetAclOptions(name)).forEach(aclDetails -> {
                 aclDetails.setPrincipal(String.format("User:%s", serviceAccountId));
                 desiredState.putAcls(String.format("%s-%s", name, index.getAndSet(index.get() + 1)), aclDetails.build());
             });
@@ -213,7 +216,7 @@ public class StateManager {
     private void generateServiceAcls(DesiredState.Builder desiredState, DesiredStateFile desiredStateFile) {
         desiredStateFile.getServices().forEach((name, service) -> {
             AtomicReference<Integer> index = new AtomicReference<>(0);
-            service.getAcls(name).forEach(aclDetails -> {
+            service.getAcls(buildGetAclOptions(name)).forEach(aclDetails -> {
                 desiredState.putAcls(String.format("%s-%s", name, index.getAndSet(index.get() + 1)), buildAclDetails(name, aclDetails));
             });
 
@@ -274,6 +277,10 @@ public class StateManager {
         return topics;
     }
 
+    private GetAclOptions buildGetAclOptions(String serviceName) {
+        return new GetAclOptions.Builder().setServiceName(serviceName).setDescribeAclEnabled(describeAclEnabled).build();
+    }
+
     private void validateCustomAcls(DesiredStateFile desiredStateFile) {
         desiredStateFile.getCustomServiceAcls().forEach((service, details) -> {
             try {
@@ -307,7 +314,6 @@ public class StateManager {
                 throw new ValidationException("The default replication factor must be a positive integer.");
             }
         }
-
     }
 
     private boolean isConfluentCloudEnabled(DesiredStateFile desiredStateFile) {

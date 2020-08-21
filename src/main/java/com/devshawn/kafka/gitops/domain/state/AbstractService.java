@@ -30,6 +30,19 @@ public abstract class AbstractService {
         return builder;
     }
 
+    public AclDetails.Builder generateDescribeAcl(String topic, Optional<String> principal) {
+        AclDetails.Builder builder = new AclDetails.Builder()
+                .setHost("*")
+                .setName(topic)
+                .setOperation("DESCRIBE")
+                .setPermission("ALLOW")
+                .setPattern("LITERAL")
+                .setType("TOPIC");
+
+        principal.ifPresent(builder::setPrincipal);
+        return builder;
+    }
+
     public AclDetails.Builder generatePrefixedTopicACL(String topic, Optional<String> principal, String operation) {
         AclDetails.Builder builder = new AclDetails.Builder()
                 .setHost("*")
@@ -51,6 +64,19 @@ public abstract class AbstractService {
                 .setPermission("ALLOW")
                 .setPattern("LITERAL")
                 .setType("GROUP");
+
+        principal.ifPresent(builder::setPrincipal);
+        return builder;
+    }
+
+    public AclDetails.Builder generateClusterAcl(Optional<String> principal, String operation) {
+        AclDetails.Builder builder = new AclDetails.Builder()
+                .setHost("*")
+                .setName("kafka-cluster")
+                .setOperation(operation)
+                .setPermission("ALLOW")
+                .setPattern("LITERAL")
+                .setType("CLUSTER");
 
         principal.ifPresent(builder::setPrincipal);
         return builder;

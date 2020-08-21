@@ -1,5 +1,6 @@
 package com.devshawn.kafka.gitops.domain.state;
 
+import com.devshawn.kafka.gitops.domain.options.GetAclOptions;
 import com.devshawn.kafka.gitops.domain.state.service.ApplicationService;
 import com.devshawn.kafka.gitops.domain.state.service.KafkaConnectService;
 import com.devshawn.kafka.gitops.domain.state.service.KafkaStreamsService;
@@ -18,7 +19,7 @@ public abstract class ServiceDetails extends AbstractService {
 
     public String type;
 
-    public List<AclDetails.Builder> getAcls(String serviceName) {
+    public List<AclDetails.Builder> getAcls(GetAclOptions options) {
         throw new UnsupportedOperationException("Method getAcls is not implemented.");
     }
 }
