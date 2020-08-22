@@ -1,0 +1,131 @@
+{
+    "topicPlans": [
+        {
+            "name": "delete-topic",
+            "action": "NO_CHANGE",
+            "topicDetails": {
+                "partitions": 1,
+                "replication": 1,
+                "configs": {}
+            },
+            "topicConfigPlans": []
+        },
+        {
+            "name": "topic-with-configs-1",
+            "action": "UPDATE",
+            "topicDetails": {
+                "partitions": 3,
+                "replication": 1,
+                "configs": {
+                    "cleanup.policy": "compact",
+                    "retention.ms": "400000"
+                }
+            },
+            "topicConfigPlans": [
+                {
+                    "key": "cleanup.policy",
+                    "value": "compact",
+                    "action": "NO_CHANGE"
+                },
+                {
+                    "key": "segment.bytes",
+                    "value": null,
+                    "action": "REMOVE"
+                },
+                {
+                    "key": "retention.ms",
+                    "value": "400000",
+                    "action": "ADD"
+                }
+            ]
+        },
+        {
+            "name": "topic-with-configs-2",
+            "action": "NO_CHANGE",
+            "topicDetails": {
+                "partitions": 6,
+                "replication": 1,
+                "configs": {
+                    "retention.ms": "60000"
+                }
+            },
+            "topicConfigPlans": [
+                {
+                    "key": "retention.ms",
+                    "value": "60000",
+                    "action": "NO_CHANGE"
+                }
+            ]
+        },
+        {
+            "name": "new-topic",
+            "action": "ADD",
+            "topicDetails": {
+                "partitions": 3,
+                "replication": 1,
+                "configs": {}
+            },
+            "topicConfigPlans": []
+        },
+        {
+            "name": "test-topic",
+            "action": "REMOVE",
+            "topicDetails": null,
+            "topicConfigPlans": []
+        }
+    ],
+    "aclPlans": [
+        {
+            "name": "test-service-0",
+            "aclDetails": {
+                "name": "test-topic",
+                "type": "TOPIC",
+                "pattern": "LITERAL",
+                "principal": "User:test",
+                "host": "*",
+                "operation": "READ",
+                "permission": "ALLOW"
+            },
+            "action": "NO_CHANGE"
+        },
+        {
+            "name": "test-service-1",
+            "aclDetails": {
+                "name": "test-service",
+                "type": "GROUP",
+                "pattern": "LITERAL",
+                "principal": "User:test",
+                "host": "*",
+                "operation": "READ",
+                "permission": "ALLOW"
+            },
+            "action": "ADD"
+        },
+        {
+            "name": "new-service-0",
+            "aclDetails": {
+                "name": "delete-topic",
+                "type": "TOPIC",
+                "pattern": "LITERAL",
+                "principal": "User:new",
+                "host": "*",
+                "operation": "READ",
+                "permission": "ALLOW"
+            },
+            "action": "ADD"
+        },
+        {
+            "name": "new-service-1",
+            "aclDetails": {
+                "name": "new-service",
+                "type": "GROUP",
+                "pattern": "LITERAL",
+                "principal": "User:new",
+                "host": "*",
+                "operation": "READ",
+                "permission": "ALLOW"
+            },
+            "action": "ADD"
+        }
+    ]
+}

@@ -23,6 +23,9 @@ public class PlanCommand implements Callable<Integer> {
             description = "Specify the output file for the plan.")
     private File outputFile;
 
+    @CommandLine.Option(names = {"--include-unchanged"}, description = "Include unchanged resources in the plan file.")
+    private boolean includeUnchanged = false;
+
     @CommandLine.ParentCommand
     private MainCommand parent;
 
@@ -54,6 +57,7 @@ public class PlanCommand implements Callable<Integer> {
         return new ManagerConfig.Builder()
                 .setVerboseRequested(parent.isVerboseRequested())
                 .setDeleteDisabled(parent.isDeleteDisabled())
+                .setIncludeUnchangedEnabled(includeUnchanged)
                 .setStateFile(parent.getFile())
                 .setNullablePlanFile(outputFile)
                 .build();

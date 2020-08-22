@@ -3,7 +3,11 @@ package com.devshawn.kafka.gitops.cli;
 import com.devshawn.kafka.gitops.MainCommand;
 import com.devshawn.kafka.gitops.StateManager;
 import com.devshawn.kafka.gitops.config.ManagerConfig;
-import com.devshawn.kafka.gitops.exception.*;
+import com.devshawn.kafka.gitops.exception.ConfluentCloudException;
+import com.devshawn.kafka.gitops.exception.KafkaExecutionException;
+import com.devshawn.kafka.gitops.exception.MissingConfigurationException;
+import com.devshawn.kafka.gitops.exception.ValidationException;
+import com.devshawn.kafka.gitops.exception.WritePlanOutputException;
 import com.devshawn.kafka.gitops.service.ParserService;
 import com.devshawn.kafka.gitops.util.LogUtil;
 import picocli.CommandLine;
@@ -39,6 +43,7 @@ public class AccountCommand implements Callable<Integer> {
         return new ManagerConfig.Builder()
                 .setVerboseRequested(parent.isVerboseRequested())
                 .setDeleteDisabled(parent.isDeleteDisabled())
+                .setIncludeUnchangedEnabled(false)
                 .setStateFile(parent.getFile())
                 .build();
     }

@@ -1,10 +1,54 @@
 {
     "topicPlans": [
         {
-            "name": "test-topic",
-            "action": "UPDATE",
+            "name": "delete-topic",
+            "action": "NO_CHANGE",
             "topicDetails": {
                 "partitions": 1,
+                "replication": 1,
+                "configs": {}
+            },
+            "topicConfigPlans": []
+        },
+        {
+            "name": "test-topic",
+            "action": "NO_CHANGE",
+            "topicDetails": {
+                "partitions": 1,
+                "replication": 1,
+                "configs": {}
+            },
+            "topicConfigPlans": []
+        },
+        {
+            "name": "topic-with-configs-1",
+            "action": "NO_CHANGE",
+            "topicDetails": {
+                "partitions": 3,
+                "replication": 1,
+                "configs": {
+                    "cleanup.policy": "compact",
+                    "segment.bytes": "100000"
+                }
+            },
+            "topicConfigPlans": [
+                {
+                    "key": "cleanup.policy",
+                    "value": "compact",
+                    "action": "NO_CHANGE"
+                },
+                {
+                    "key": "segment.bytes",
+                    "value": "100000",
+                    "action": "NO_CHANGE"
+                }
+            ]
+        },
+        {
+            "name": "topic-with-configs-2",
+            "action": "NO_CHANGE",
+            "topicDetails": {
+                "partitions": 6,
                 "replication": 1,
                 "configs": {
                     "retention.ms": "60000"
@@ -14,72 +58,14 @@
                 {
                     "key": "retention.ms",
                     "value": "60000",
-                    "action": "ADD"
+                    "action": "NO_CHANGE"
                 }
             ]
-        },
-        {
-            "name": "new-topic",
-            "action": "ADD",
-            "topicDetails": {
-                "partitions": 6,
-                "replication": 1,
-                "configs": {}
-            },
-            "topicConfigPlans": []
-        },
-        {
-            "name": "topic-with-configs-1",
-            "action": "UPDATE",
-            "topicDetails": {
-                "partitions": 3,
-                "replication": 1,
-                "configs": {
-                    "retention.ms": "100000",
-                    "cleanup.policy": "compact"
-                }
-            },
-            "topicConfigPlans": [
-                {
-                    "key": "segment.bytes",
-                    "value": null,
-                    "action": "REMOVE"
-                },
-                {
-                    "key": "retention.ms",
-                    "value": "100000",
-                    "action": "ADD"
-                }
-            ]
-        },
-        {
-            "name": "topic-with-configs-2",
-            "action": "UPDATE",
-            "topicDetails": {
-                "partitions": 3,
-                "replication": 1,
-                "configs": {
-                    "retention.ms": "100000"
-                }
-            },
-            "topicConfigPlans": [
-                {
-                    "key": "retention.ms",
-                    "value": "100000",
-                    "action": "UPDATE"
-                }
-            ]
-        },
-        {
-            "name": "delete-topic",
-            "action": "REMOVE",
-            "topicDetails": null,
-            "topicConfigPlans": []
         }
     ],
     "aclPlans": [
         {
-            "name": "Unnamed ACL",
+            "name": "test-service-0",
             "aclDetails": {
                 "name": "test-topic",
                 "type": "TOPIC",
@@ -89,7 +75,7 @@
                 "operation": "READ",
                 "permission": "ALLOW"
             },
-            "action": "REMOVE"
+            "action": "NO_CHANGE"
         }
     ]
-}%
+}

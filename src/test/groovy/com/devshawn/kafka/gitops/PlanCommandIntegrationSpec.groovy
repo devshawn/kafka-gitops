@@ -108,6 +108,40 @@ class PlanCommandIntegrationSpec extends Specification {
         "seed-blacklist-topics"             | false
     }
 
+    void 'test include unchanged flag - #planNam #includeUnchanged'() {
+        setup:
+        TestUtils.cleanUpCluster()
+        TestUtils.seedCluster()
+        String planOutputFile = "/tmp/plan.json"
+        String file = TestUtils.getResourceFilePath("plans/${planName}.yaml")
+        MainCommand mainCommand = new MainCommand()
+        CommandLine cmd = new CommandLine(mainCommand)
+
+        when:
+        int exitCode = -1
+        if (includeUnchanged) {
+            exitCode = cmd.execute("-f", file, "plan", "--include-unchanged", "-o", planOutputFile)
+        } else {
+            exitCode = cmd.execute("-f", file, "plan", "-o", planOutputFile)
+        }
+
+        then:
+        exitCode == 0
+
+        when:
+        String expected = includeUnchanged ? "${planName}-include-unchanged" : planName
+        String actualPlan = TestUtils.getFileContent(planOutputFile)
+        String expectedPlan = TestUtils.getResourceFileContent("plans/${expected}-plan.json")
+
+        then:
+        JSONAssert.assertEquals(expectedPlan, actualPlan, true)
+
+        where:
+        planName     | includeUnchanged
+        "seed-basic" | false
+        "seed-basic" | true
+    }
+
     void 'test invalid plans - #planName'() {
         setup:
         ByteArrayOutputStream err = new ByteArrayOutputStream()
@@ -187,7 +221,7 @@ class PlanCommandIntegrationSpec extends Specification {
         System.setOut(oldOut)
     }
 
-    void 'test plan that has no changes'() {
+    void 'test plan that has no changes - #includeUnchanged'() {
         setup:
         TestUtils.cleanUpCluster()
         TestUtils.seedCluster()
@@ -200,15 +234,21 @@ class PlanCommandIntegrationSpec extends Specification {
         CommandLine cmd = new CommandLine(mainCommand)
 
         when:
-        int exitCode = cmd.execute("-f", file, "plan", "-o", planOutputFile)
+        int exitCode = -1
+        if (includeUnchanged) {
+            exitCode = cmd.execute("-f", file, "plan", "--include-unchanged", "-o", planOutputFile)
+        } else {
+            exitCode = cmd.execute("-f", file, "plan", "-o", planOutputFile)
+        }
 
         then:
         exitCode == 0
         out.toString() == TestUtils.getResourceFileContent("plans/no-changes-output.txt")
 
         when:
+        String expected = includeUnchanged ? "${planName}-include-unchanged" : planName
         String actualPlan = TestUtils.getFileContent(planOutputFile)
-        String expectedPlan = TestUtils.getResourceFileContent("plans/${planName}-plan.json")
+        String expectedPlan = TestUtils.getResourceFileContent("plans/${expected}-plan.json")
 
         then:
         JSONAssert.assertEquals(expectedPlan, actualPlan, true)
@@ -217,6 +257,8 @@ class PlanCommandIntegrationSpec extends Specification {
         System.setOut(oldOut)
 
         where:
-        planName << ["no-changes"]
+        planName     | includeUnchanged
+        "no-changes" | false
+        "no-changes" | true
     }
 }
