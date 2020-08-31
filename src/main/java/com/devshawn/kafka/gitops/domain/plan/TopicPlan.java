@@ -20,6 +20,12 @@ public interface TopicPlan {
 
     List<TopicConfigPlan> getTopicConfigPlans();
 
+    default TopicPlan toChangesOnlyPlan() {
+        TopicPlan.Builder builder = new TopicPlan.Builder().setName(getName()).setAction(getAction()).setTopicDetails(getTopicDetails());
+        getTopicConfigPlans().stream().filter(it -> !it.getAction().equals(PlanAction.NO_CHANGE)).forEach(builder::addTopicConfigPlans);
+        return builder.build();
+    }
+
     class Builder extends TopicPlan_Builder {
     }
 }

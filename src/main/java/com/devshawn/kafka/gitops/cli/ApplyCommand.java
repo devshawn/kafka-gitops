@@ -53,6 +53,7 @@ public class ApplyCommand implements Callable<Integer> {
         return new ManagerConfig.Builder()
                 .setVerboseRequested(parent.isVerboseRequested())
                 .setDeleteDisabled(parent.isDeleteDisabled())
+                .setIncludeUnchangedEnabled(false)
                 .setStateFile(parent.getFile())
                 .setNullablePlanFile(planFile)
                 .build();

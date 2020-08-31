@@ -1,0 +1,85 @@
+{
+    "topicPlans": [
+        {
+            "name": "topic-with-configs-1",
+            "action": "UPDATE",
+            "topicDetails": {
+                "partitions": 3,
+                "replication": 1,
+                "configs": {
+                    "cleanup.policy": "compact",
+                    "retention.ms": "400000"
+                }
+            },
+            "topicConfigPlans": [
+                {
+                    "key": "segment.bytes",
+                    "value": null,
+                    "action": "REMOVE"
+                },
+                {
+                    "key": "retention.ms",
+                    "value": "400000",
+                    "action": "ADD"
+                }
+            ]
+        },
+        {
+            "name": "new-topic",
+            "action": "ADD",
+            "topicDetails": {
+                "partitions": 3,
+                "replication": 1,
+                "configs": {}
+            },
+            "topicConfigPlans": []
+        },
+        {
+            "name": "test-topic",
+            "action": "REMOVE",
+            "topicDetails": null,
+            "topicConfigPlans": []
+        }
+    ],
+    "aclPlans": [
+        {
+            "name": "test-service-1",
+            "aclDetails": {
+                "name": "test-service",
+                "type": "GROUP",
+                "pattern": "LITERAL",
+                "principal": "User:test",
+                "host": "*",
+                "operation": "READ",
+                "permission": "ALLOW"
+            },
+            "action": "ADD"
+        },
+        {
+            "name": "new-service-0",
+            "aclDetails": {
+                "name": "delete-topic",
+                "type": "TOPIC",
+                "pattern": "LITERAL",
+                "principal": "User:new",
+                "host": "*",
+                "operation": "READ",
+                "permission": "ALLOW"
+            },
+            "action": "ADD"
+        },
+        {
+            "name": "new-service-1",
+            "aclDetails": {
+                "name": "new-service",
+                "type": "GROUP",
+                "pattern": "LITERAL",
+                "principal": "User:new",
+                "host": "*",
+                "operation": "READ",
+                "permission": "ALLOW"
+            },
+            "action": "ADD"
+        }
+    ]
+}

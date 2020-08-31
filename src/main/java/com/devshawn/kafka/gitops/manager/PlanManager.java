@@ -198,8 +198,9 @@ public class PlanManager {
         if (managerConfig.getPlanFile().isPresent()) {
             try {
                 managerConfig.getPlanFile().get().createNewFile();
+                DesiredPlan outputPlan = managerConfig.isIncludeUnchangedEnabled() ? desiredPlan : desiredPlan.toChangesOnlyPlan();
                 FileWriter writer = new FileWriter(managerConfig.getPlanFile().get());
-                writer.write(objectMapper.writeValueAsString(desiredPlan));
+                writer.write(objectMapper.writeValueAsString(outputPlan));
                 writer.close();
             } catch (IOException ex) {
                 throw new WritePlanOutputException(ex.getMessage());

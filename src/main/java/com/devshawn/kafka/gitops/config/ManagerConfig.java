@@ -14,6 +14,8 @@ public interface ManagerConfig {
 
     boolean isDeleteDisabled();
 
+    boolean isIncludeUnchangedEnabled();
+
     File getStateFile();
 
     Optional<File> getPlanFile();
