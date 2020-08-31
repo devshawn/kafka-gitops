@@ -27,6 +27,7 @@ public class AccountCommand implements Callable<Integer> {
             ParserService parserService = new ParserService(parent.getFile());
             StateManager stateManager = new StateManager(generateStateManagerConfig(), parserService);
             stateManager.createServiceAccounts();
+            return 0;
         } catch (MissingConfigurationException | ConfluentCloudException ex) {
             LogUtil.printSimpleError(ex.getMessage());
         } catch (ValidationException ex) {
