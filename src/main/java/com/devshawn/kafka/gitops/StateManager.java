@@ -127,9 +127,10 @@ public class StateManager {
     }
 
     private void createServiceAccount(String name, List<ServiceAccount> serviceAccounts, AtomicInteger count, boolean isUser) {
-        if (serviceAccounts.stream().noneMatch(it -> it.getName().equals(isUser ? String.format("user-%s", name) : name))) {
+        String fullName = isUser ? String.format("user-%s", name) : name;
+        if (serviceAccounts.stream().noneMatch(it -> it.getName().equals(fullName))) {
             confluentCloudService.createServiceAccount(name, isUser);
-            LogUtil.printSimpleSuccess(String.format("Successfully created service account: %s", name));
+            LogUtil.printSimpleSuccess(String.format("Successfully created service account: %s", fullName));
             count.getAndIncrement();
         }
     }
