@@ -27,7 +27,7 @@ jobs:
         uses: mr-smithers-excellent/docker-build-push@v2
         with:
           image: devshawn/kafka-gitops
-          tag: ${{ steps.get_version.outputs.VERSION }}
+          tag: ${{ steps.get_version.outputs.VERSION }},latest
           registry: docker.io
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
