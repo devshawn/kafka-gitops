@@ -24,13 +24,14 @@ jobs:
         run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
 
       - name: Build & Push Docker Image
-        uses: mr-smithers-excellent/docker-build-push@v2
+        uses: docker/build-push-action@v1
         with:
           image: devshawn/kafka-gitops
-          tag: ${{ steps.get_version.outputs.VERSION }},latest
+          tags: ${{ steps.get_version.outputs.VERSION }},latest
           registry: docker.io
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+          push: ${{ startsWith(github.ref, 'refs/tags/') }}
 
       - name: Create Release
         id: create_release
