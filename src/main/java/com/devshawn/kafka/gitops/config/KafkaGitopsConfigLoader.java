@@ -68,12 +68,19 @@ public class KafkaGitopsConfigLoader {
             }
 
             String value = String.format("%s required username=\"%s\" password=\"%s\";",
-                    loginModule, username.get(), password.get());
+                    loginModule, escape(username.get()), escape(password.get()));
             config.put(SaslConfigs.SASL_JAAS_CONFIG, value);
         } else if (username.get() != null) {
             throw new MissingConfigurationException("KAFKA_SASL_JAAS_PASSWORD");
         } else if (password.get() != null) {
             throw new MissingConfigurationException("KAFKA_SASL_JAAS_USERNAME");
         }
+    }
+
+    private static String escape(String value) {
+        if (value != null) {
+            return value.replace("\"", "\\\"");
+        }
+        return null;
     }
 }
