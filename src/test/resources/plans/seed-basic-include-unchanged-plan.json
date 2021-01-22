@@ -25,16 +25,19 @@
                 {
                     "key": "cleanup.policy",
                     "value": "compact",
+                    "previousValue": null,
                     "action": "NO_CHANGE"
                 },
                 {
                     "key": "segment.bytes",
                     "value": null,
+                    "previousValue": null,
                     "action": "REMOVE"
                 },
                 {
                     "key": "retention.ms",
                     "value": "400000",
+                    "previousValue": null,
                     "action": "ADD"
                 }
             ]
@@ -53,6 +56,7 @@
                 {
                     "key": "retention.ms",
                     "value": "60000",
+                    "previousValue": null,
                     "action": "NO_CHANGE"
                 }
             ]

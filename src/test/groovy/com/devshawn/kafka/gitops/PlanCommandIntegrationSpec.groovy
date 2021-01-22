@@ -241,7 +241,10 @@ class PlanCommandIntegrationSpec extends Specification {
 
         then:
         exitCode == 2
-        out.toString().contains("Permission denied") || out.toString().contains("Read-only")
+        out.toString().contains("Permission denied") \
+          || out.toString().contains("Permission non accordée") \
+          || out.toString().contains("Read-only") \
+          || out.toString().contains("Lecture seule")
 
         cleanup:
         System.setOut(oldOut)

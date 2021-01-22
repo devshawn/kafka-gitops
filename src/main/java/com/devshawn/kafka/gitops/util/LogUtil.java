@@ -72,7 +72,7 @@ public class LogUtil {
                 System.out.println(green(String.format("\t\t+ %s: %s", topicConfigPlan.getKey(), topicConfigPlan.getValue().get())));
                 break;
             case UPDATE:
-                System.out.println(yellow(String.format("\t\t~ %s: %s", topicConfigPlan.getKey(), topicConfigPlan.getValue().get())));
+                System.out.println(yellow(String.format("\t\t~ %s: %s ( %s )", topicConfigPlan.getKey(), topicConfigPlan.getValue().get(), topicConfigPlan.getPreviousValue().get())));
                 break;
             case REMOVE:
                 System.out.println(red(String.format("\t\t- %s", topicConfigPlan.getKey())));

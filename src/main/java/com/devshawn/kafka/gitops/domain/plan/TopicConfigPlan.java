@@ -13,6 +13,8 @@ public interface TopicConfigPlan {
     String getKey();
 
     Optional<String> getValue();
+    
+    Optional<String> getPreviousValue();
 
     PlanAction getAction();
 

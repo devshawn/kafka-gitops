@@ -14,6 +14,7 @@
                 {
                     "key": "retention.ms",
                     "value": "60000",
+                    "previousValue": null,
                     "action": "ADD"
                 }
             ]
@@ -32,16 +33,19 @@
                 {
                     "key": "cleanup.policy",
                     "value": null,
+                    "previousValue": null,
                     "action": "REMOVE"
                 },
                 {
                     "key": "segment.bytes",
                     "value": null,
+                    "previousValue": null,
                     "action": "REMOVE"
                 },
                 {
                     "key": "retention.ms",
                     "value": "100000",
+                    "previousValue": null,
                     "action": "ADD"
                 }
             ]

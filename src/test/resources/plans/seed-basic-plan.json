@@ -15,11 +15,13 @@
                 {
                     "key": "segment.bytes",
                     "value": null,
+                    "previousValue": null,
                     "action": "REMOVE"
                 },
                 {
                     "key": "retention.ms",
                     "value": "400000",
+                    "previousValue": null,
                     "action": "ADD"
                 }
             ]

@@ -115,13 +115,15 @@ public class PlanManager {
             TopicConfigPlan.Builder topicConfigPlan = new TopicConfigPlan.Builder()
                     .setKey(key)
                     .setValue(value);
+                    
 
             if (currentConfig == null) {
                 topicConfigPlan.setAction(PlanAction.ADD);
                 configPlans.put(key, topicConfigPlan.build());
                 topicPlan.setAction(PlanAction.UPDATE);
             } else if (!currentConfig.value().equals(value)) {
-                topicConfigPlan.setAction(PlanAction.UPDATE);
+                topicConfigPlan.setPreviousValue(currentConfig.value())
+                .setAction(PlanAction.UPDATE);
                 configPlans.put(key, topicConfigPlan.build());
                 topicPlan.setAction(PlanAction.UPDATE);
             }
@@ -203,7 +205,7 @@ public class PlanManager {
                 writer.write(objectMapper.writeValueAsString(outputPlan));
                 writer.close();
             } catch (IOException ex) {
-                throw new WritePlanOutputException(ex.getMessage());
+                throw new WritePlanOutputException(ex.getMessage() + " ('" + managerConfig.getPlanFile().get() + "')");
             }
         }
     }
