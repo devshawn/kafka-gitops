@@ -13,7 +13,7 @@ Applying: [CREATE]
 
 + [TOPIC] new-topic
 	+ partitions: 6
-	+ replication: 1
+	+ replication: 2
 
 
 Successfully applied.

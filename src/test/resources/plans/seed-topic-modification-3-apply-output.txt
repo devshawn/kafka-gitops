@@ -13,7 +13,7 @@ Applying: [CREATE]
 
 + [TOPIC] new-topic
 	+ partitions: 6
-	+ replication: 1
+	+ replication: 2
 
 
 Successfully applied.
@@ -32,7 +32,7 @@ Applying: [UPDATE]
 
 ~ [TOPIC] topic-with-configs-2
 	~ configs:
-		~ retention.ms: 100000
+		~ retention.ms: 100000 ( 60000 )
 
 
 Successfully applied.

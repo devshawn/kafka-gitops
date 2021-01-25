@@ -1,7 +1,7 @@
 settings:
   topics:
     defaults:
-      replication: 1
+      replication: 2
 
 topics:
   test-topic:

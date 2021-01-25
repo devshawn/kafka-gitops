@@ -117,14 +117,16 @@ class ApplyCommandIntegrationSpec extends Specification {
         System.setOut(oldOut)
 
         where:
-        planFile                       | deleteDisabled
-        "seed-topic-modification"      | true
-        "seed-topic-modification"      | false
-        "seed-topic-modification-3"    | true
-        "seed-topic-modification-3"    | false
-        "seed-acl-exists"              | false
-        "no-changes"                   | false
-        "no-changes-include-unchanged" | false
+        planFile                         | deleteDisabled
+        "seed-topic-modification"        | true
+        "seed-topic-modification"        | false
+        "seed-topic-modification-3"      | true
+        "seed-topic-modification-3"      | false
+        "seed-topic-add-replicas"        | false
+        "seed-topic-add-partitions"      | false
+        "seed-acl-exists"                | false
+        "no-changes"                     | false
+        "no-changes-include-unchanged"   | false
     }
 
     void 'test reading missing file throws ReadPlanInputException'() {

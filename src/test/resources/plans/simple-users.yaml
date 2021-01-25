@@ -1,7 +1,7 @@
 topics:
   test-topic:
     partitions: 6
-    replication: 1
+    replication: 2
 
 users:
   test-user:

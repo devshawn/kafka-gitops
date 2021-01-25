@@ -1,0 +1,3 @@
+Generating execution plan...
+
+[INVALID] Removing the partition number is not supported by Apache Kafka (topic: topic-with-configs-2 (6 -> 2))

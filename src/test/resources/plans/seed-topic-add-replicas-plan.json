@@ -1,34 +1,29 @@
 {
     "topicPlans": [
         {
-            "name": "new-topic",
-            "action": "ADD",
+            "name": "topic-with-configs-1",
+            "action": "UPDATE",
             "topicDetailsPlan": {
-                "partitions": 6,
+                "partitions": null,
                 "previousPartitions": null,
-                "partitionsAction": "ADD",
-                "replication": 2,
-                "previousReplication": null,
-                "replicationAction": "ADD"
+                "partitionsAction": "NO_CHANGE",
+                "replication": 3,
+                "previousReplication": 2,
+                "replicationAction": "UPDATE"
             },
             "topicConfigPlans": []
         },
         {
-            "name": "delete-topic",
-            "action": "REMOVE",
-            "topicDetailsPlan": null,
-            "topicConfigPlans": []
-        },
-        {
             "name": "topic-with-configs-2",
-            "action": "REMOVE",
-            "topicDetailsPlan": null,
-            "topicConfigPlans": []
-        },
-        {
-            "name": "topic-with-configs-1",
-            "action": "REMOVE",
-            "topicDetailsPlan": null,
+            "action": "UPDATE",
+            "topicDetailsPlan": {
+                "partitions": null,
+                "previousPartitions": null,
+                "partitionsAction": "NO_CHANGE",
+                "replication": 3,
+                "previousReplication": 2,
+                "replicationAction": "UPDATE"
+            },
             "topicConfigPlans": []
         }
     ],

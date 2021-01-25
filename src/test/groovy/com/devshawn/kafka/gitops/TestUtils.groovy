@@ -33,20 +33,21 @@ class TestUtils {
     }
 
     static void cleanUpCluster() {
-        def conditions = new PollingConditions(timeout: 20, initialDelay: 2, factor: 1.25)
+        def conditions = new PollingConditions(timeout: 60, initialDelay: 2, factor: 1.25)
 
         try {
             AdminClient adminClient = AdminClient.create(getKafkaConfig())
             Set<String> topics = adminClient.listTopics().names().get()
             adminClient.deleteTopics(topics).all().get()
-
-            AclBindingFilter filter = getWildcardFilter()
-            adminClient.deleteAcls(Collections.singletonList(filter))
-
+            
             conditions.eventually {
                 Set<String> remainingTopics = adminClient.listTopics().names().get()
                 assert remainingTopics.size() == 0
-
+            }
+            
+            AclBindingFilter filter = getWildcardFilter()
+            adminClient.deleteAcls(Collections.singletonList(filter))
+            conditions.eventually {
                 List<AclBinding> acls = new ArrayList<>(adminClient.describeAcls(filter).values().get())
                 assert acls.size() == 0
             }
@@ -59,7 +60,7 @@ class TestUtils {
     }
 
     static void seedCluster() {
-        def conditions = new PollingConditions(timeout: 20, initialDelay: 2, factor: 1.25)
+        def conditions = new PollingConditions(timeout: 60, initialDelay: 2, factor: 1.25)
 
         try {
             AdminClient adminClient = AdminClient.create(getKafkaConfig())
@@ -79,6 +80,7 @@ class TestUtils {
             println "Finished seeding kafka cluster"
         } catch (Exception ex) {
             println "Error seeding up kafka cluster"
+            ex.printStackTrace()
         }
     }
 
@@ -87,7 +89,7 @@ class TestUtils {
     }
 
     static void createTopic(String name, int partitions, AdminClient adminClient, Map<String, String> configs) {
-        NewTopic newTopic = new NewTopic(name, partitions, (short) 1)
+        NewTopic newTopic = new NewTopic(name, partitions, (short) 2)
         if (configs != null) {
             newTopic.configs(configs)
         }

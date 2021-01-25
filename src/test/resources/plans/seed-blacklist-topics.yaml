@@ -7,4 +7,4 @@ settings:
 topics:
   new-topic:
     partitions: 6
-    replication: 1
+    replication: 2

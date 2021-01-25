@@ -3,12 +3,13 @@
         {
             "name": "test-topic",
             "action": "UPDATE",
-            "topicDetails": {
-                "partitions": 1,
-                "replication": 1,
-                "configs": {
-                    "retention.ms": "60000"
-                }
+            "topicDetailsPlan": {
+                "partitions": null,
+                "previousPartitions": null,
+                "partitionsAction": "NO_CHANGE",
+                "replication": null,
+                "previousReplication": null,
+                "replicationAction": "NO_CHANGE"
             },
             "topicConfigPlans": [
                 {
@@ -22,12 +23,13 @@
         {
             "name": "topic-with-configs-1",
             "action": "UPDATE",
-            "topicDetails": {
-                "partitions": 3,
-                "replication": 1,
-                "configs": {
-                    "retention.ms": "100000"
-                }
+            "topicDetailsPlan": {
+                "partitions": null,
+                "previousPartitions": null,
+                "partitionsAction": "NO_CHANGE",
+                "replication": null,
+                "previousReplication": null,
+                "replicationAction": "NO_CHANGE"
             },
             "topicConfigPlans": [
                 {
