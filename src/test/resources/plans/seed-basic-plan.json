@@ -3,19 +3,12 @@
         {
             "name": "topic-with-configs-1",
             "action": "UPDATE",
-            "topicDetailsPlan": {
-                "partitions": null,
-                "previousPartitions": null,
-                "partitionsAction": "NO_CHANGE",
-                "replication": null,
-                "previousReplication": null,
-                "replicationAction": "NO_CHANGE"
-            },
+            "topicDetailsPlan": null,
             "topicConfigPlans": [
                 {
                     "key": "segment.bytes",
                     "value": null,
-                    "previousValue": null,
+                    "previousValue": "100000",
                     "action": "REMOVE"
                 },
                 {

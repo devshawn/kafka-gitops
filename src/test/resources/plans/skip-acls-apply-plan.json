@@ -3,25 +3,41 @@
         {
             "name": "MY_TOPIC",
             "action": "ADD",
-            "topicDetails": {
+            "topicDetailsPlan": {
                 "partitions": 6,
+                "previousPartitions": null,
+                "partitionsAction": "ADD",
                 "replication": 1,
-                "configs": {}
+                "previousReplication": null,
+                "replicationAction": "ADD"
             },
             "topicConfigPlans": []
         },
         {
             "name": "another.topic.0",
             "action": "ADD",
-            "topicDetails": {
+            "topicDetailsPlan": {
                 "partitions": 1,
+                "previousPartitions": null,
+                "partitionsAction": "ADD",
                 "replication": 1,
-                "configs": {
-                    "cleanup.policy": "compact",
-                    "segment.bytes": "100000"
-                }
+                "previousReplication": null,
+                "replicationAction": "ADD"
             },
-            "topicConfigPlans": []
+            "topicConfigPlans": [
+                {
+                    "key": "cleanup.policy",
+                    "value": "compact",
+                    "previousValue": null,
+                    "action": "ADD"
+                },
+                {
+                    "key": "segment.bytes",
+                    "value": "100000",
+                    "previousValue": null,
+                    "action": "ADD"
+                }
+            ]
         }
     ],
     "aclPlans": [

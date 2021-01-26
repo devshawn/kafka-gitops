@@ -22,9 +22,8 @@ public interface TopicPlan {
     default TopicPlan toChangesOnlyPlan() {
         TopicPlan.Builder builder = new TopicPlan.Builder().setName(getName()).setAction(getAction());
         
-        if(getTopicDetailsPlan().isPresent()) {
-            builder.setTopicDetailsPlan(TopicDetailsPlan.toChangesOnlyPlan(getTopicDetailsPlan().get()));
-        }
+        builder.setTopicDetailsPlan(TopicDetailsPlan.toChangesOnlyPlan(getTopicDetailsPlan()));
+
         getTopicConfigPlans().stream().filter(it -> !it.getAction().equals(PlanAction.NO_CHANGE)).forEach(builder::addTopicConfigPlans);
         return builder.build();
     }

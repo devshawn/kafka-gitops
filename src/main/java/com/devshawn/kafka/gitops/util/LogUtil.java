@@ -46,7 +46,9 @@ public class LogUtil {
                 break;
             case UPDATE:
                 System.out.println(yellow(String.format("~ [TOPIC] %s", topicPlan.getName())));
-                LogUtil.printTopicDetailsPlan(topicPlan.getTopicDetailsPlan().get());
+                if(topicPlan.getTopicDetailsPlan().isPresent()) {
+                    LogUtil.printTopicDetailsPlan(topicPlan.getTopicDetailsPlan().get());
+                }
                 if(!topicPlan.getTopicConfigPlans().isEmpty()) {
                     System.out.println(yellow("\t~ configs:"));
                     topicPlan.getTopicConfigPlans().forEach(LogUtil::printTopicConfigPlan);
@@ -78,7 +80,7 @@ public class LogUtil {
                 System.out.println(yellow(String.format("\t~ partitions: %s (%s)", topicDetailsPlan.getPartitions().get(), topicDetailsPlan.getPreviousPartitions().get())));
                 break;
             case REMOVE:
-                System.out.println(red(String.format("\t- partitions")));
+                System.out.println(red(String.format("\t- partitions (%s)", topicDetailsPlan.getPreviousPartitions().get())));
                 break;
             case NO_CHANGE:
                 break;
@@ -91,7 +93,7 @@ public class LogUtil {
               System.out.println(yellow(String.format("\t~ replication: %s (%s)", topicDetailsPlan.getReplication().get(), topicDetailsPlan.getPreviousReplication().get())));
               break;
           case REMOVE:
-              System.out.println(red(String.format("\t- replication")));
+              System.out.println(red(String.format("\t- replication (%s)", topicDetailsPlan.getPreviousReplication().get())));
               break;
           case NO_CHANGE:
               break;
@@ -107,7 +109,7 @@ public class LogUtil {
                 System.out.println(yellow(String.format("\t\t~ %s: %s ( %s )", topicConfigPlan.getKey(), topicConfigPlan.getValue().get(), topicConfigPlan.getPreviousValue().get())));
                 break;
             case REMOVE:
-                System.out.println(red(String.format("\t\t- %s", topicConfigPlan.getKey())));
+                System.out.println(red(String.format("\t\t- %s (%s)", topicConfigPlan.getKey(), topicConfigPlan.getPreviousValue().get())));
                 break;
             case NO_CHANGE:
               break;

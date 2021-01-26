@@ -16,19 +16,28 @@ public interface TopicDetailsPlan {
     Optional<Integer> getPreviousReplication();
     PlanAction getReplicationAction();
 
-    public static TopicDetailsPlan toChangesOnlyPlan(TopicDetailsPlan topicDetailsPlan) {
+    public static Optional<TopicDetailsPlan> toChangesOnlyPlan(Optional<TopicDetailsPlan> topicDetailsPlan) {
+        if(! topicDetailsPlan.isPresent()) {
+          return topicDetailsPlan;
+        }
         TopicDetailsPlan.Builder builder = new TopicDetailsPlan.Builder();
-        builder.setReplicationAction(topicDetailsPlan.getReplicationAction());
-        builder.setPartitionsAction(topicDetailsPlan.getPartitionsAction());
-        if ( topicDetailsPlan.getReplicationAction() != null && ! topicDetailsPlan.getReplicationAction().equals(PlanAction.NO_CHANGE)) {
-            builder.setReplication(topicDetailsPlan.getReplication());
-            builder.setPreviousReplication(topicDetailsPlan.getPreviousReplication());
+        builder.setReplicationAction(topicDetailsPlan.get().getReplicationAction());
+        builder.setPartitionsAction(topicDetailsPlan.get().getPartitionsAction());
+        boolean nochanges = true;
+        if ( topicDetailsPlan.get().getReplicationAction() != null && ! topicDetailsPlan.get().getReplicationAction().equals(PlanAction.NO_CHANGE)) {
+            builder.setReplication(topicDetailsPlan.get().getReplication());
+            builder.setPreviousReplication(topicDetailsPlan.get().getPreviousReplication());
+            nochanges = false;
         }
-        if (topicDetailsPlan.getPartitionsAction() != null && ! topicDetailsPlan.getPartitionsAction().equals(PlanAction.NO_CHANGE)) {
-          builder.setPartitions(topicDetailsPlan.getPartitions());
-            builder.setPreviousPartitions(topicDetailsPlan.getPreviousPartitions());
+        if (topicDetailsPlan.get().getPartitionsAction() != null && ! topicDetailsPlan.get().getPartitionsAction().equals(PlanAction.NO_CHANGE)) {
+          builder.setPartitions(topicDetailsPlan.get().getPartitions());
+            builder.setPreviousPartitions(topicDetailsPlan.get().getPreviousPartitions());
+            nochanges = false;
         }
-        return builder.build();
+        if(nochanges) {
+          return Optional.<TopicDetailsPlan>empty();
+        }
+        return Optional.of(builder.build());
     }
     class Builder extends TopicDetailsPlan_Builder {
     }

@@ -60,7 +60,7 @@ public class PlanManager {
 
             TopicPlan.Builder topicPlan = new TopicPlan.Builder()
                 .setName(key);
-
+            boolean topicDetailsAddOrUpdate = false;
             if (!topicNames.contains(key)) {
                 log.info("[PLAN] Topic {} does not exist; it will be created.", key);
                 topicPlan.setAction(PlanAction.ADD);
@@ -69,12 +69,15 @@ public class PlanManager {
                     .setReplicationAction(PlanAction.ADD)
                     .setReplication(value.getReplication().get());
                 planTopicConfigurations(key, value, topicConfigs.get(key), topicPlan);
+                topicDetailsAddOrUpdate = true;
             } else {
                 log.info("[PLAN] Topic {} exists, it will not be created.", key);
-                topicPlan.setAction(PlanAction.NO_CHANGE);
-                
                 TopicDescription topicDescription = topics.get(key);
-                boolean topicDetailsUpdated = false;
+                
+                topicPlan.setAction(PlanAction.NO_CHANGE);
+                topicDetailsPlan.setPartitions(topicDescription.partitions().size())
+                    .setReplication(topicDescription.partitions().get(0).replicas().size());
+
                 if (value.getPartitions().intValue() != topicDescription.partitions().size()) {
                     if( value.getPartitions().intValue() < topicDescription.partitions().size()) {
                         throw new ValidationException("Removing the partition number is not supported by Apache Kafka "
@@ -83,16 +86,16 @@ public class PlanManager {
                     topicDetailsPlan.setPartitions(value.getPartitions())
                         .setPreviousPartitions(topicDescription.partitions().size());
                     topicDetailsPlan.setPartitionsAction(PlanAction.UPDATE);
-                    topicDetailsUpdated = true;
+                    topicDetailsAddOrUpdate = true;
                 }
                 if (value.getReplication().isPresent() && 
                        ( value.getReplication().get().intValue() != topicDescription.partitions().get(0).replicas().size()) ) {
                     topicDetailsPlan.setReplication(value.getReplication().get())
                         .setPreviousReplication(topicDescription.partitions().get(0).replicas().size());
                     topicDetailsPlan.setReplicationAction(PlanAction.UPDATE);
-                    topicDetailsUpdated = true;
+                    topicDetailsAddOrUpdate = true;
                 }
-                if (topicDetailsUpdated) {
+                if (topicDetailsAddOrUpdate) {
                     topicPlan.setAction(PlanAction.UPDATE);
                 }
 
@@ -140,6 +143,7 @@ public class PlanManager {
                 configPlans.put(currentConfig.name(), topicConfigPlan.build());
             } else if (newConfig == null) {
                 topicConfigPlan.setAction(PlanAction.REMOVE);
+                topicConfigPlan.setPreviousValue(currentConfig.value());
                 configPlans.put(currentConfig.name(), topicConfigPlan.build());
                 if (topicPlan.getAction() == null || topicPlan.getAction().equals(PlanAction.NO_CHANGE)) {
                   topicPlan.setAction(PlanAction.UPDATE);
@@ -153,7 +157,6 @@ public class PlanManager {
             TopicConfigPlan.Builder topicConfigPlan = new TopicConfigPlan.Builder()
                     .setKey(key)
                     .setValue(value);
-                    
 
             if (currentConfig == null) {
                 topicConfigPlan.setAction(PlanAction.ADD);

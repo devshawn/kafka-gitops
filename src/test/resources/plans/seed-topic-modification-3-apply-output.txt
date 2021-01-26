@@ -22,7 +22,7 @@ Applying: [UPDATE]
 
 ~ [TOPIC] topic-with-configs-1
 	~ configs:
-		- segment.bytes
+		- segment.bytes (100000)
 		+ retention.ms: 100000
 
 

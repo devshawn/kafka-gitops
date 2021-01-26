@@ -4,10 +4,10 @@
             "name": "delete-topic",
             "action": "NO_CHANGE",
             "topicDetailsPlan": {
-                "partitions": null,
+                "partitions": 1,
                 "previousPartitions": null,
                 "partitionsAction": "NO_CHANGE",
-                "replication": null,
+                "replication": 2,
                 "previousReplication": null,
                 "replicationAction": "NO_CHANGE"
             },
@@ -17,10 +17,10 @@
             "name": "test-topic",
             "action": "NO_CHANGE",
             "topicDetailsPlan": {
-                "partitions": null,
+                "partitions": 1,
                 "previousPartitions": null,
                 "partitionsAction": "NO_CHANGE",
-                "replication": null,
+                "replication": 2,
                 "previousReplication": null,
                 "replicationAction": "NO_CHANGE"
             },
@@ -30,10 +30,10 @@
             "name": "topic-with-configs-1",
             "action": "NO_CHANGE",
             "topicDetailsPlan": {
-                "partitions": null,
+                "partitions": 3,
                 "previousPartitions": null,
                 "partitionsAction": "NO_CHANGE",
-                "replication": null,
+                "replication": 2,
                 "previousReplication": null,
                 "replicationAction": "NO_CHANGE"
             },
@@ -56,10 +56,10 @@
             "name": "topic-with-configs-2",
             "action": "NO_CHANGE",
             "topicDetailsPlan": {
-                "partitions": null,
+                "partitions": 6,
                 "previousPartitions": null,
                 "partitionsAction": "NO_CHANGE",
-                "replication": null,
+                "replication": 2,
                 "previousReplication": null,
                 "replicationAction": "NO_CHANGE"
             },

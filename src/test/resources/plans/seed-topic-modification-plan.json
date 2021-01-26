@@ -3,14 +3,7 @@
         {
             "name": "test-topic",
             "action": "UPDATE",
-            "topicDetailsPlan": {
-                "partitions": null,
-                "previousPartitions": null,
-                "partitionsAction": "NO_CHANGE",
-                "replication": null,
-                "previousReplication": null,
-                "replicationAction": "NO_CHANGE"
-            },
+            "topicDetailsPlan": null,
             "topicConfigPlans": [
                 {
                     "key": "retention.ms",
