@@ -86,8 +86,12 @@ public class StateManager {
     private DesiredPlan generatePlan() {
         DesiredState desiredState = getDesiredState();
         DesiredPlan.Builder desiredPlan = new DesiredPlan.Builder();
-        planManager.planAcls(desiredState, desiredPlan);
-        planManager.planTopics(desiredState, desiredPlan);
+        if (!desiredState.getAcls().isEmpty()) {
+            planManager.planAcls(desiredState, desiredPlan);
+        }
+        if (!desiredState.getTopics().isEmpty()) {
+            planManager.planTopics(desiredState, desiredPlan);
+        }
         return desiredPlan.build();
     }
 
