@@ -26,6 +26,9 @@ public class PlanCommand implements Callable<Integer> {
     @CommandLine.Option(names = {"--include-unchanged"}, description = "Include unchanged resources in the plan file.")
     private boolean includeUnchanged = false;
 
+    @CommandLine.Option(names = {"--skip-acls"}, description = "Do not take ACL into account in the plan file.")
+    private boolean skipAcls = false;
+
     @CommandLine.ParentCommand
     private MainCommand parent;
 
@@ -59,6 +62,7 @@ public class PlanCommand implements Callable<Integer> {
                 .setDeleteDisabled(parent.isDeleteDisabled())
                 .setIncludeUnchangedEnabled(includeUnchanged)
                 .setStateFile(parent.getFile())
+                .setSkipAclsDisabled(skipAcls)
                 .setNullablePlanFile(outputFile)
                 .build();
     }
