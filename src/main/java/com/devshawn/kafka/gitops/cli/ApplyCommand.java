@@ -24,6 +24,9 @@ public class ApplyCommand implements Callable<Integer> {
             description = "Specify the plan file to use.")
     private File planFile;
 
+    @CommandLine.Option(names = {"--skip-acls"}, description = "Do not take ACL into account in the plan file.")
+    private boolean skipAcls = false;
+
     @CommandLine.ParentCommand
     private MainCommand parent;
 
@@ -54,6 +57,7 @@ public class ApplyCommand implements Callable<Integer> {
                 .setVerboseRequested(parent.isVerboseRequested())
                 .setDeleteDisabled(parent.isDeleteDisabled())
                 .setIncludeUnchangedEnabled(false)
+                .setSkipAclsDisabled(skipAcls)
                 .setStateFile(parent.getFile())
                 .setNullablePlanFile(planFile)
                 .build();
