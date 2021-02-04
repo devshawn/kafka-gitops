@@ -37,7 +37,7 @@ public class ValidateCommand implements Callable<Integer> {
                 .setVerboseRequested(parent.isVerboseRequested())
                 .setDeleteDisabled(parent.isDeleteDisabled())
                 .setIncludeUnchangedEnabled(false)
-                .setSkipAclsDisabled(false)
+                .setSkipAclsDisabled(parent.areAclsDisabled())
                 .setStateFile(parent.getFile())
                 .build();
     }
