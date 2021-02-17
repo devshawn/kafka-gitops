@@ -59,6 +59,7 @@ public class PlanCommand implements Callable<Integer> {
                 .setDeleteDisabled(parent.isDeleteDisabled())
                 .setIncludeUnchangedEnabled(includeUnchanged)
                 .setStateFile(parent.getFile())
+                .setSkipAclsDisabled(parent.areAclsDisabled())
                 .setNullablePlanFile(outputFile)
                 .build();
     }

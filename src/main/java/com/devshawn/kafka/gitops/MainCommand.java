@@ -30,6 +30,9 @@ public class MainCommand implements Callable<Integer> {
     @Option(names = {"--no-delete"}, description = "Disable the ability to delete resources.")
     private boolean deleteDisabled = false;
 
+    @Option(names = {"--skip-acls"}, description = "Do not take ACL into account in the plan file.")
+    private boolean skipAcls = false;
+
     @Option(names = {"-h", "--help"}, usageHelp = true, description = "Display this help message.")
     private boolean helpRequested = false;
 
@@ -63,6 +66,10 @@ public class MainCommand implements Callable<Integer> {
 
     public boolean isDeleteDisabled() {
         return deleteDisabled;
+    }
+
+    public boolean areAclsDisabled() {
+        return skipAcls;
     }
 
     public static void main(String[] args) {

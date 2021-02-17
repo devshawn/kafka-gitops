@@ -16,6 +16,8 @@ public interface ManagerConfig {
 
     boolean isIncludeUnchangedEnabled();
 
+    boolean isSkipAclsDisabled();
+
     File getStateFile();
 
     Optional<File> getPlanFile();
