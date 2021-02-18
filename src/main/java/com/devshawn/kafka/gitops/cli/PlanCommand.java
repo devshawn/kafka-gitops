@@ -36,7 +36,7 @@ public class PlanCommand implements Callable<Integer> {
             ParserService parserService = new ParserService(parent.getFile());
             StateManager stateManager = new StateManager(generateStateManagerConfig(), parserService);
             DesiredPlan desiredPlan = stateManager.plan();
-            LogUtil.printPlan(desiredPlan, parent.isDeleteDisabled());
+            LogUtil.printPlan(desiredPlan, parent.isDeleteDisabled(), parent.areAclsDisabled());
             return 0;
         } catch (PlanIsUpToDateException ex) {
             LogUtil.printNoChangesMessage();

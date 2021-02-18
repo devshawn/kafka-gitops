@@ -1,0 +1,24 @@
+Executing apply...
+
+Applying: [CREATE]
+
++ [TOPIC] MY_TOPIC
+	+ partitions: 6
+	+ replication: 1
+
+
+Successfully applied.
+
+Applying: [CREATE]
+
++ [TOPIC] another.topic.0
+	+ partitions: 1
+	+ replication: 1
+	+ configs:
+		+ cleanup.policy: compact
+		+ segment.bytes: 100000
+
+
+Successfully applied.
+
+[SUCCESS] Apply complete! Resources: 2 created, 0 updated, 0 deleted.

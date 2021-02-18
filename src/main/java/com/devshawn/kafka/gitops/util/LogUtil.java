@@ -14,8 +14,8 @@ import picocli.CommandLine;
 
 public class LogUtil {
 
-    public static void printPlan(DesiredPlan desiredPlan, boolean deleteDisabled) {
-        PlanOverview planOverview = PlanUtil.getOverview(desiredPlan, deleteDisabled);
+    public static void printPlan(DesiredPlan desiredPlan, boolean deleteDisabled, boolean skipAclsDisabled) {
+        PlanOverview planOverview = PlanUtil.getOverview(desiredPlan, deleteDisabled, skipAclsDisabled);
 
         printLegend(planOverview);
 
@@ -25,7 +25,7 @@ public class LogUtil {
         printAclOverview(desiredPlan, deleteDisabled);
         desiredPlan.getAclPlans().forEach(LogUtil::printAclPlan);
 
-        printOverview(desiredPlan, deleteDisabled);
+        printOverview(desiredPlan, deleteDisabled, skipAclsDisabled);
     }
 
     public static void printValidationResult(String message, boolean success) {
@@ -131,8 +131,8 @@ public class LogUtil {
      * Helpers
      */
 
-    private static void printOverview(DesiredPlan desiredPlan, boolean deleteDisabled) {
-        PlanOverview planOverview = PlanUtil.getOverview(desiredPlan, deleteDisabled);
+    private static void printOverview(DesiredPlan desiredPlan, boolean deleteDisabled, boolean skipAclsDisabled) {
+        PlanOverview planOverview = PlanUtil.getOverview(desiredPlan, deleteDisabled, skipAclsDisabled);
         System.out.println(String.format("%s: %s, %s, %s.", bold("Plan"), toCreate(planOverview.getAdd()),
                 toUpdate(planOverview.getUpdate()), toDelete(planOverview.getRemove())));
     }

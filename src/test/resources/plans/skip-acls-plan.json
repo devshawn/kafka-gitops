@@ -1,0 +1,28 @@
+{
+    "topicPlans": [
+        {
+            "name": "MY_TOPIC",
+            "action": "ADD",
+            "topicDetails": {
+                "partitions": 6,
+                "replication": 1,
+                "configs": {}
+            },
+            "topicConfigPlans": []
+        },
+        {
+            "name": "another.topic.0",
+            "action": "ADD",
+            "topicDetails": {
+                "partitions": 1,
+                "replication": 1,
+                "configs": {
+                    "cleanup.policy": "compact",
+                    "segment.bytes": "100000"
+                }
+            },
+            "topicConfigPlans": []
+        }
+    ],
+    "aclPlans": []
+}
