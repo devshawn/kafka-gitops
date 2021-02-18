@@ -12,7 +12,7 @@ import java.io.File;
 import java.util.concurrent.Callable;
 
 @Command(name = "kafka-gitops",
-        version = "0.2.13",
+        version = "0.2.14",
         exitCodeOnInvalidInput = 0,
         subcommands = {
                 AccountCommand.class,
