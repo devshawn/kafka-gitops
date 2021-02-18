@@ -89,9 +89,14 @@ Plan: 1 to create, 0 to update, 0 to delete.
 
 In most cases, you will want to output the plan to a file which can then be passed to the apply command. Plan files are `JSON` files. This can be done by running:
 
-
 ```bash
 kafka-gitops plan -o plan.json
+```
+
+If running against a Kafka cluster with no authorizer configured or if you simply want to only manage topics, you can ignore ACLs completely. This can be done by running:
+
+```bash
+kafka-gitops --skip-acls plan
 ```
 
 ## Apply

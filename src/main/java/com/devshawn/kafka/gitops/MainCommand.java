@@ -30,7 +30,7 @@ public class MainCommand implements Callable<Integer> {
     @Option(names = {"--no-delete"}, description = "Disable the ability to delete resources.")
     private boolean deleteDisabled = false;
 
-    @Option(names = {"--skip-acls"}, description = "Do not take ACL into account in the plan file.")
+    @Option(names = {"--skip-acls"}, description = "Do not take ACLs into account during plans or applies.")
     private boolean skipAcls = false;
 
     @Option(names = {"-h", "--help"}, usageHelp = true, description = "Display this help message.")

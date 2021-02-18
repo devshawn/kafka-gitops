@@ -1,0 +1,26 @@
+topics:
+  MY_TOPIC:
+    partitions: 6
+    replication: 1
+
+  another.topic.0:
+    partitions: 1
+    replication: 1
+    configs:
+      cleanup.policy: compact
+      segment.bytes: 100000
+
+services:
+  test-service:
+    type: application
+    principal: User:test
+    produces:
+      - another.topic.0
+    consumes:
+      - MY_TOPIC
+
+  my-other-service:
+    type: application
+    principal: User:test
+    consumes:
+      - another.topic.0

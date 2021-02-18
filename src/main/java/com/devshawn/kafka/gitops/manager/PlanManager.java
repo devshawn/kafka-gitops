@@ -173,8 +173,8 @@ public class PlanManager {
         });
     }
 
-    public void validatePlanHasChanges(DesiredPlan desiredPlan, boolean deleteDisabled) {
-        PlanOverview planOverview = PlanUtil.getOverview(desiredPlan, deleteDisabled);
+    public void validatePlanHasChanges(DesiredPlan desiredPlan, boolean deleteDisabled, boolean skipAclsDisabled) {
+        PlanOverview planOverview = PlanUtil.getOverview(desiredPlan, deleteDisabled, skipAclsDisabled);
         if (planOverview.getAdd() == 0 && planOverview.getUpdate() == 0 && planOverview.getRemove() == 0) {
             throw new PlanIsUpToDateException();
         }

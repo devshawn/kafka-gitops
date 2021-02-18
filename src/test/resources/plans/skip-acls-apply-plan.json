@@ -1,0 +1,94 @@
+{
+    "topicPlans": [
+        {
+            "name": "MY_TOPIC",
+            "action": "ADD",
+            "topicDetails": {
+                "partitions": 6,
+                "replication": 1,
+                "configs": {}
+            },
+            "topicConfigPlans": []
+        },
+        {
+            "name": "another.topic.0",
+            "action": "ADD",
+            "topicDetails": {
+                "partitions": 1,
+                "replication": 1,
+                "configs": {
+                    "cleanup.policy": "compact",
+                    "segment.bytes": "100000"
+                }
+            },
+            "topicConfigPlans": []
+        }
+    ],
+    "aclPlans": [
+        {
+            "name": "test-service-0",
+            "aclDetails": {
+                "name": "another.topic.0",
+                "type": "TOPIC",
+                "pattern": "LITERAL",
+                "principal": "User:test",
+                "host": "*",
+                "operation": "WRITE",
+                "permission": "ALLOW"
+            },
+            "action": "ADD"
+        },
+        {
+            "name": "test-service-1",
+            "aclDetails": {
+                "name": "MY_TOPIC",
+                "type": "TOPIC",
+                "pattern": "LITERAL",
+                "principal": "User:test",
+                "host": "*",
+                "operation": "READ",
+                "permission": "ALLOW"
+            },
+            "action": "ADD"
+        },
+        {
+            "name": "test-service-2",
+            "aclDetails": {
+                "name": "test-service",
+                "type": "GROUP",
+                "pattern": "LITERAL",
+                "principal": "User:test",
+                "host": "*",
+                "operation": "READ",
+                "permission": "ALLOW"
+            },
+            "action": "ADD"
+        },
+        {
+            "name": "my-other-service-0",
+            "aclDetails": {
+                "name": "another.topic.0",
+                "type": "TOPIC",
+                "pattern": "LITERAL",
+                "principal": "User:test",
+                "host": "*",
+                "operation": "READ",
+                "permission": "ALLOW"
+            },
+            "action": "ADD"
+        },
+        {
+            "name": "my-other-service-1",
+            "aclDetails": {
+                "name": "my-other-service",
+                "type": "GROUP",
+                "pattern": "LITERAL",
+                "principal": "User:test",
+                "host": "*",
+                "operation": "READ",
+                "permission": "ALLOW"
+            },
+            "action": "ADD"
+        }
+    ]
+}

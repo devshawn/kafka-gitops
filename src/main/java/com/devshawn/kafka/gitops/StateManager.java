@@ -79,7 +79,7 @@ public class StateManager {
     public DesiredPlan plan() {
         DesiredPlan desiredPlan = generatePlan();
         planManager.writePlanToFile(desiredPlan);
-        planManager.validatePlanHasChanges(desiredPlan, managerConfig.isDeleteDisabled());
+        planManager.validatePlanHasChanges(desiredPlan, managerConfig.isDeleteDisabled(), managerConfig.isSkipAclsDisabled());
         return desiredPlan;
     }
 
@@ -99,10 +99,12 @@ public class StateManager {
             desiredPlan = generatePlan();
         }
 
-        planManager.validatePlanHasChanges(desiredPlan, managerConfig.isDeleteDisabled());
+        planManager.validatePlanHasChanges(desiredPlan, managerConfig.isDeleteDisabled(), managerConfig.isSkipAclsDisabled());
 
         applyManager.applyTopics(desiredPlan);
-        applyManager.applyAcls(desiredPlan);
+        if (!managerConfig.isSkipAclsDisabled()) {
+            applyManager.applyAcls(desiredPlan);
+        }
 
         return desiredPlan;
     }
