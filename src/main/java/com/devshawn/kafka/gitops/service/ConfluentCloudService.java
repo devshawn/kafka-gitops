@@ -14,6 +14,7 @@ public class ConfluentCloudService {
     private static org.slf4j.Logger log = LoggerFactory.getLogger(ConfluentCloudService.class);
 
     private final ObjectMapper objectMapper;
+    private static final String ccloudExecutable;
 
     public ConfluentCloudService(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
@@ -22,7 +23,7 @@ public class ConfluentCloudService {
     public List<ServiceAccount> getServiceAccounts() {
         log.info("Fetching service account list from Confluent Cloud via ccloud tool.");
         try {
-            String result = execCmd(new String[]{"ccloud", "service-account", "list", "-o", "json"});
+            String result = execCmd(new String[]{ccloudExecutable, "service-account", "list", "-o", "json"});
             return objectMapper.readValue(result, new TypeReference<List<ServiceAccount>>() {
             });
         } catch (IOException ex) {
@@ -36,7 +37,7 @@ public class ConfluentCloudService {
         try {
             String serviceName = isUser ? String.format("user-%s", name) : name;
             String description = isUser ? String.format("User: %s", name) : String.format("Service account: %s", name);
-            String result = execCmd(new String[]{"ccloud", "service-account", "create", serviceName, "--description", description, "-o", "json"});
+            String result = execCmd(new String[]{ccloudExecutable, "service-account", "create", serviceName, "--description", description, "-o", "json"});
             return objectMapper.readValue(result, ServiceAccount.class);
         } catch (IOException ex) {
             throw new ConfluentCloudException(String.format("There was an error creating Confluent Cloud service account: %s.", name));
@@ -46,5 +47,10 @@ public class ConfluentCloudService {
     public static String execCmd(String[] cmd) throws java.io.IOException {
         java.util.Scanner s = new java.util.Scanner(Runtime.getRuntime().exec(cmd).getInputStream()).useDelimiter("\\A");
         return s.hasNext() ? s.next() : "";
+    }
+
+    static {
+        ccloudExecutable = System.getenv("CCLOUD_EXECUTABLE_PATH") != null ? System.getenv("CCLOUD_EXECUTABLE_PATH") : "ccloud";
+        log.info("Using ccloud executable at: {}", ccloudExecutable);
     }
 }
