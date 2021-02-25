@@ -53,6 +53,12 @@ Additionally, you'll need to login to the `ccloud` tool. You can automate this b
 
 Then, you can run `ccloud login` and it will run without a prompt. This is great for CI builds.
 
+You can optionally specify a path to a `ccloud` executable:
+
+* `CCLOUD_EXECUTABLE_PATH`: `/full/path/to/ccloud`
+
+Otherwise, `ccloud` must be on your path.
+
 ## Validate
 
 First, validate your state file is correct by running:
