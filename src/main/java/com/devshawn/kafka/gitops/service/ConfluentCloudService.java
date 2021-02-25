@@ -26,6 +26,7 @@ public class ConfluentCloudService {
             return objectMapper.readValue(result, new TypeReference<List<ServiceAccount>>() {
             });
         } catch (IOException ex) {
+            log.info(ex.getMessage());
             throw new ConfluentCloudException("There was an error listing Confluent Cloud service accounts. Are you logged in?");
         }
     }
