@@ -2,7 +2,6 @@ package com.devshawn.kafka.gitops;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import com.devshawn.kafka.gitops.config.KafkaGitopsConfig;
 import com.devshawn.kafka.gitops.config.KafkaGitopsConfigLoader;
 import com.devshawn.kafka.gitops.config.ManagerConfig;
 import com.devshawn.kafka.gitops.domain.confluent.ServiceAccount;
@@ -61,19 +60,20 @@ public class StateManager {
         initializeLogger(managerConfig.isVerboseRequested());
         this.managerConfig = managerConfig;
         this.objectMapper = initializeObjectMapper();
-        KafkaGitopsConfig config = KafkaGitopsConfigLoader.load();
-        this.kafkaService = new KafkaService(config);
+        this.kafkaService = new KafkaService(KafkaGitopsConfigLoader.load());
+        this.schemaRegistryService = new SchemaRegistryService(SchemaRegistryConfigLoader.load());
         this.parserService = parserService;
         this.roleService = new RoleService();
         this.confluentCloudService = new ConfluentCloudService(objectMapper);
-        this.planManager = new PlanManager(managerConfig, kafkaService, objectMapper);
-        this.applyManager = new ApplyManager(managerConfig, kafkaService);
+        this.planManager = new PlanManager(managerConfig, kafkaService, schemaRegistryService, objectMapper);
+        this.applyManager = new ApplyManager(managerConfig, kafkaService, schemaRegistryService);
     }
 
     public DesiredStateFile getAndValidateStateFile() {
         DesiredStateFile desiredStateFile = parserService.parseStateFile();
         validateTopics(desiredStateFile);
         validateCustomAcls(desiredStateFile);
+        validateSchemas(desiredStateFile);
         this.describeAclEnabled = StateUtil.isDescribeTopicAclEnabled(desiredStateFile);
         return desiredStateFile;
     }
@@ -92,6 +92,7 @@ public class StateManager {
             planManager.planAcls(desiredState, desiredPlan);
         }
         planManager.planTopics(desiredState, desiredPlan);
+        planManager.planSchemas(desiredState, desiredPlan);
         return desiredPlan.build();
     }
 
@@ -107,6 +108,7 @@ public class StateManager {
         if (!managerConfig.isSkipAclsDisabled()) {
             applyManager.applyAcls(desiredPlan);
         }
+        applyManager.applySchemas(desiredPlan);
 
         return desiredPlan;
     }
@@ -147,6 +149,7 @@ public class StateManager {
                 .addAllPrefixedTopicsToIgnore(getPrefixedTopicsToIgnore(desiredStateFile));
 
         generateTopicsState(desiredState, desiredStateFile);
+        generateSchemasState(desiredState, desiredStateFile);
 
         if (isConfluentCloudEnabled(desiredStateFile)) {
             generateConfluentCloudServiceAcls(desiredState, desiredStateFile);
@@ -169,6 +172,10 @@ public class StateManager {
         } else {
             desiredState.putAllTopics(desiredStateFile.getTopics());
         }
+    }
+
+    private void generateSchemasState(DesiredState.Builder desiredState, DesiredStateFile desiredStateFile) {
+        desiredState.putAllSchemas(desiredStateFile.getSchemas());
     }
 
     private void generateConfluentCloudServiceAcls(DesiredState.Builder desiredState, DesiredStateFile desiredStateFile) {
@@ -320,6 +327,47 @@ public class StateManager {
             if (defaultReplication.get() < 1) {
                 throw new ValidationException("The default replication factor must be a positive integer.");
             }
+        }
+    }
+
+    private void validateSchemas(DesiredStateFile desiredStateFile) {
+        if (!desiredStateFile.getSchemas().isEmpty()) {
+            SchemaRegistryConfig schemaRegistryConfig = SchemaRegistryConfigLoader.load();
+            desiredStateFile.getSchemas().forEach((s, schemaDetails) -> {
+                if (!schemaDetails.getType().equalsIgnoreCase("Avro")) {
+                    throw new ValidationException(String.format("Schema type %s is currently not supported.", schemaDetails.getType()));
+                }
+                if (!Files.exists(Paths.get(schemaRegistryConfig.getConfig().get("SCHEMA_DIRECTORY") + "/" + schemaDetails.getFile()))) {
+                    throw new ValidationException(String.format("Schema file %s not found in schema directory at %s", schemaDetails.getFile(), schemaRegistryConfig.getConfig().get("SCHEMA_DIRECTORY")));
+                }
+                if (schemaDetails.getType().equalsIgnoreCase("Avro")) {
+                    AvroSchemaProvider avroSchemaProvider = new AvroSchemaProvider();
+                    if (schemaDetails.getReferences().isEmpty() && schemaDetails.getType().equalsIgnoreCase("Avro")) {
+                        Optional<ParsedSchema> parsedSchema = avroSchemaProvider.parseSchema(schemaRegistryService.loadSchemaFromDisk(schemaDetails.getFile()), Collections.emptyList());
+                        if (!parsedSchema.isPresent()) {
+                            throw new ValidationException(String.format("Avro schema %s could not be parsed.", schemaDetails.getFile()));
+                        }
+                    } else {
+                        List<SchemaReference> schemaReferences = new ArrayList<>();
+                        schemaDetails.getReferences().forEach(referenceDetails -> {
+                            SchemaReference schemaReference = new SchemaReference(referenceDetails.getName(), referenceDetails.getSubject(), referenceDetails.getVersion());
+                            schemaReferences.add(schemaReference);
+                        });
+                        // we need to pass a schema registry client as a config because the underlying code validates against the current state
+                        avroSchemaProvider.configure(Collections.singletonMap(SchemaProvider.SCHEMA_VERSION_FETCHER_CONFIG, schemaRegistryService.createSchemaRegistryClient()));
+                        try {
+                            Optional<ParsedSchema> parsedSchema = avroSchemaProvider.parseSchema(schemaRegistryService.loadSchemaFromDisk(schemaDetails.getFile()), schemaReferences);
+                            if (!parsedSchema.isPresent()) {
+                                throw new ValidationException(String.format("Avro schema %s could not be parsed.", schemaDetails.getFile()));
+                            }
+                        } catch (IllegalStateException ex) {
+                            throw new ValidationException(String.format("Reference validation error: %s", ex.getMessage()));
+                        } catch (RuntimeException ex) {
+                            throw new ValidationException(String.format("Error thrown when attempting to validate schema with reference", ex.getMessage()));
+                        }
+                    }
+                }
+            });
         }
     }
 

@@ -4,6 +4,7 @@ import com.devshawn.kafka.gitops.config.ManagerConfig;
 import com.devshawn.kafka.gitops.domain.plan.AclPlan;
 import com.devshawn.kafka.gitops.domain.plan.DesiredPlan;
 import com.devshawn.kafka.gitops.domain.plan.PlanOverview;
+import com.devshawn.kafka.gitops.domain.plan.SchemaPlan;
 import com.devshawn.kafka.gitops.domain.plan.TopicConfigPlan;
 import com.devshawn.kafka.gitops.domain.plan.TopicDetailsPlan;
 import com.devshawn.kafka.gitops.domain.plan.TopicPlan;
@@ -16,8 +17,10 @@ import com.devshawn.kafka.gitops.exception.ReadPlanInputException;
 import com.devshawn.kafka.gitops.exception.ValidationException;
 import com.devshawn.kafka.gitops.exception.WritePlanOutputException;
 import com.devshawn.kafka.gitops.service.KafkaService;
+import com.devshawn.kafka.gitops.service.SchemaRegistryService;
 import com.devshawn.kafka.gitops.util.PlanUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.confluent.kafka.schemaregistry.client.SchemaMetadata;
 import org.apache.kafka.clients.admin.Config;
 import org.apache.kafka.clients.admin.ConfigEntry;
 import org.apache.kafka.clients.admin.TopicDescription;
@@ -40,11 +43,13 @@ public class PlanManager {
 
     private final ManagerConfig managerConfig;
     private final KafkaService kafkaService;
+    private final SchemaRegistryService schemaRegistryService;
     private final ObjectMapper objectMapper;
 
-    public PlanManager(ManagerConfig managerConfig, KafkaService kafkaService, ObjectMapper objectMapper) {
+    public PlanManager(ManagerConfig managerConfig, KafkaService kafkaService, SchemaRegistryService schemaRegistryService, ObjectMapper objectMapper) {
         this.managerConfig = managerConfig;
         this.kafkaService = kafkaService;
+        this.schemaRegistryService = schemaRegistryService;
         this.objectMapper = objectMapper;
     }
 
@@ -216,6 +221,49 @@ public class PlanManager {
                         .build();
 
                 desiredPlan.addAclPlans(aclPlan);
+            }
+        });
+    }
+
+    public void planSchemas(DesiredState desiredState, DesiredPlan.Builder desiredPlan) {
+        // TODO: Parallelize getting schema metadata?
+        Map<String, SchemaMetadata> currentSubjectSchemasMap = new HashMap<>();
+        schemaRegistryService.getAllSubjects().forEach(subject -> {
+            SchemaMetadata schemaMetadata = schemaRegistryService.getLatestSchemaMetadata(subject);
+            currentSubjectSchemasMap.put(subject, schemaMetadata);
+        });
+
+        desiredState.getSchemas().forEach((subject, schemaDetails) -> {
+            SchemaPlan.Builder schemaPlan = new SchemaPlan.Builder()
+                    .setName(subject)
+                    .setSchemaDetails(schemaDetails);
+
+            if (!currentSubjectSchemasMap.containsKey(subject)) {
+                log.info("[PLAN] Schema Subject {} does not exist; it will be created.", subject);
+                schemaPlan.setAction(PlanAction.ADD);
+            } else {
+                String diff = schemaRegistryService.compareSchemasAndReturnDiff(schemaRegistryService.loadSchemaFromDisk(schemaDetails.getFile()), currentSubjectSchemasMap.get(subject).getSchema());
+                if (diff == null) {
+                    log.info("[PLAN] Schema Subject {} exists and has not changed; it will not be created.", subject);
+                    schemaPlan.setAction(PlanAction.NO_CHANGE);
+                } else {
+                    log.info("[PLAN] Schema Subject {} exists and has changed; it will be updated.", subject);
+                    schemaPlan.setAction(PlanAction.UPDATE);
+                    // TODO: Set diff string for logging?
+                }
+            }
+
+            desiredPlan.addSchemaPlans(schemaPlan.build());
+        });
+
+        currentSubjectSchemasMap.forEach((subject, schemaMetadata) -> {
+            if (!managerConfig.isDeleteDisabled() && desiredState.getSchemas().getOrDefault(subject, null) == null) {
+                SchemaPlan schemaPlan = new SchemaPlan.Builder()
+                        .setName(subject)
+                        .setAction(PlanAction.REMOVE)
+                        .build();
+
+                desiredPlan.addSchemaPlans(schemaPlan);
             }
         });
     }

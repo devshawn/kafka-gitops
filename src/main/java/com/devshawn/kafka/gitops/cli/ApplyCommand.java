@@ -8,6 +8,7 @@ import com.devshawn.kafka.gitops.exception.KafkaExecutionException;
 import com.devshawn.kafka.gitops.exception.MissingConfigurationException;
 import com.devshawn.kafka.gitops.exception.PlanIsUpToDateException;
 import com.devshawn.kafka.gitops.exception.ReadPlanInputException;
+import com.devshawn.kafka.gitops.exception.SchemaRegistryExecutionException;
 import com.devshawn.kafka.gitops.exception.ValidationException;
 import com.devshawn.kafka.gitops.service.ParserService;
 import com.devshawn.kafka.gitops.util.LogUtil;
@@ -45,6 +46,8 @@ public class ApplyCommand implements Callable<Integer> {
             LogUtil.printValidationResult(ex.getMessage(), false);
         } catch (KafkaExecutionException ex) {
             LogUtil.printKafkaExecutionError(ex, true);
+        } catch (SchemaRegistryExecutionException ex) {
+            LogUtil.printSchemaRegistryExecutionError(ex, true);
         }
         return 2;
     }
