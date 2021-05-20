@@ -24,7 +24,7 @@ public class AccountCommand implements Callable<Integer> {
     public Integer call() {
         try {
             System.out.println("Creating service accounts...\n");
-            ParserService parserService = new ParserService(parent.getFile());
+            ParserService parserService = new ParserService(parent.getStateFile());
             StateManager stateManager = new StateManager(generateStateManagerConfig(), parserService);
             stateManager.createServiceAccounts();
             return 0;
@@ -46,7 +46,8 @@ public class AccountCommand implements Callable<Integer> {
                 .setDeleteDisabled(parent.isDeleteDisabled())
                 .setIncludeUnchangedEnabled(false)
                 .setSkipAclsDisabled(parent.areAclsDisabled())
-                .setStateFile(parent.getFile())
+                .setConfigFile(parent.getConfigFile())
+                .setStateFile(parent.getStateFile())
                 .build();
     }
 }

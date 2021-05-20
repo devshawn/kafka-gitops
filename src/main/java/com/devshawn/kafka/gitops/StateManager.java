@@ -2,6 +2,7 @@ package com.devshawn.kafka.gitops;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import com.devshawn.kafka.gitops.config.KafkaGitopsConfig;
 import com.devshawn.kafka.gitops.config.KafkaGitopsConfigLoader;
 import com.devshawn.kafka.gitops.config.ManagerConfig;
 import com.devshawn.kafka.gitops.domain.confluent.ServiceAccount;
@@ -60,7 +61,8 @@ public class StateManager {
         initializeLogger(managerConfig.isVerboseRequested());
         this.managerConfig = managerConfig;
         this.objectMapper = initializeObjectMapper();
-        this.kafkaService = new KafkaService(KafkaGitopsConfigLoader.load());
+        KafkaGitopsConfig config = KafkaGitopsConfigLoader.load();
+        this.kafkaService = new KafkaService(config);
         this.parserService = parserService;
         this.roleService = new RoleService();
         this.confluentCloudService = new ConfluentCloudService(objectMapper);

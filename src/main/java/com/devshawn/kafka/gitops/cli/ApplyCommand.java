@@ -31,7 +31,7 @@ public class ApplyCommand implements Callable<Integer> {
     public Integer call() {
         try {
             System.out.println("Executing apply...\n");
-            ParserService parserService = new ParserService(parent.getFile());
+            ParserService parserService = new ParserService(parent.getStateFile());
             StateManager stateManager = new StateManager(generateStateManagerConfig(), parserService);
             DesiredPlan desiredPlan = stateManager.apply();
             LogUtil.printApplyOverview(PlanUtil.getOverview(desiredPlan, parent.isDeleteDisabled(), parent.areAclsDisabled()));
@@ -55,7 +55,8 @@ public class ApplyCommand implements Callable<Integer> {
                 .setDeleteDisabled(parent.isDeleteDisabled())
                 .setIncludeUnchangedEnabled(false)
                 .setSkipAclsDisabled(parent.areAclsDisabled())
-                .setStateFile(parent.getFile())
+                .setConfigFile(parent.getConfigFile())
+                .setStateFile(parent.getStateFile())
                 .setNullablePlanFile(planFile)
                 .build();
     }
