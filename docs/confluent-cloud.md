@@ -78,7 +78,7 @@ An example success message would look like:
 Before generating an execution plan, you will need to create the service accounts. This can be done by running:
 
 ```bash
-kafka-gitops -f state.yaml accounts
+kafka-gitops -f state.yaml account
 ```
 
 This currently only creates service accounts; it will not delete any.
