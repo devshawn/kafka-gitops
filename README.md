@@ -37,11 +37,12 @@ Documentation on how to install and use this tool can be found on our [documenta
 Run `kafka-gitops` to view the help output.
 
 ```bash
-Usage: kafka-gitops [-hvV] [--no-delete] [-f=<file>] [COMMAND]
+Usage: kafka-gitops [-hvV] [--no-delete] [--skip-acls] [-f=<file>] [COMMAND]
 Manage Kafka resources with a desired state file.
   -f, --file=<file>   Specify the desired state file.
   -h, --help          Display this help message.
       --no-delete     Disable the ability to delete resources.
+      --skip-acls     Do not take ACLs into account during plans or applies.
   -v, --verbose       Show more detail during execution.
   -V, --version       Print the current version of this tool.
 Commands:
