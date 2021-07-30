@@ -1,0 +1,143 @@
+# Default values for kafka-manage.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+## More info https://github.com/devshawn/kafka-gitops
+
+replicaCount: 1
+
+image:
+  repository: devshawn/kafka-gitops 
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "0.2.15"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true 
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+restartPolicy: Never
+backoffLimit: 1
+
+### args ###
+# --skip-acls Do not take ACLs into account during plans or applies.
+# --no-delete Disable the ability to delete resources.
+# --verbose Show more detail during execution
+# --version Print the current version of this tool
+###
+
+### action
+# plan Apply changes to Kafka resources.
+# apply Generate an execution plan of changes to Kafka resources. 
+# validate Validates the desired state file.
+###
+
+state:
+  action: plan  
+  args: "" 
+  state.yaml: # state.yaml configuration
+    users:
+      gitops-user:
+        principal: User:gitops-user
+        roles: []
+    
+    customUserAcls:
+      gitops-user:
+        alter-cluster:
+          name: kafka-cluster
+          type: CLUSTER
+          pattern: LITERAL
+          host: "*"
+          operation: ALTER
+          permission: ALLOW
+        create-topics:
+          name: "*"
+          type: TOPIC
+          pattern: LITERAL
+          host: "*"
+          operation: CREATE
+          permission: ALLOW
+        alter-topics:
+          name: "*"
+          type: TOPIC
+          pattern: LITERAL
+          host: "*"
+          operation: ALTER
+          permission: ALLOW
+        describe-topics:
+          name: "*"
+          type: TOPIC
+          pattern: LITERAL
+          host: "*"
+          operation: DESCRIBE
+          permission: ALLOW
+        delete-topics:
+          name: "*"
+          type: TOPIC
+          pattern: LITERAL
+          host: "*"
+          operation: DELETE
+          permission: ALLOW
+        describe-topic-configs:
+          name: "*"
+          type: TOPIC
+          pattern: LITERAL
+          host: "*"
+          operation: DESCRIBE_CONFIGS
+          permission: ALLOW
+        alter-topic-configs:
+          name: "*"
+          type: TOPIC
+          pattern: LITERAL
+          host: "*"
+          operation: ALTER_CONFIGS
+          permission: ALLOW
+
+## default vars 
+bootstrap:
+  servers: "localhost:9200"
+
+## More vars
+#environment:
+#  - name: KAFKA_SASL_JAAS_USERNAME 
+#    value: 
+
+podAnnotations: {} 
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

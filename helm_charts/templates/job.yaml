@@ -1,0 +1,53 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "kafka-manage.fullname" . }}
+spec:
+  template:
+    spec:
+      containers:
+      - image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}" 
+        imagePullPolicy:  {{ .Values.image.pullPolicy }} 
+        name: {{ template "kafka-manage.fullname" . }}
+        env:
+          - name: ACTION
+            value: "{{ .Values.state.action }}"
+          - name: ARGS
+            value: "{{ .Values.state.args }}"
+          - name: KAFKA_BOOTSTRAP_SERVERS
+            value: "{{ .Values.bootstrap.servers }}"
+        {{- range .Values.environment | default list}}
+          - name: {{ .name | quote}}
+            value: {{ .value | quote }}
+        {{- end }}
+        args: ['/usr/local/bin/kafka-gitops', '-f', '/config/state.yaml', '$(ACTION)'] 
+       {{- if .Values.state.args }}
+        args: ['/usr/local/bin/kafka-gitops', '-f', '/config/state.yaml', '$(ARGS)', '$(ACTION)'] 
+       {{- end }}
+        {{- with .Values.resources }}
+        resources:
+{{ toYaml . | indent 10 }}
+        {{- end }}
+        volumeMounts:
+          - name: {{ template "kafka-manage.fullname" . }}
+            mountPath: "/config/state.yaml"
+            subPath: state.yaml
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      volumes:
+        - name: {{ template "kafka-manage.fullname" . }}
+          configMap:
+            name: {{ template "kafka-manage.fullname" . }}
+      restartPolicy: {{ .Values.restartPolicy }}
+  backoffLimit: {{ .Values.backoffLimit }}
