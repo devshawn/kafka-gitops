@@ -4,7 +4,7 @@ plugins {
     id 'application'
     id 'idea'
     id 'jacoco'
-    id 'org.inferred.processors' version '1.2.10'
+    id 'org.inferred.processors' version '2.1.0'
     id "net.ltgt.apt" version "0.21"
     id 'com.github.johnrengelman.shadow' version '4.0.4'
 }
@@ -38,7 +38,7 @@ dependencies {
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
     compile group: 'ch.qos.logback', name: 'logback-core', version: '1.2.3'
 
-    processor 'org.inferred:freebuilder:2.5.0'
+    processor 'org.inferred:freebuilder:2.7.0'
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.5.14'
@@ -52,7 +52,7 @@ jacocoTestReport {
     reports {
         xml.enabled = true
         html.enabled = true
-        xml.destination "${buildDir}/reports/jacoco/report.xml"
+        xml.destination file("${buildDir}/reports/jacoco/report.xml")
     }
 
     afterEvaluate {
