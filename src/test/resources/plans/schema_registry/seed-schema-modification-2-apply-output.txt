@@ -1,0 +1,23 @@
+Executing apply...
+
+Applying: [CREATE]
+
++ [SCHEMA] json-value
+	 + type: JSON
+	 + compatibility: FORWARD
+	 + schema: 
+----------------------
+{"type":"object","properties":{"f1":{"type":"string"}}}
+----------------------
+
+
+Successfully applied.
+
+Applying: [UPDATE]
+
+~ [SCHEMA] schema-1-json
+
+
+Successfully applied.
+
+[SUCCESS] Apply complete! Resources: 1 created, 1 updated, 0 deleted.

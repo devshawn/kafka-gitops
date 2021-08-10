@@ -1,3 +1,9 @@
+settings:
+  topics:
+    blacklist:
+      prefixed:
+        - _schemas
+
 users:
   test-user:
     principal: User:test

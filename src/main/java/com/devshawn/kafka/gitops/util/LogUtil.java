@@ -155,10 +155,14 @@ public class LogUtil {
             case ADD:
                 System.out.println(green(String.format("+ [SCHEMA] %s", schemaPlan.getName())));
                 System.out.println(green(String.format("\t + type: %s", schemaPlan.getSchemaDetails().get().getType())));
-                System.out.println(green(String.format("\t + file: %s", schemaPlan.getSchemaDetails().get().getFile())));
+                if(schemaPlan.getSchemaDetails().get().getCompatibility().isPresent()) {
+                    System.out.println(green(String.format("\t + compatibility: %s", schemaPlan.getSchemaDetails().get().getCompatibility().get())));
+                }
+                System.out.println(green(String.format("\t + schema: \n----------------------\n%s\n----------------------",
+                    schemaPlan.getSchemaDetails().get().getSchema())));
                 if (!schemaPlan.getSchemaDetails().get().getReferences().isEmpty()) {
                     schemaPlan.getSchemaDetails().get().getReferences().forEach(referenceDetail -> {
-                        System.out.println(green(String.format("\t + reference:")));
+                        System.out.println(green(String.format("\t + references:")));
                         System.out.println(green(String.format("\t\t + name: %s", referenceDetail.getName())));
                         System.out.println(green(String.format("\t\t + subject: %s", referenceDetail.getSubject())));
                         System.out.println(green(String.format("\t\t + version: %s", referenceDetail.getVersion())));

@@ -1,0 +1,15 @@
+settings:
+  topics:
+    blacklist:
+      prefixed:
+        - _schemas
+
+schemas:
+  schema-1-json:
+    type: JSON
+    compatibility: BACKWARD
+    schema: "{\"type\":\"object\",\"properties\":{\"f1\":{\"type\":\"string\"},\"f2\":{\"type\":\"string\"}}, \"additionalProperties\": false}"
+  schema-2-avro:
+    type: AVRO
+    compatibility: BACKWARD
+    schema: "{\"type\":\"record\",\"name\":\"TestRecord\",\"namespace\":\"com.devshawn.kafka.gitops\",\"fields\":[{\"name\":\"hello\",\"type\":\"string\"}]}"

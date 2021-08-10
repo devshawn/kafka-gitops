@@ -1,0 +1,11 @@
+settings:
+  topics:
+    blacklist:
+      prefixed:
+        - _schemas
+
+schemas:
+  avro-value:
+    type: AVRO
+    compatibility: FULL
+    file: schema-registry-schema2.avsc

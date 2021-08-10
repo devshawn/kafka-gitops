@@ -1,5 +1,6 @@
 package com.devshawn.kafka.gitops
 
+import java.nio.file.Paths
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.admin.AdminClient
 import org.apache.kafka.clients.admin.NewTopic
@@ -9,11 +10,28 @@ import org.apache.kafka.common.resource.PatternType
 import org.apache.kafka.common.resource.ResourcePattern
 import org.apache.kafka.common.resource.ResourcePatternFilter
 import org.apache.kafka.common.resource.ResourceType
+import com.devshawn.kafka.gitops.config.SchemaRegistryConfigLoader
+import com.devshawn.kafka.gitops.enums.SchemaCompatibility
+import com.devshawn.kafka.gitops.enums.SchemaType
+import com.devshawn.kafka.gitops.exception.ValidationException
+import com.devshawn.kafka.gitops.service.SchemaRegistryService
+import groovy.swing.factory.CollectionFactory
+import io.confluent.kafka.schemaregistry.AbstractSchemaProvider
+import io.confluent.kafka.schemaregistry.ParsedSchema
+import io.confluent.kafka.schemaregistry.SchemaProvider
+import io.confluent.kafka.schemaregistry.avro.AvroSchemaProvider
+import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
+import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
+import io.confluent.kafka.schemaregistry.client.rest.RestService
+import io.confluent.kafka.schemaregistry.client.security.basicauth.SaslBasicAuthCredentialProvider
+import io.confluent.kafka.schemaregistry.json.JsonSchemaProvider
+import io.confluent.kafka.schemaregistry.protobuf.ProtobufSchemaProvider
 import spock.util.concurrent.PollingConditions
 
-import java.nio.file.Paths
-
 class TestUtils {
+
+    private TestUtils() {
+    }
 
     static String getFileContent(String fileName) {
         File file = new File(fileName)
@@ -32,17 +50,61 @@ class TestUtils {
         return file.getAbsolutePath()
     }
 
-    static void cleanUpCluster() {
-        def conditions = new PollingConditions(timeout: 60, initialDelay: 2, factor: 1.25)
+    static void cleanUpSchemaRegistry() {
+        try {
+            CachedSchemaRegistryClient schemaRegistryClient = getSchemaRegistryClient();
+
+            Collection<String> subjects = schemaRegistryClient.getAllSubjects();
+            for (subject in subjects) {
+                schemaRegistryClient.deleteSubject(subject);
+                schemaRegistryClient.deleteSubject(subject, true);
+            }
+            assert schemaRegistryClient.getAllSubjects().size() == 0
+            println "Finished cleaning up schema registry"
+        } catch (Exception ex) {
+            println "Error cleaning up schema registry"
+            throw new RuntimeException("Error cleaning up schema registry", ex)
+        }
+    }
+
+    static void seedSchemaRegistry() {
+        try {
+            CachedSchemaRegistryClient schemaRegistryClient = getSchemaRegistryClient();
+            createSchema("schema-1-json", SchemaType.JSON, 
+                "{\"type\":\"object\",\"properties\":{\"f1\":{\"type\":\"string\"}}, \"additionalProperties\": false}", schemaRegistryClient, SchemaCompatibility.BACKWARD)
+            createSchema("schema-2-avro", SchemaType.AVRO,
+                "{\"type\":\"record\",\"name\":\"TestRecord\",\"namespace\":\"com.devshawn.kafka.gitops\",\"fields\":[{\"name\":\"hello\",\"type\":\"string\"}]}",
+                 schemaRegistryClient, SchemaCompatibility.BACKWARD)
+            createSchema("schema-3-protobuf", SchemaType.PROTOBUF,
+               "syntax = \"proto3\";\npackage com.acme;\n\nmessage OtherRecord {\n  int32 an_id = 1;\n}\n",
+                schemaRegistryClient, SchemaCompatibility.FULL)
+  
+            println "Finished seeding schema registry"
+        } catch (Exception ex) {
+            println "Error seeding up Schema registry"
+            throw new RuntimeException("Error seeding up schema registry", ex)
+        }
+    }
+    
+    static void cleanUpAll() {
+        cleanUpKafkaCluster();
+        cleanUpSchemaRegistry()
+    }
+
+    static void cleanUpKafkaCluster() {
+        def conditions = new PollingConditions(timeout: 120, initialDelay: 2, factor: 1.25)
 
         try {
             AdminClient adminClient = AdminClient.create(getKafkaConfig())
-            Set<String> topics = adminClient.listTopics().names().get()
+            Set<String> topics = adminClient.listTopics().names().get();
+            // Do not remove the schema registry topic
+            topics.remove("_schemas");
             adminClient.deleteTopics(topics).all().get()
             
             conditions.eventually {
                 Set<String> remainingTopics = adminClient.listTopics().names().get()
-                assert remainingTopics.size() == 0
+                assert remainingTopics.size() == 1
+                assert remainingTopics.getAt(0).equals("_schemas")
             }
             
             AclBindingFilter filter = getWildcardFilter()
@@ -51,15 +113,15 @@ class TestUtils {
                 List<AclBinding> acls = new ArrayList<>(adminClient.describeAcls(filter).values().get())
                 assert acls.size() == 0
             }
-            println "Finished cleaning up cluster"
+            println "Finished cleaning up kafka cluster"
         } catch (Exception ex) {
             println "Error cleaning up kafka cluster"
-            println ex
+            throw new RuntimeException("Error cleaning up kafka cluster", ex)
         }
 
     }
 
-    static void seedCluster() {
+    static void seedKafkaCluster() {
         def conditions = new PollingConditions(timeout: 60, initialDelay: 2, factor: 1.25)
 
         try {
@@ -72,7 +134,7 @@ class TestUtils {
 
             conditions.eventually {
                 Set<String> newTopics = adminClient.listTopics().names().get()
-                assert newTopics.size() == 4
+                assert newTopics.size() == 5
 
                 List<AclBinding> newAcls = new ArrayList<>(adminClient.describeAcls(getWildcardFilter()).values().get())
                 assert newAcls.size() == 1
@@ -80,8 +142,21 @@ class TestUtils {
             println "Finished seeding kafka cluster"
         } catch (Exception ex) {
             println "Error seeding up kafka cluster"
-            ex.printStackTrace()
+            throw new RuntimeException("Error seeding up kafka cluster", ex)
         }
+    }
+
+    static void createSchema(String subject, SchemaType type, String schema , SchemaRegistryClient client, SchemaCompatibility compatibility) {
+        AbstractSchemaProvider schemaProvider = SchemaRegistryService.schemaProviderFromType(type);
+        ParsedSchema parsedSchema = schemaProvider.parseSchema(schema, Collections.emptyList()).get();
+        createSchema(subject, type, parsedSchema, client, compatibility)
+    }
+
+    static void createSchema(String subject, SchemaType type, ParsedSchema schema , SchemaRegistryClient client, SchemaCompatibility compatibility) {
+        CachedSchemaRegistryClient schemaRegistryClient = getSchemaRegistryClient();
+        int id = schemaRegistryClient.register(subject, schema);
+        String compat = schemaRegistryClient.updateCompatibility(subject, compatibility.toString());
+        println "Schema subject '" + subject + "' with id " + id + " created (compatibility: " + compat + ")"
     }
 
     static void createTopic(String name, int partitions, AdminClient adminClient) {
@@ -118,5 +193,19 @@ class TestUtils {
                 (SaslConfigs.SASL_MECHANISM)                  : System.getenv("KAFKA_SASL_MECHANISM"),
                 (SaslConfigs.SASL_JAAS_CONFIG)                : jaasConfig,
         ]
+    }
+
+    static CachedSchemaRegistryClient getSchemaRegistryClient() {
+          Map<String, Object> config = SchemaRegistryConfigLoader.load().getConfig();
+          RestService restService = new RestService(config.get(SchemaRegistryConfigLoader.SCHEMA_REGISTRY_URL_KEY).toString())
+          if(config.get(SchemaRegistryConfigLoader.SCHEMA_REGISTRY_SASL_CONFIG_KEY) != null) {
+              SaslBasicAuthCredentialProvider saslBasicAuthCredentialProvider = new SaslBasicAuthCredentialProvider()
+              Map<String, Object> clientConfig = new HashMap<>()
+              clientConfig.put(SaslConfigs.SASL_JAAS_CONFIG, config
+                  .get(SchemaRegistryConfigLoader.SCHEMA_REGISTRY_SASL_CONFIG_KEY).toString())
+              saslBasicAuthCredentialProvider.configure(clientConfig)
+              restService.setBasicAuthCredentialProvider(saslBasicAuthCredentialProvider)
+          }
+        return  new CachedSchemaRegistryClient(restService, 10);
     }
 }

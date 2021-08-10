@@ -92,3 +92,24 @@ services:
     depends_on:
       - zoo1
 
+  schema-registry:
+    image: confluentinc/cp-schema-registry:6.1.1
+    hostname: schema-registry
+    ports:
+      - "8082:8082"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "kafka1:19092,kafka2:19092,kafka3:19092"
+      SCHEMA_REGISTRY_KAFKASTORE_SECURITY_PROTOCOL: SASL_PLAINTEXT
+      SCHEMA_REGISTRY_KAFKASTORE_SASL_MECHANISM: PLAIN
+      SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8082"
+      SCHEMA_REGISTRY_GROUP_ID: "schema-registry-test"
+      KAFKA_OPTS: "-Djava.security.auth.login.config=/etc/kafka/registry_jaas.conf"
+      SCHEMA_REGISTRY_OPTS: "-Djava.security.auth.login.config=/etc/kafka/registry_jaas.conf"
+    volumes:
+      - ./config/registry_jaas.conf:/etc/kafka/registry_jaas.conf
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+

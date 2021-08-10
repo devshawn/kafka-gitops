@@ -1,18 +1,19 @@
 {
-    "topicPlans": [
+    "topicPlans" : [
         {
-            "name": "test-topic",
-            "action": "ADD",
-            "topicDetailsPlan": {
-                "partitions": 6,
-                "previousPartitions": null,
-                "partitionsAction": "ADD",
-                "replication": 2,
-                "previousReplication": null,
-                "replicationAction": "ADD"
+            "name" : "test-topic",
+            "action" : "ADD",
+            "topicDetailsPlan" : {
+                "partitions" : 6,
+                "previousPartitions" : null,
+                "partitionsAction" : "ADD",
+                "replication" : 2,
+                "previousReplication" : null,
+                "replicationAction" : "ADD"
             },
-            "topicConfigPlans": []
+            "topicConfigPlans" : [ ]
         }
     ],
-    "aclPlans": []
+    "schemaPlans" : [ ],
+    "aclPlans" : [ ]
 }

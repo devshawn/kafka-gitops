@@ -2,7 +2,10 @@ settings:
   services:
     acls:
       describeTopicEnabled: true
-
+  topics:
+    blacklist:
+      prefixed:
+        - _schemas
 services:
   normal-application:
     type: application

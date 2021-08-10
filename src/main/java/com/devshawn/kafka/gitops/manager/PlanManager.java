@@ -1,5 +1,19 @@
 package com.devshawn.kafka.gitops.manager;
 
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import org.apache.kafka.clients.admin.Config;
+import org.apache.kafka.clients.admin.ConfigEntry;
+import org.apache.kafka.clients.admin.TopicDescription;
+import org.apache.kafka.common.acl.AclBinding;
+import org.apache.kafka.common.config.ConfigResource;
+import org.slf4j.LoggerFactory;
 import com.devshawn.kafka.gitops.config.ManagerConfig;
 import com.devshawn.kafka.gitops.domain.plan.AclPlan;
 import com.devshawn.kafka.gitops.domain.plan.DesiredPlan;
@@ -12,6 +26,7 @@ import com.devshawn.kafka.gitops.domain.state.AclDetails;
 import com.devshawn.kafka.gitops.domain.state.DesiredState;
 import com.devshawn.kafka.gitops.domain.state.TopicDetails;
 import com.devshawn.kafka.gitops.enums.PlanAction;
+import com.devshawn.kafka.gitops.enums.SchemaCompatibility;
 import com.devshawn.kafka.gitops.exception.PlanIsUpToDateException;
 import com.devshawn.kafka.gitops.exception.ReadPlanInputException;
 import com.devshawn.kafka.gitops.exception.ValidationException;
@@ -21,21 +36,6 @@ import com.devshawn.kafka.gitops.service.SchemaRegistryService;
 import com.devshawn.kafka.gitops.util.PlanUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.confluent.kafka.schemaregistry.client.SchemaMetadata;
-import org.apache.kafka.clients.admin.Config;
-import org.apache.kafka.clients.admin.ConfigEntry;
-import org.apache.kafka.clients.admin.TopicDescription;
-import org.apache.kafka.common.acl.AclBinding;
-import org.apache.kafka.common.config.ConfigResource;
-import org.slf4j.LoggerFactory;
-
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class PlanManager {
 
@@ -228,9 +228,16 @@ public class PlanManager {
     public void planSchemas(DesiredState desiredState, DesiredPlan.Builder desiredPlan) {
         // TODO: Parallelize getting schema metadata?
         Map<String, SchemaMetadata> currentSubjectSchemasMap = new HashMap<>();
-        schemaRegistryService.getAllSubjects().forEach(subject -> {
+        Map<String, SchemaCompatibility> currentSubjectCompatibilityMap = new HashMap<>();
+        List<String> subjects = schemaRegistryService.getAllSubjects();
+        subjects.forEach(subject -> {
             SchemaMetadata schemaMetadata = schemaRegistryService.getLatestSchemaMetadata(subject);
             currentSubjectSchemasMap.put(subject, schemaMetadata);
+        });
+        SchemaCompatibility globalCompatibility = schemaRegistryService.getGlobalSchemaCompatibility();
+        subjects.forEach(subject -> {
+          SchemaCompatibility compatibility = schemaRegistryService.getSchemaCompatibility(subject, globalCompatibility);
+          currentSubjectCompatibilityMap.put(subject, compatibility);
         });
 
         desiredState.getSchemas().forEach((subject, schemaDetails) -> {
@@ -239,15 +246,30 @@ public class PlanManager {
                     .setSchemaDetails(schemaDetails);
 
             if (!currentSubjectSchemasMap.containsKey(subject)) {
-                log.info("[PLAN] Schema Subject {} does not exist; it will be created.", subject);
+                log.info("[PLAN] Schema Subject '{}' does not exist; it will be created.", subject);
                 schemaPlan.setAction(PlanAction.ADD);
             } else {
-                String diff = schemaRegistryService.compareSchemasAndReturnDiff(schemaRegistryService.loadSchemaFromDisk(schemaDetails.getFile()), currentSubjectSchemasMap.get(subject).getSchema());
-                if (diff == null) {
-                    log.info("[PLAN] Schema Subject {} exists and has not changed; it will not be created.", subject);
+                SchemaMetadata currentSchema = currentSubjectSchemasMap.get(subject);
+                if(! schemaDetails.getType().toString().equals(currentSchema.getSchemaType())) {
+                    throw new ValidationException("Changing the schema type is not allowed "
+                        + "(subject: " + subject 
+                        + ", current type: " + currentSchema.getSchemaType() 
+                        + ", new type:"+schemaDetails.getType()+")");
+                }
+                SchemaCompatibility currentCompatibility = currentSubjectCompatibilityMap.get(subject);
+                if( schemaDetails.getCompatibility().get() != currentCompatibility ) {
+                  // TODO: we should be able to do this
+                  throw new ValidationException("Changing the subject compatibility is not allowed with kafka-gitops"
+                      + "(subject: " + subject
+                      + ", current compatibilty: " + currentCompatibility
+                      + ", new compatibilty:" + schemaDetails.getCompatibility().get() + ")");
+                }
+                boolean diff = schemaRegistryService.deepEquals(schemaDetails, currentSubjectSchemasMap.get(subject));
+                if (diff) {
+                    log.info("[PLAN] Schema Subject '{}' exists and has not changed; it will not be created.", subject);
                     schemaPlan.setAction(PlanAction.NO_CHANGE);
                 } else {
-                    log.info("[PLAN] Schema Subject {} exists and has changed; it will be updated.", subject);
+                    log.info("[PLAN] Schema Subject '{}' exists and has changed; it will be updated.", subject);
                     schemaPlan.setAction(PlanAction.UPDATE);
                     // TODO: Set diff string for logging?
                 }
@@ -258,6 +280,7 @@ public class PlanManager {
 
         currentSubjectSchemasMap.forEach((subject, schemaMetadata) -> {
             if (!managerConfig.isDeleteDisabled() && desiredState.getSchemas().getOrDefault(subject, null) == null) {
+              log.info("[PLAN] Schema Subject '{}' exists and will be remove.", subject);
                 SchemaPlan schemaPlan = new SchemaPlan.Builder()
                         .setName(subject)
                         .setAction(PlanAction.REMOVE)

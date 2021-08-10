@@ -1,45 +1,46 @@
 {
-    "topicPlans": [
+    "topicPlans" : [
         {
-            "name": "topic-with-configs-1",
-            "action": "UPDATE",
-            "topicDetailsPlan": {
-                "partitions": null,
-                "previousPartitions": null,
-                "partitionsAction": "NO_CHANGE",
-                "replication": 3,
-                "previousReplication": 2,
-                "replicationAction": "UPDATE"
+            "name" : "topic-with-configs-1",
+            "action" : "UPDATE",
+            "topicDetailsPlan" : {
+                "partitions" : null,
+                "previousPartitions" : null,
+                "partitionsAction" : "NO_CHANGE",
+                "replication" : 3,
+                "previousReplication" : 2,
+                "replicationAction" : "UPDATE"
             },
-            "topicConfigPlans": []
+            "topicConfigPlans" : [ ]
         },
         {
-            "name": "topic-with-configs-2",
-            "action": "UPDATE",
-            "topicDetailsPlan": {
-                "partitions": null,
-                "previousPartitions": null,
-                "partitionsAction": "NO_CHANGE",
-                "replication": 3,
-                "previousReplication": 2,
-                "replicationAction": "UPDATE"
+            "name" : "topic-with-configs-2",
+            "action" : "UPDATE",
+            "topicDetailsPlan" : {
+                "partitions" : null,
+                "previousPartitions" : null,
+                "partitionsAction" : "NO_CHANGE",
+                "replication" : 3,
+                "previousReplication" : 2,
+                "replicationAction" : "UPDATE"
             },
-            "topicConfigPlans": []
+            "topicConfigPlans" : [ ]
         }
     ],
-    "aclPlans": [
+    "schemaPlans" : [ ],
+    "aclPlans" : [
         {
-            "name": "Unnamed ACL",
-            "aclDetails": {
-                "name": "test-topic",
-                "type": "TOPIC",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "READ",
-                "permission": "ALLOW"
+            "name" : "Unnamed ACL",
+            "aclDetails" : {
+                "name" : "test-topic",
+                "type" : "TOPIC",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "READ",
+                "permission" : "ALLOW"
             },
-            "action": "REMOVE"
+            "action" : "REMOVE"
         }
     ]
 }

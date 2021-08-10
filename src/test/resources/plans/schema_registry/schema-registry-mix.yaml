@@ -1,0 +1,31 @@
+settings:
+  topics:
+    blacklist:
+      prefixed:
+        - _schemas
+  schema:
+    defaults:
+      compatibility: FULL
+    
+schemas:
+  json-value:
+    type: JSON
+    file: schema-registry-schema1.json
+  avro-value1:
+    type: AVRO
+    compatibility: NONE
+    file: schema-registry-schema2.avsc
+  avro-value2:
+    type: AVRO
+    compatibility: FORWARD
+    schema : '{
+      "type": "record",
+      "name": "TestRecord2",
+      "namespace": "com.devshawn.kafka.gitops",
+      "fields": [
+            {
+                  "name": "hello2",
+                  "type": "string"
+            }
+      ]
+}'

@@ -1,0 +1,11 @@
+settings:
+  topics:
+    blacklist:
+      prefixed:
+        - _schemas
+
+schemas:
+  proto-value:
+    type: PROTOBUF
+    compatibility: NONE
+    file: schema-registry-schema3.proto

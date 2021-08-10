@@ -1,31 +1,32 @@
 {
-    "topicPlans": [
+    "topicPlans" : [
         {
-            "name": "test-topic",
-            "action": "UPDATE",
-            "topicDetailsPlan": null,
-            "topicConfigPlans": [
+            "name" : "test-topic",
+            "action" : "UPDATE",
+            "topicDetailsPlan" : null,
+            "topicConfigPlans" : [
                 {
-                    "key": "retention.ms",
-                    "value": "60000",
-                    "previousValue": null,
-                    "action": "ADD"
+                    "key" : "retention.ms",
+                    "value" : "60000",
+                    "previousValue" : null,
+                    "action" : "ADD"
                 }
             ]
         },
         {
-            "name": "new-topic",
-            "action": "ADD",
-            "topicDetailsPlan": {
-                "partitions": 6,
-                "previousPartitions": null,
-                "partitionsAction": "ADD",
-                "replication": 2,
-                "previousReplication": null,
-                "replicationAction": "ADD"
+            "name" : "new-topic",
+            "action" : "ADD",
+            "topicDetailsPlan" : {
+                "partitions" : 6,
+                "previousPartitions" : null,
+                "partitionsAction" : "ADD",
+                "replication" : 2,
+                "previousReplication" : null,
+                "replicationAction" : "ADD"
             },
-            "topicConfigPlans": []
+            "topicConfigPlans" : [ ]
         }
     ],
-    "aclPlans": []
+    "schemaPlans" : [ ],
+    "aclPlans" : [ ]
 }

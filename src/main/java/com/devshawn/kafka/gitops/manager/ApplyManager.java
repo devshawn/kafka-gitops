@@ -1,5 +1,14 @@
 package com.devshawn.kafka.gitops.manager;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.apache.kafka.clients.admin.AlterConfigOp;
+import org.apache.kafka.clients.admin.ConfigEntry;
+import org.apache.kafka.common.Node;
+import org.apache.kafka.common.config.ConfigResource;
 import com.devshawn.kafka.gitops.config.ManagerConfig;
 import com.devshawn.kafka.gitops.domain.plan.DesiredPlan;
 import com.devshawn.kafka.gitops.domain.plan.TopicConfigPlan;
@@ -9,12 +18,6 @@ import com.devshawn.kafka.gitops.enums.PlanAction;
 import com.devshawn.kafka.gitops.service.KafkaService;
 import com.devshawn.kafka.gitops.service.SchemaRegistryService;
 import com.devshawn.kafka.gitops.util.LogUtil;
-import org.apache.kafka.clients.admin.AlterConfigOp;
-import org.apache.kafka.clients.admin.ConfigEntry;
-import org.apache.kafka.common.Node;
-import org.apache.kafka.common.config.ConfigResource;
-
-import java.util.*;
 
 public class ApplyManager {
 

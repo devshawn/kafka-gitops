@@ -27,6 +27,7 @@
             "topicConfigPlans": []
         }
     ],
+    "schemaPlans" : [ ],
     "aclPlans": [
         {
             "name": "Unnamed ACL",

@@ -1,0 +1,15 @@
+settings:
+  topics:
+    blacklist:
+      prefixed:
+        - _schemas
+
+schemas:
+  schema-2-json:
+    type: JSON
+    compatibility: FORWARD
+    schema: "{\"type\":\"object\",\"properties\":{\"f1\":{\"$ref\":\"otherschema\"}}, \"additionalProperties\": false}"
+    references:
+      - name: otherschema
+        subject: schema-1-json
+        version: 1

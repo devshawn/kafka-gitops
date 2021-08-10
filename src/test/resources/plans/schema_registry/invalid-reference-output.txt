@@ -1,0 +1,1 @@
+(?s).*Version 10 not found\..*\[INVALID\] JSON referenced schema could not be parsed for subject schema-2-json

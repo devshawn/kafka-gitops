@@ -55,6 +55,10 @@ public class ParserService {
                 DesiredStateFile usersFile = loadExternalFile(settingsFiles.getUsers().get(), "Users");
                 builder.putAllUsers(usersFile.getUsers());
             }
+            if (settingsFiles.getSchemas().isPresent()) {
+              DesiredStateFile schemasFile = loadExternalFile(settingsFiles.getSchemas().get(), "Schemas");
+              builder.putAllSchemas(schemasFile.getSchemas());
+          }
             return builder.build();
         }
         return desiredStateFile;

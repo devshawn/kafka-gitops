@@ -1,0 +1,17 @@
+settings:
+  topics:
+    blacklist:
+      prefixed:
+        - _schemas
+  schema:
+    defaults:
+      compatibility: FULL
+    
+schemas:
+  json-value2:
+    type: JSON
+    file: schema-registry-schema1.json
+  json-value3:
+    type: JSON
+    compatibility: NONE
+    file: schema-registry-schema1.json

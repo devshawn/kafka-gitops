@@ -32,7 +32,12 @@ dependencies {
     compile 'info.picocli:picocli:4.1.4'
 
     implementation ('io.confluent:kafka-schema-registry-client:6.1.1')
+<<<<<<< HEAD
     implementation('com.flipkart.zjsonpatch:zjsonpatch:0.4.11')
+=======
+    implementation ('io.confluent:kafka-json-schema-provider:6.1.1')
+    implementation ('io.confluent:kafka-protobuf-serializer:6.1.1')
+>>>>>>> a208542 (Tests)
 
     compile 'org.slf4j:slf4j-api:1.7.30'
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'

@@ -1,18 +1,19 @@
 {
-    "topicPlans": [],
-    "aclPlans": [
+    "topicPlans" : [ ],
+    "schemaPlans" : [ ],
+    "aclPlans" : [
         {
-            "name": "test-service-0",
-            "aclDetails": {
-                "name": "kafka.",
-                "type": "TOPIC",
-                "pattern": "PREFIXED",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "READ",
-                "permission": "ALLOW"
+            "name" : "test-service-0",
+            "aclDetails" : {
+                "name" : "kafka.",
+                "type" : "TOPIC",
+                "pattern" : "PREFIXED",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "READ",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         }
     ]
 }

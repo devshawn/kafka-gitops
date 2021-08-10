@@ -1,0 +1,3 @@
+Generating execution plan...
+
+[INVALID] JSON schema 'schema-1-json' is not compatible with the latest one: [Found incompatible change: Difference{jsonPath='#/properties/f1', type=PROPERTY_REMOVED_FROM_CLOSED_CONTENT_MODEL}]

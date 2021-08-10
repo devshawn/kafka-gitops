@@ -1,9 +1,16 @@
 package com.devshawn.kafka.gitops;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import org.slf4j.LoggerFactory;
 import com.devshawn.kafka.gitops.config.KafkaGitopsConfigLoader;
 import com.devshawn.kafka.gitops.config.ManagerConfig;
+import com.devshawn.kafka.gitops.config.SchemaRegistryConfigLoader;
 import com.devshawn.kafka.gitops.domain.confluent.ServiceAccount;
 import com.devshawn.kafka.gitops.domain.options.GetAclOptions;
 import com.devshawn.kafka.gitops.domain.plan.DesiredPlan;
@@ -11,8 +18,10 @@ import com.devshawn.kafka.gitops.domain.state.AclDetails;
 import com.devshawn.kafka.gitops.domain.state.CustomAclDetails;
 import com.devshawn.kafka.gitops.domain.state.DesiredState;
 import com.devshawn.kafka.gitops.domain.state.DesiredStateFile;
+import com.devshawn.kafka.gitops.domain.state.SchemaDetails;
 import com.devshawn.kafka.gitops.domain.state.TopicDetails;
 import com.devshawn.kafka.gitops.domain.state.service.KafkaStreamsService;
+import com.devshawn.kafka.gitops.enums.SchemaCompatibility;
 import com.devshawn.kafka.gitops.exception.ConfluentCloudException;
 import com.devshawn.kafka.gitops.exception.InvalidAclDefinitionException;
 import com.devshawn.kafka.gitops.exception.MissingConfigurationException;
@@ -24,30 +33,26 @@ import com.devshawn.kafka.gitops.service.ConfluentCloudService;
 import com.devshawn.kafka.gitops.service.KafkaService;
 import com.devshawn.kafka.gitops.service.ParserService;
 import com.devshawn.kafka.gitops.service.RoleService;
+import com.devshawn.kafka.gitops.service.SchemaRegistryService;
 import com.devshawn.kafka.gitops.util.LogUtil;
 import com.devshawn.kafka.gitops.util.StateUtil;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.util.DefaultIndenter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 public class StateManager {
-
-    private static org.slf4j.Logger log = LoggerFactory.getLogger(StateManager.class);
 
     private final ManagerConfig managerConfig;
     private final ObjectMapper objectMapper;
     private final ParserService parserService;
     private final KafkaService kafkaService;
+    private final SchemaRegistryService schemaRegistryService;
     private final RoleService roleService;
     private final ConfluentCloudService confluentCloudService;
 
@@ -163,7 +168,7 @@ public class StateManager {
     }
 
     private void generateTopicsState(DesiredState.Builder desiredState, DesiredStateFile desiredStateFile) {
-        Optional<Integer> defaultReplication = StateUtil.fetchReplication(desiredStateFile);
+        Optional<Integer> defaultReplication = StateUtil.fetchDefaultTopicsReplication(desiredStateFile);
         if (defaultReplication.isPresent()) {
             desiredStateFile.getTopics().forEach((name, details) -> {
                 Integer replication = details.getReplication().isPresent() ? details.getReplication().get() : defaultReplication.get();
@@ -175,7 +180,15 @@ public class StateManager {
     }
 
     private void generateSchemasState(DesiredState.Builder desiredState, DesiredStateFile desiredStateFile) {
-        desiredState.putAllSchemas(desiredStateFile.getSchemas());
+        Optional<SchemaCompatibility> defaultSchemaCompatibility = StateUtil.fetchDefaultSchemasCompatibility(desiredStateFile);
+        if (defaultSchemaCompatibility.isPresent()) {
+            desiredStateFile.getSchemas().forEach((s, details) -> {
+                SchemaCompatibility compatibility = details.getCompatibility().isPresent() ? details.getCompatibility().get() : defaultSchemaCompatibility.get();
+                desiredState.putSchemas(s, new SchemaDetails.Builder().mergeFrom(details).setCompatibility(compatibility).build());
+            });
+        } else {
+            desiredState.putAllSchemas(desiredStateFile.getSchemas());
+        }
     }
 
     private void generateConfluentCloudServiceAcls(DesiredState.Builder desiredState, DesiredStateFile desiredStateFile) {
@@ -316,7 +329,7 @@ public class StateManager {
     }
 
     private void validateTopics(DesiredStateFile desiredStateFile) {
-        Optional<Integer> defaultReplication = StateUtil.fetchReplication(desiredStateFile);
+        Optional<Integer> defaultReplication = StateUtil.fetchDefaultTopicsReplication(desiredStateFile);
         if (!defaultReplication.isPresent()) {
             desiredStateFile.getTopics().forEach((name, details) -> {
                 if (!details.getReplication().isPresent()) {
@@ -331,42 +344,13 @@ public class StateManager {
     }
 
     private void validateSchemas(DesiredStateFile desiredStateFile) {
-        if (!desiredStateFile.getSchemas().isEmpty()) {
-            SchemaRegistryConfig schemaRegistryConfig = SchemaRegistryConfigLoader.load();
-            desiredStateFile.getSchemas().forEach((s, schemaDetails) -> {
-                if (!schemaDetails.getType().equalsIgnoreCase("Avro")) {
-                    throw new ValidationException(String.format("Schema type %s is currently not supported.", schemaDetails.getType()));
+        Optional<SchemaCompatibility> defaultSchemaCompatibility = StateUtil.fetchDefaultSchemasCompatibility(desiredStateFile);
+        if (!defaultSchemaCompatibility.isPresent()) {
+            desiredStateFile.getSchemas().forEach((subject, details) -> {
+                if (!details.getCompatibility().isPresent()) {
+                    throw new ValidationException(String.format("Not set: [compatibility] in state file definition: schema -> %s", subject));
                 }
-                if (!Files.exists(Paths.get(schemaRegistryConfig.getConfig().get("SCHEMA_DIRECTORY") + "/" + schemaDetails.getFile()))) {
-                    throw new ValidationException(String.format("Schema file %s not found in schema directory at %s", schemaDetails.getFile(), schemaRegistryConfig.getConfig().get("SCHEMA_DIRECTORY")));
-                }
-                if (schemaDetails.getType().equalsIgnoreCase("Avro")) {
-                    AvroSchemaProvider avroSchemaProvider = new AvroSchemaProvider();
-                    if (schemaDetails.getReferences().isEmpty() && schemaDetails.getType().equalsIgnoreCase("Avro")) {
-                        Optional<ParsedSchema> parsedSchema = avroSchemaProvider.parseSchema(schemaRegistryService.loadSchemaFromDisk(schemaDetails.getFile()), Collections.emptyList());
-                        if (!parsedSchema.isPresent()) {
-                            throw new ValidationException(String.format("Avro schema %s could not be parsed.", schemaDetails.getFile()));
-                        }
-                    } else {
-                        List<SchemaReference> schemaReferences = new ArrayList<>();
-                        schemaDetails.getReferences().forEach(referenceDetails -> {
-                            SchemaReference schemaReference = new SchemaReference(referenceDetails.getName(), referenceDetails.getSubject(), referenceDetails.getVersion());
-                            schemaReferences.add(schemaReference);
-                        });
-                        // we need to pass a schema registry client as a config because the underlying code validates against the current state
-                        avroSchemaProvider.configure(Collections.singletonMap(SchemaProvider.SCHEMA_VERSION_FETCHER_CONFIG, schemaRegistryService.createSchemaRegistryClient()));
-                        try {
-                            Optional<ParsedSchema> parsedSchema = avroSchemaProvider.parseSchema(schemaRegistryService.loadSchemaFromDisk(schemaDetails.getFile()), schemaReferences);
-                            if (!parsedSchema.isPresent()) {
-                                throw new ValidationException(String.format("Avro schema %s could not be parsed.", schemaDetails.getFile()));
-                            }
-                        } catch (IllegalStateException ex) {
-                            throw new ValidationException(String.format("Reference validation error: %s", ex.getMessage()));
-                        } catch (RuntimeException ex) {
-                            throw new ValidationException(String.format("Error thrown when attempting to validate schema with reference", ex.getMessage()));
-                        }
-                    }
-                }
+                schemaRegistryService.validateSchema(subject, details);
             });
         }
     }
@@ -379,11 +363,17 @@ public class StateManager {
     }
 
     private ObjectMapper initializeObjectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES);
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objectMapper.registerModule(new Jdk8Module());
-        return objectMapper;
+        ObjectMapper gitopsObjectMapper = new ObjectMapper();
+        gitopsObjectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        gitopsObjectMapper.enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES);
+        gitopsObjectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        gitopsObjectMapper.registerModule(new Jdk8Module());
+        DefaultIndenter defaultIndenter = new DefaultIndenter("    ", DefaultIndenter.SYS_LF);
+        DefaultPrettyPrinter printer = new DefaultPrettyPrinter()
+            .withObjectIndenter(defaultIndenter)
+            .withArrayIndenter(defaultIndenter);
+        gitopsObjectMapper.setDefaultPrettyPrinter(printer);
+        return gitopsObjectMapper;
     }
 
     private void initializeLogger(boolean verbose) {

@@ -3,6 +3,7 @@ settings:
     blacklist:
       prefixed:
         - test
+        - _schemas
 
 topics:
   new-topic:
