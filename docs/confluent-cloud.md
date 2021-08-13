@@ -53,6 +53,12 @@ Additionally, you'll need to login to the `ccloud` tool. You can automate this b
 
 Then, you can run `ccloud login` and it will run without a prompt. This is great for CI builds.
 
+You can optionally specify a path to a `ccloud` executable:
+
+* `CCLOUD_EXECUTABLE_PATH`: `/full/path/to/ccloud`
+
+Otherwise, `ccloud` must be on your path.
+
 ## Validate
 
 First, validate your state file is correct by running:
@@ -72,7 +78,7 @@ An example success message would look like:
 Before generating an execution plan, you will need to create the service accounts. This can be done by running:
 
 ```bash
-kafka-gitops -f state.yaml accounts
+kafka-gitops -f state.yaml account
 ```
 
 This currently only creates service accounts; it will not delete any.
