@@ -1,0 +1,22 @@
+{
+    "topicPlans" : [ ],
+    "schemaPlans" : [
+        {
+            "name" : "schema-1-json",
+            "action" : "UPDATE",
+            "schemaDetails" : {
+                "type" : "JSON",
+                "schema" : "{\"type\":\"object\",\"properties\":{\"f1\":{\"type\":\"string\"},\"f2\":{\"type\":\"string\"}},\"additionalProperties\":false}",
+                "file" : null,
+                "compatibility" : "BACKWARD",
+                "references" : [ ]
+            }
+        },
+        {
+            "name" : "schema-3-protobuf",
+            "action" : "REMOVE",
+            "schemaDetails" : null
+        }
+    ],
+    "aclPlans" : [ ]
+}

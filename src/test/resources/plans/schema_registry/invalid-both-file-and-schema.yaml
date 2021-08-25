@@ -1,0 +1,12 @@
+settings:
+  topics:
+    blacklist:
+      prefixed:
+        - _schemas
+
+schemas:
+  schema-1-json:
+    type: JSON
+    compatibility: NONE
+    schema: "{\"type\":\"object\",\"properties\":{\"f1\":{\"type\":\"string\"}}, \"additionalProperties\": false}"
+    file: "schema-registry-schema1.json"

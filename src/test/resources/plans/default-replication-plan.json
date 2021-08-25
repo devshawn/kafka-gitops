@@ -1,15 +1,19 @@
 {
-    "topicPlans": [
+    "topicPlans" : [
         {
-            "name": "test-topic",
-            "action": "ADD",
-            "topicDetails": {
-                "partitions": 6,
-                "replication": 1,
-                "configs": {}
+            "name" : "test-topic",
+            "action" : "ADD",
+            "topicDetailsPlan" : {
+                "partitions" : 6,
+                "previousPartitions" : null,
+                "partitionsAction" : "ADD",
+                "replication" : 2,
+                "previousReplication" : null,
+                "replicationAction" : "ADD"
             },
-            "topicConfigPlans": []
+            "topicConfigPlans" : [ ]
         }
     ],
-    "aclPlans": []
+    "schemaPlans" : [ ],
+    "aclPlans" : [ ]
 }

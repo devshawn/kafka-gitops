@@ -14,6 +14,8 @@ public interface DesiredState {
 
     Map<String, AclDetails> getAcls();
 
+    Map<String, SchemaDetails> getSchemas();
+
     List<String> getPrefixedTopicsToIgnore();
 
     class Builder extends DesiredState_Builder {

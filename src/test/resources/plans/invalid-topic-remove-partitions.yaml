@@ -1,0 +1,27 @@
+settings:
+  topics:
+    blacklist:
+      prefixed:
+        - _schemas
+
+topics:
+  delete-topic:
+    partitions: 1
+    replication: 2
+
+  test-topic:
+    partitions: 1
+    replication: 2
+
+  topic-with-configs-1:
+    partitions: 3
+    replication: 2
+    configs:
+      cleanup.policy: compact
+      segment.bytes: 100000
+
+  topic-with-configs-2:
+    partitions: 2
+    replication: 2
+    configs:
+      retention.ms: 60000

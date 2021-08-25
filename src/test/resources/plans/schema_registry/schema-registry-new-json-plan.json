@@ -1,0 +1,17 @@
+{
+    "topicPlans" : [ ],
+    "schemaPlans" : [
+        {
+            "name" : "json-value",
+            "action" : "ADD",
+            "schemaDetails" : {
+                "type" : "JSON",
+                "schema" : "{\"type\":\"object\",\"properties\":{\"f1\":{\"type\":\"string\"}}}",
+                "file" : null,
+                "compatibility" : "BACKWARD",
+                "references" : [ ]
+            }
+        }
+    ],
+    "aclPlans" : [ ]
+}

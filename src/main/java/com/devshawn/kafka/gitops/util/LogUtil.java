@@ -3,12 +3,14 @@ package com.devshawn.kafka.gitops.util;
 import com.devshawn.kafka.gitops.domain.plan.AclPlan;
 import com.devshawn.kafka.gitops.domain.plan.DesiredPlan;
 import com.devshawn.kafka.gitops.domain.plan.PlanOverview;
+import com.devshawn.kafka.gitops.domain.plan.SchemaPlan;
 import com.devshawn.kafka.gitops.domain.plan.TopicConfigPlan;
+import com.devshawn.kafka.gitops.domain.plan.TopicDetailsPlan;
 import com.devshawn.kafka.gitops.domain.plan.TopicPlan;
 import com.devshawn.kafka.gitops.domain.state.AclDetails;
-import com.devshawn.kafka.gitops.domain.state.TopicDetails;
 import com.devshawn.kafka.gitops.enums.PlanAction;
 import com.devshawn.kafka.gitops.exception.KafkaExecutionException;
+import com.devshawn.kafka.gitops.exception.SchemaRegistryExecutionException;
 import com.devshawn.kafka.gitops.exception.WritePlanOutputException;
 import picocli.CommandLine;
 
@@ -24,6 +26,9 @@ public class LogUtil {
 
         printAclOverview(desiredPlan, deleteDisabled);
         desiredPlan.getAclPlans().forEach(LogUtil::printAclPlan);
+
+        printSchemaOverview(desiredPlan, deleteDisabled);
+        desiredPlan.getSchemaPlans().forEach(LogUtil::printSchemaPlan);
 
         printOverview(desiredPlan, deleteDisabled, skipAclsDisabled);
     }
@@ -41,29 +46,65 @@ public class LogUtil {
         switch (topicPlan.getAction()) {
             case ADD:
                 System.out.println(green(String.format("+ [TOPIC] %s", topicPlan.getName())));
-                printTopicConfigPlanForNewTopics(topicPlan.getTopicDetails().get());
+                printTopicConfigPlanForNewTopics(topicPlan);
                 System.out.println("\n");
                 break;
             case UPDATE:
                 System.out.println(yellow(String.format("~ [TOPIC] %s", topicPlan.getName())));
-                System.out.println(yellow("\t~ configs:"));
-                topicPlan.getTopicConfigPlans().forEach(LogUtil::printTopicConfigPlan);
+                if(topicPlan.getTopicDetailsPlan().isPresent()) {
+                    LogUtil.printTopicDetailsPlan(topicPlan.getTopicDetailsPlan().get());
+                }
+                if(!topicPlan.getTopicConfigPlans().isEmpty()) {
+                    System.out.println(yellow("\t~ configs:"));
+                    topicPlan.getTopicConfigPlans().forEach(LogUtil::printTopicConfigPlan);
+                }
                 System.out.println("\n");
                 break;
             case REMOVE:
                 System.out.println(red(String.format("- [TOPIC] %s", topicPlan.getName())));
                 System.out.println("\n");
                 break;
+            case NO_CHANGE:
+                break;
         }
     }
 
-    private static void printTopicConfigPlanForNewTopics(TopicDetails topicDetails) {
-        System.out.println(green(String.format("\t+ partitions: %s", topicDetails.getPartitions())));
-        System.out.println(green(String.format("\t+ replication: %s", topicDetails.getReplication().get())));
-        if (topicDetails.getConfigs().size() > 0) {
+    private static void printTopicConfigPlanForNewTopics(TopicPlan topicPlan) {
+        System.out.println(green(String.format("\t+ partitions: %s", topicPlan.getTopicDetailsPlan().get().getPartitions().get())));
+        System.out.println(green(String.format("\t+ replication: %s", topicPlan.getTopicDetailsPlan().get().getReplication().get())));
+        if (! topicPlan.getTopicConfigPlans().isEmpty()) {
             System.out.println(green("\t+ configs:"));
-            topicDetails.getConfigs().forEach((key, value) -> System.out.println(green(String.format("\t\t+ %s: %s", key, value))));
+            topicPlan.getTopicConfigPlans().forEach(topicConfigPlan -> System.out.println(green(String.format("\t\t+ %s: %s", topicConfigPlan.getKey(), topicConfigPlan.getValue().get()))));
         }
+    }
+
+    private static void printTopicDetailsPlan(TopicDetailsPlan topicDetailsPlan) {
+        switch (topicDetailsPlan.getPartitionsAction()) {
+            case ADD:
+                System.out.println(green(String.format("\t+ partitions: %s", topicDetailsPlan.getPartitions().get())));
+                break;
+            case UPDATE:
+                System.out.println(yellow(String.format("\t~ partitions: %s (%s)", topicDetailsPlan.getPartitions().get(), topicDetailsPlan.getPreviousPartitions().get())));
+                break;
+            case REMOVE:
+                System.out.println(red(String.format("\t- partitions (%s)", topicDetailsPlan.getPreviousPartitions().get())));
+                break;
+            case NO_CHANGE:
+                break;
+        }
+        switch (topicDetailsPlan.getReplicationAction()) {
+          case ADD:
+              System.out.println(green(String.format("\t+ replication: %s", topicDetailsPlan.getReplication().get())));
+              break;
+          case UPDATE:
+              System.out.println(yellow(String.format("\t~ replication: %s (%s)", topicDetailsPlan.getReplication().get(), topicDetailsPlan.getPreviousReplication().get())));
+              break;
+          case REMOVE:
+              System.out.println(red(String.format("\t- replication (%s)", topicDetailsPlan.getPreviousReplication().get())));
+              break;
+          case NO_CHANGE:
+              break;
+      }
     }
 
     private static void printTopicConfigPlan(TopicConfigPlan topicConfigPlan) {
@@ -72,10 +113,12 @@ public class LogUtil {
                 System.out.println(green(String.format("\t\t+ %s: %s", topicConfigPlan.getKey(), topicConfigPlan.getValue().get())));
                 break;
             case UPDATE:
-                System.out.println(yellow(String.format("\t\t~ %s: %s", topicConfigPlan.getKey(), topicConfigPlan.getValue().get())));
+                System.out.println(yellow(String.format("\t\t~ %s: %s ( %s )", topicConfigPlan.getKey(), topicConfigPlan.getValue().get(), topicConfigPlan.getPreviousValue().get())));
                 break;
             case REMOVE:
-                System.out.println(red(String.format("\t\t- %s", topicConfigPlan.getKey())));
+                System.out.println(red(String.format("\t\t- %s (%s)", topicConfigPlan.getKey(), topicConfigPlan.getPreviousValue().get())));
+                break;
+            case NO_CHANGE:
                 break;
         }
     }
@@ -106,6 +149,42 @@ public class LogUtil {
                 System.out.println(red(String.format("\t - permission: %s", aclDetails.getPermission())));
                 System.out.println("\n");
                 break;
+            case UPDATE:
+            case NO_CHANGE:
+                break;
+        }
+    }
+
+    private static void printSchemaPlan(SchemaPlan schemaPlan) {
+        switch (schemaPlan.getAction()) {
+            case ADD:
+                System.out.println(green(String.format("+ [SCHEMA] %s", schemaPlan.getName())));
+                System.out.println(green(String.format("\t + type: %s", schemaPlan.getSchemaDetails().get().getType())));
+                if(schemaPlan.getSchemaDetails().get().getCompatibility().isPresent()) {
+                    System.out.println(green(String.format("\t + compatibility: %s", schemaPlan.getSchemaDetails().get().getCompatibility().get())));
+                }
+                System.out.println(green(String.format("\t + schema: \n----------------------\n%s\n----------------------",
+                    schemaPlan.getSchemaDetails().get().getSchema())));
+                if (!schemaPlan.getSchemaDetails().get().getReferences().isEmpty()) {
+                    schemaPlan.getSchemaDetails().get().getReferences().forEach(referenceDetail -> {
+                        System.out.println(green(String.format("\t + references:")));
+                        System.out.println(green(String.format("\t\t + name: %s", referenceDetail.getName())));
+                        System.out.println(green(String.format("\t\t + subject: %s", referenceDetail.getSubject())));
+                        System.out.println(green(String.format("\t\t + version: %s", referenceDetail.getVersion())));
+                    });
+                }
+                System.out.println("\n");
+                break;
+            case UPDATE:
+                System.out.println(yellow(String.format("~ [SCHEMA] %s", schemaPlan.getName())));
+                System.out.println("\n");
+                break;
+            case REMOVE:
+                System.out.println(red(String.format("- [SCHEMA] %s", schemaPlan.getName())));
+                System.out.println("\n");
+                break;
+            case NO_CHANGE:
+                break;
         }
     }
 
@@ -116,6 +195,11 @@ public class LogUtil {
     public static void printTopicPreApply(TopicPlan topicPlan) {
         System.out.println(String.format("Applying: [%s]\n", toAction(topicPlan.getAction())));
         printTopicPlan(topicPlan);
+    }
+
+    public static void printSchemaPreApply(SchemaPlan schemaPlan) {
+        System.out.println(String.format("Applying: [%s]\n", toAction(schemaPlan.getAction())));
+        printSchemaPlan(schemaPlan);
     }
 
     public static void printAclPreApply(AclPlan aclPlan) {
@@ -147,6 +231,12 @@ public class LogUtil {
         PlanOverview aclPlanOverview = PlanUtil.getAclPlanOverview(desiredPlan, deleteDisabled);
         System.out.println(String.format("ACLs: %s, %s, %s.\n", toCreate(aclPlanOverview.getAdd()),
                 toUpdate(aclPlanOverview.getUpdate()), toDelete(aclPlanOverview.getRemove())));
+    }
+
+    private static void printSchemaOverview(DesiredPlan desiredPlan, boolean deleteDisabled) {
+        PlanOverview schemaPlanOverview = PlanUtil.getSchemaPlanOverview(desiredPlan, deleteDisabled);
+        System.out.println(String.format("Schemas: %s, %s, %s.\n", toCreate(schemaPlanOverview.getAdd()),
+                toUpdate(schemaPlanOverview.getUpdate()), toDelete(schemaPlanOverview.getRemove())));
     }
 
     private static void printLegend(PlanOverview planOverview) {
@@ -203,6 +293,19 @@ public class LogUtil {
     }
 
     public static void printKafkaExecutionError(KafkaExecutionException ex, boolean apply) {
+        System.out.println(String.format("[%s] %s:\n%s\n", red("ERROR"), ex.getMessage(), ex.getExceptionMessage()));
+        if (apply) {
+            printApplyErrorMessage();
+        } else {
+            printPlanErrorMessage();
+        }
+    }
+
+    public static void printSchemaRegistryExecutionError(SchemaRegistryExecutionException ex) {
+        printSchemaRegistryExecutionError(ex, false);
+    }
+
+    public static void printSchemaRegistryExecutionError(SchemaRegistryExecutionException ex, boolean apply) {
         System.out.println(String.format("[%s] %s:\n%s\n", red("ERROR"), ex.getMessage(), ex.getExceptionMessage()));
         if (apply) {
             printApplyErrorMessage();

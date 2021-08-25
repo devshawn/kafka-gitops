@@ -14,6 +14,8 @@ public interface SettingsFiles {
     Optional<String> getTopics();
 
     Optional<String> getUsers();
+    
+    Optional<String> getSchemas();
 
     class Builder extends SettingsFiles_Builder {
     }

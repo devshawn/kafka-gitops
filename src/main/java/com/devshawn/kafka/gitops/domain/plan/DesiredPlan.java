@@ -12,12 +12,15 @@ public interface DesiredPlan {
 
     List<TopicPlan> getTopicPlans();
 
+    List<SchemaPlan> getSchemaPlans();
+
     List<AclPlan> getAclPlans();
 
     default DesiredPlan toChangesOnlyPlan() {
         DesiredPlan.Builder builder = new DesiredPlan.Builder();
         getTopicPlans().stream().filter(it -> !it.getAction().equals(PlanAction.NO_CHANGE)).map(TopicPlan::toChangesOnlyPlan).forEach(builder::addTopicPlans);
         getAclPlans().stream().filter(it -> !it.getAction().equals(PlanAction.NO_CHANGE)).forEach(builder::addAclPlans);
+        getSchemaPlans().stream().filter(it -> !it.getAction().equals(PlanAction.NO_CHANGE)).forEach(builder::addSchemaPlans);
         return builder.build();
     }
 

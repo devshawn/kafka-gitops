@@ -1,3 +1,8 @@
+settings:
+  topics:
+    blacklist:
+      prefixed:
+        - _schemas
 services:
   streams-application:
     type: kafka-streams

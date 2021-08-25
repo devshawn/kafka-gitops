@@ -1,35 +1,45 @@
 {
-    "topicPlans": [
+    "topicPlans" : [
         {
-            "name": "test-topic",
-            "action": "ADD",
-            "topicDetails": {
-                "partitions": 6,
-                "replication": 3,
-                "configs": {}
+            "name" : "test-topic",
+            "action" : "ADD",
+            "topicDetailsPlan" : {
+                "partitions" : 6,
+                "previousPartitions" : null,
+                "partitionsAction" : "ADD",
+                "replication" : 3,
+                "previousReplication" : null,
+                "replicationAction" : "ADD"
             },
-            "topicConfigPlans": []
+            "topicConfigPlans" : [ ]
         },
         {
-            "name": "another-topic",
-            "action": "ADD",
-            "topicDetails": {
-                "partitions": 3,
-                "replication": 1,
-                "configs": {}
+            "name" : "another-topic",
+            "action" : "ADD",
+            "topicDetailsPlan" : {
+                "partitions" : 3,
+                "previousPartitions" : null,
+                "partitionsAction" : "ADD",
+                "replication" : 2,
+                "previousReplication" : null,
+                "replicationAction" : "ADD"
             },
-            "topicConfigPlans": []
+            "topicConfigPlans" : [ ]
         },
         {
-            "name": "last-topic",
-            "action": "ADD",
-            "topicDetails": {
-                "partitions": 3,
-                "replication": 4,
-                "configs": {}
+            "name" : "last-topic",
+            "action" : "ADD",
+            "topicDetailsPlan" : {
+                "partitions" : 3,
+                "previousPartitions" : null,
+                "partitionsAction" : "ADD",
+                "replication" : 4,
+                "previousReplication" : null,
+                "replicationAction" : "ADD"
             },
-            "topicConfigPlans": []
+            "topicConfigPlans" : [ ]
         }
     ],
-    "aclPlans": []
+    "schemaPlans" : [ ],
+    "aclPlans" : [ ]
 }

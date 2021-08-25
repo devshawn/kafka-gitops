@@ -1,6 +1,5 @@
 package com.devshawn.kafka.gitops.domain.state;
 
-import com.devshawn.kafka.gitops.exception.ValidationException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.apache.kafka.common.acl.AccessControlEntry;
 import org.apache.kafka.common.acl.AclBinding;
@@ -10,10 +9,6 @@ import org.apache.kafka.common.resource.PatternType;
 import org.apache.kafka.common.resource.ResourcePattern;
 import org.apache.kafka.common.resource.ResourceType;
 import org.inferred.freebuilder.FreeBuilder;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @FreeBuilder
 @JsonDeserialize(builder = AclDetails.Builder.class)

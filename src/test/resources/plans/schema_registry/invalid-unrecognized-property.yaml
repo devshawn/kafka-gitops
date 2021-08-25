@@ -1,0 +1,12 @@
+settings:
+  topics:
+    blacklist:
+      prefixed:
+        - _schemas
+
+schemas:
+  schema-1-json:
+    type: JSON
+    compatibility: BACKWARD
+    schema: "{\"type\":\"object\",\"properties\":{\"f1\":{\"type\":\"string\"}}, \"additionalProperties\": false}"
+    what: ""

@@ -1,44 +1,45 @@
 {
-    "topicPlans": [],
-    "aclPlans": [
+    "topicPlans" : [ ],
+    "schemaPlans" : [ ],
+    "aclPlans" : [
         {
-            "name": "test-service-0",
-            "aclDetails": {
-                "name": "test-topic",
-                "type": "TOPIC",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "WRITE",
-                "permission": "ALLOW"
+            "name" : "test-service-0",
+            "aclDetails" : {
+                "name" : "test-topic",
+                "type" : "TOPIC",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "WRITE",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "test-service-1",
-            "aclDetails": {
-                "name": "another-test-topic",
-                "type": "TOPIC",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "READ",
-                "permission": "ALLOW"
+            "name" : "test-service-1",
+            "aclDetails" : {
+                "name" : "another-test-topic",
+                "type" : "TOPIC",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "READ",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "test-service-2",
-            "aclDetails": {
-                "name": "test-service",
-                "type": "GROUP",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "READ",
-                "permission": "ALLOW"
+            "name" : "test-service-2",
+            "aclDetails" : {
+                "name" : "test-service",
+                "type" : "GROUP",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "READ",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         }
     ]
 }

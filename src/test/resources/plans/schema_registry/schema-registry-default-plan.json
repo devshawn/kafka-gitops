@@ -1,0 +1,28 @@
+{
+    "topicPlans" : [ ],
+    "schemaPlans" : [
+        {
+            "name" : "json-value2",
+            "action" : "ADD",
+            "schemaDetails" : {
+                "type" : "JSON",
+                "schema" : "{\"type\":\"object\",\"properties\":{\"f1\":{\"type\":\"string\"}}}",
+                "file" : null,
+                "compatibility" : "FULL",
+                "references" : [ ]
+            }
+        },
+        {
+            "name" : "json-value3",
+            "action" : "ADD",
+            "schemaDetails" : {
+                "type" : "JSON",
+                "schema" : "{\"type\":\"object\",\"properties\":{\"f1\":{\"type\":\"string\"}}}",
+                "file" : null,
+                "compatibility" : "NONE",
+                "references" : [ ]
+            }
+        }
+    ],
+    "aclPlans" : [ ]
+}

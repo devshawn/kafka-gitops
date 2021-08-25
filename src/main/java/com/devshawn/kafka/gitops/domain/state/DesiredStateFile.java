@@ -18,6 +18,8 @@ public interface DesiredStateFile {
 
     Map<String, TopicDetails> getTopics();
 
+    Map<String, SchemaDetails> getSchemas();
+
     Map<String, UserDetails> getUsers();
 
     Map<String, Map<String, CustomAclDetails>> getCustomServiceAcls();

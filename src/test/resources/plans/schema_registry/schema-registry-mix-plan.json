@@ -1,0 +1,39 @@
+{
+    "topicPlans" : [ ],
+    "schemaPlans" : [
+        {
+            "name" : "json-value",
+            "action" : "ADD",
+            "schemaDetails" : {
+                "type" : "JSON",
+                "schema" : "{\"type\":\"object\",\"properties\":{\"f1\":{\"type\":\"string\"}}}",
+                "file" : null,
+                "compatibility" : "FULL",
+                "references" : [ ]
+            }
+        },
+        {
+            "name" : "avro-value1",
+            "action" : "ADD",
+            "schemaDetails" : {
+                "type" : "AVRO",
+                "schema" : "{\"type\":\"record\",\"name\":\"TestRecord\",\"namespace\":\"com.devshawn.kafka.gitops\",\"fields\":[{\"name\":\"hello\",\"type\":\"string\"}]}",
+                "file" : null,
+                "compatibility" : "NONE",
+                "references" : [ ]
+            }
+        },
+        {
+            "name" : "avro-value2",
+            "action" : "ADD",
+            "schemaDetails" : {
+                "type" : "AVRO",
+                "schema" : "{\"type\":\"record\",\"name\":\"TestRecord2\",\"namespace\":\"com.devshawn.kafka.gitops\",\"fields\":[{\"name\":\"hello2\",\"type\":\"string\"}]}",
+                "file" : null,
+                "compatibility" : "FORWARD",
+                "references" : [ ]
+            }
+        }
+    ],
+    "aclPlans" : [ ]
+}

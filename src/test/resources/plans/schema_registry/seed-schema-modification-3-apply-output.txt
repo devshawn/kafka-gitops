@@ -1,0 +1,17 @@
+Executing apply...
+
+Applying: [UPDATE]
+
+~ [SCHEMA] schema-1-json
+
+
+Successfully applied.
+
+Applying: [DELETE]
+
+- [SCHEMA] schema-3-protobuf
+
+
+Successfully applied.
+
+[SUCCESS] Apply complete! Resources: 0 created, 1 updated, 1 deleted.

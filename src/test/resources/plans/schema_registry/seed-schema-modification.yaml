@@ -1,0 +1,15 @@
+settings:
+  topics:
+    blacklist:
+      prefixed:
+        - _schemas
+
+schemas:
+  json-value:
+    type: JSON
+    compatibility: BACKWARD
+    schema: '{"type": "object","properties": {"f1": {"type": "string"}}}'
+  json-value1:
+    type: JSON
+    compatibility: NONE
+    file: schema-registry-schema1.json

@@ -13,8 +13,8 @@ Applying: [UPDATE]
 
 ~ [TOPIC] topic-with-configs-1
 	~ configs:
-		- cleanup.policy
-		- segment.bytes
+		- cleanup.policy (compact)
+		- segment.bytes (100000)
 		+ retention.ms: 100000
 
 

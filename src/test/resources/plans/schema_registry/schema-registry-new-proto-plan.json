@@ -1,0 +1,17 @@
+{
+    "topicPlans" : [ ],
+    "schemaPlans" : [
+        {
+            "name" : "proto-value",
+            "action" : "ADD",
+            "schemaDetails" : {
+                "type" : "PROTOBUF",
+                "schema" : "syntax = \"proto3\";\npackage com.acme;\n\nmessage OtherRecord {\n  int32 an_id = 1;\n}\n",
+                "file" : null,
+                "compatibility" : "NONE",
+                "references" : [ ]
+            }
+        }
+    ],
+    "aclPlans" : [ ]
+}

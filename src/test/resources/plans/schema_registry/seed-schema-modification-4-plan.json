@@ -1,0 +1,23 @@
+{
+    "topicPlans" : [ ],
+    "schemaPlans" : [
+        {
+            "name" : "schema-2-json",
+            "action" : "ADD",
+            "schemaDetails" : {
+                "type" : "JSON",
+                "schema" : "{\"type\":\"object\",\"properties\":{\"f1\":{\"$ref\":\"otherschema\"}},\"additionalProperties\":false}",
+                "file" : null,
+                "compatibility" : "BACKWARD",
+                "references" : [
+                    {
+                        "name" : "otherschema",
+                        "subject" : "schema-1-json",
+                        "version" : -1
+                    }
+                ]
+            }
+        }
+    ],
+    "aclPlans" : [ ]
+}

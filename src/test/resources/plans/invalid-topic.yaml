@@ -1,3 +1,9 @@
+settings:
+  topics:
+    blacklist:
+      prefixed:
+        - _schemas
+
 topics:
   test-topic:
-    replication: 1
+    replication: 2

@@ -14,7 +14,7 @@ class KafkaGitopsConfigLoaderSpec extends Specification {
     EnvironmentVariables environmentVariables
 
     void setupSpec() {
-        environmentVariables.set("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
+        environmentVariables.set("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092,localhost:9093,localhost:9094")
         environmentVariables.set("KAFKA_SASL_MECHANISM", "PLAIN")
         environmentVariables.set("KAFKA_SECURITY_PROTOCOL", "SASL_PLAINTEXT")
     }

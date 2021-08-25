@@ -1,0 +1,33 @@
+Executing apply...
+
+Applying: [UPDATE]
+
+~ [TOPIC] topic-with-configs-1
+	~ partitions: 4 (3)
+
+
+Successfully applied.
+
+Applying: [UPDATE]
+
+~ [TOPIC] topic-with-configs-2
+	~ partitions: 10 (6)
+
+
+Successfully applied.
+
+Applying: [DELETE]
+
+- [ACL] Unnamed ACL
+	 - resource_name: test-topic
+	 - resource_type: TOPIC
+	 - resource_pattern: LITERAL
+	 - resource_principal: User:test
+	 - host: *
+	 - operation: READ
+	 - permission: ALLOW
+
+
+Successfully applied.
+
+[SUCCESS] Apply complete! Resources: 0 created, 2 updated, 1 deleted.

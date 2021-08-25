@@ -1,460 +1,461 @@
 {
-    "topicPlans": [],
-    "aclPlans": [
+    "topicPlans" : [ ],
+    "schemaPlans" : [ ],
+    "aclPlans" : [
         {
-            "name": "normal-application-0",
-            "aclDetails": {
-                "name": "test-topic",
-                "type": "TOPIC",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "WRITE",
-                "permission": "ALLOW"
+            "name" : "normal-application-0",
+            "aclDetails" : {
+                "name" : "test-topic",
+                "type" : "TOPIC",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "WRITE",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "normal-application-1",
-            "aclDetails": {
-                "name": "first-topic",
-                "type": "TOPIC",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "READ",
-                "permission": "ALLOW"
+            "name" : "normal-application-1",
+            "aclDetails" : {
+                "name" : "first-topic",
+                "type" : "TOPIC",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "READ",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "normal-application-2",
-            "aclDetails": {
-                "name": "first-topic",
-                "type": "TOPIC",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "DESCRIBE",
-                "permission": "ALLOW"
+            "name" : "normal-application-2",
+            "aclDetails" : {
+                "name" : "first-topic",
+                "type" : "TOPIC",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "DESCRIBE",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "normal-application-3",
-            "aclDetails": {
-                "name": "test-topic",
-                "type": "TOPIC",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "DESCRIBE",
-                "permission": "ALLOW"
+            "name" : "normal-application-3",
+            "aclDetails" : {
+                "name" : "test-topic",
+                "type" : "TOPIC",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "DESCRIBE",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "normal-application-4",
-            "aclDetails": {
-                "name": "normal-application",
-                "type": "GROUP",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "READ",
-                "permission": "ALLOW"
+            "name" : "normal-application-4",
+            "aclDetails" : {
+                "name" : "normal-application",
+                "type" : "GROUP",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "READ",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "streams-application-0",
-            "aclDetails": {
-                "name": "another-test-topic",
-                "type": "TOPIC",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "WRITE",
-                "permission": "ALLOW"
+            "name" : "streams-application-0",
+            "aclDetails" : {
+                "name" : "another-test-topic",
+                "type" : "TOPIC",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "WRITE",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "streams-application-1",
-            "aclDetails": {
-                "name": "test-topic",
-                "type": "TOPIC",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "READ",
-                "permission": "ALLOW"
+            "name" : "streams-application-1",
+            "aclDetails" : {
+                "name" : "test-topic",
+                "type" : "TOPIC",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "READ",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "streams-application-2",
-            "aclDetails": {
-                "name": "test-topic",
-                "type": "TOPIC",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "DESCRIBE",
-                "permission": "ALLOW"
+            "name" : "streams-application-2",
+            "aclDetails" : {
+                "name" : "test-topic",
+                "type" : "TOPIC",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "DESCRIBE",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "streams-application-3",
-            "aclDetails": {
-                "name": "another-test-topic",
-                "type": "TOPIC",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "DESCRIBE",
-                "permission": "ALLOW"
+            "name" : "streams-application-3",
+            "aclDetails" : {
+                "name" : "another-test-topic",
+                "type" : "TOPIC",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "DESCRIBE",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "streams-application-4",
-            "aclDetails": {
-                "name": "streams-application",
-                "type": "TOPIC",
-                "pattern": "PREFIXED",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "READ",
-                "permission": "ALLOW"
+            "name" : "streams-application-4",
+            "aclDetails" : {
+                "name" : "streams-application",
+                "type" : "TOPIC",
+                "pattern" : "PREFIXED",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "READ",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "streams-application-5",
-            "aclDetails": {
-                "name": "streams-application",
-                "type": "TOPIC",
-                "pattern": "PREFIXED",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "WRITE",
-                "permission": "ALLOW"
+            "name" : "streams-application-5",
+            "aclDetails" : {
+                "name" : "streams-application",
+                "type" : "TOPIC",
+                "pattern" : "PREFIXED",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "WRITE",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "streams-application-6",
-            "aclDetails": {
-                "name": "streams-application",
-                "type": "TOPIC",
-                "pattern": "PREFIXED",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "DESCRIBE",
-                "permission": "ALLOW"
+            "name" : "streams-application-6",
+            "aclDetails" : {
+                "name" : "streams-application",
+                "type" : "TOPIC",
+                "pattern" : "PREFIXED",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "DESCRIBE",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "streams-application-7",
-            "aclDetails": {
-                "name": "streams-application",
-                "type": "TOPIC",
-                "pattern": "PREFIXED",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "DELETE",
-                "permission": "ALLOW"
+            "name" : "streams-application-7",
+            "aclDetails" : {
+                "name" : "streams-application",
+                "type" : "TOPIC",
+                "pattern" : "PREFIXED",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "DELETE",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "streams-application-8",
-            "aclDetails": {
-                "name": "streams-application",
-                "type": "TOPIC",
-                "pattern": "PREFIXED",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "CREATE",
-                "permission": "ALLOW"
+            "name" : "streams-application-8",
+            "aclDetails" : {
+                "name" : "streams-application",
+                "type" : "TOPIC",
+                "pattern" : "PREFIXED",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "CREATE",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "streams-application-9",
-            "aclDetails": {
-                "name": "streams-application",
-                "type": "TOPIC",
-                "pattern": "PREFIXED",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "ALTER",
-                "permission": "ALLOW"
+            "name" : "streams-application-9",
+            "aclDetails" : {
+                "name" : "streams-application",
+                "type" : "TOPIC",
+                "pattern" : "PREFIXED",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "ALTER",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "streams-application-10",
-            "aclDetails": {
-                "name": "streams-application",
-                "type": "TOPIC",
-                "pattern": "PREFIXED",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "ALTER_CONFIGS",
-                "permission": "ALLOW"
+            "name" : "streams-application-10",
+            "aclDetails" : {
+                "name" : "streams-application",
+                "type" : "TOPIC",
+                "pattern" : "PREFIXED",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "ALTER_CONFIGS",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "streams-application-11",
-            "aclDetails": {
-                "name": "streams-application",
-                "type": "TOPIC",
-                "pattern": "PREFIXED",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "DESCRIBE_CONFIGS",
-                "permission": "ALLOW"
+            "name" : "streams-application-11",
+            "aclDetails" : {
+                "name" : "streams-application",
+                "type" : "TOPIC",
+                "pattern" : "PREFIXED",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "DESCRIBE_CONFIGS",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "streams-application-12",
-            "aclDetails": {
-                "name": "streams-application",
-                "type": "GROUP",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "READ",
-                "permission": "ALLOW"
+            "name" : "streams-application-12",
+            "aclDetails" : {
+                "name" : "streams-application",
+                "type" : "GROUP",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "READ",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "streams-application-13",
-            "aclDetails": {
-                "name": "streams-application",
-                "type": "GROUP",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "DESCRIBE",
-                "permission": "ALLOW"
+            "name" : "streams-application-13",
+            "aclDetails" : {
+                "name" : "streams-application",
+                "type" : "GROUP",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "DESCRIBE",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "streams-application-14",
-            "aclDetails": {
-                "name": "streams-application",
-                "type": "GROUP",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "DELETE",
-                "permission": "ALLOW"
+            "name" : "streams-application-14",
+            "aclDetails" : {
+                "name" : "streams-application",
+                "type" : "GROUP",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "DELETE",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "streams-application-15",
-            "aclDetails": {
-                "name": "kafka-cluster",
-                "type": "CLUSTER",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "DESCRIBE_CONFIGS",
-                "permission": "ALLOW"
+            "name" : "streams-application-15",
+            "aclDetails" : {
+                "name" : "kafka-cluster",
+                "type" : "CLUSTER",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "DESCRIBE_CONFIGS",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "kafka-connect-application-0",
-            "aclDetails": {
-                "name": "poison-topic",
-                "type": "TOPIC",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "WRITE",
-                "permission": "ALLOW"
+            "name" : "kafka-connect-application-0",
+            "aclDetails" : {
+                "name" : "poison-topic",
+                "type" : "TOPIC",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "WRITE",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "kafka-connect-application-1",
-            "aclDetails": {
-                "name": "poison-topic",
-                "type": "TOPIC",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "DESCRIBE",
-                "permission": "ALLOW"
+            "name" : "kafka-connect-application-1",
+            "aclDetails" : {
+                "name" : "poison-topic",
+                "type" : "TOPIC",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "DESCRIBE",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "kafka-connect-application-2",
-            "aclDetails": {
-                "name": "connect-configs-kafka-connect-application",
-                "type": "TOPIC",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "READ",
-                "permission": "ALLOW"
+            "name" : "kafka-connect-application-2",
+            "aclDetails" : {
+                "name" : "connect-configs-kafka-connect-application",
+                "type" : "TOPIC",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "READ",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "kafka-connect-application-3",
-            "aclDetails": {
-                "name": "connect-offsets-kafka-connect-application",
-                "type": "TOPIC",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "READ",
-                "permission": "ALLOW"
+            "name" : "kafka-connect-application-3",
+            "aclDetails" : {
+                "name" : "connect-offsets-kafka-connect-application",
+                "type" : "TOPIC",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "READ",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "kafka-connect-application-4",
-            "aclDetails": {
-                "name": "connect-status-kafka-connect-application",
-                "type": "TOPIC",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "READ",
-                "permission": "ALLOW"
+            "name" : "kafka-connect-application-4",
+            "aclDetails" : {
+                "name" : "connect-status-kafka-connect-application",
+                "type" : "TOPIC",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "READ",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "kafka-connect-application-5",
-            "aclDetails": {
-                "name": "connect-configs-kafka-connect-application",
-                "type": "TOPIC",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "WRITE",
-                "permission": "ALLOW"
+            "name" : "kafka-connect-application-5",
+            "aclDetails" : {
+                "name" : "connect-configs-kafka-connect-application",
+                "type" : "TOPIC",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "WRITE",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "kafka-connect-application-6",
-            "aclDetails": {
-                "name": "connect-offsets-kafka-connect-application",
-                "type": "TOPIC",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "WRITE",
-                "permission": "ALLOW"
+            "name" : "kafka-connect-application-6",
+            "aclDetails" : {
+                "name" : "connect-offsets-kafka-connect-application",
+                "type" : "TOPIC",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "WRITE",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "kafka-connect-application-7",
-            "aclDetails": {
-                "name": "connect-status-kafka-connect-application",
-                "type": "TOPIC",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "WRITE",
-                "permission": "ALLOW"
+            "name" : "kafka-connect-application-7",
+            "aclDetails" : {
+                "name" : "connect-status-kafka-connect-application",
+                "type" : "TOPIC",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "WRITE",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "kafka-connect-application-8",
-            "aclDetails": {
-                "name": "kafka-connect-application",
-                "type": "GROUP",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "READ",
-                "permission": "ALLOW"
+            "name" : "kafka-connect-application-8",
+            "aclDetails" : {
+                "name" : "kafka-connect-application",
+                "type" : "GROUP",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "READ",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "kafka-connect-application-9",
-            "aclDetails": {
-                "name": "another-test-topic",
-                "type": "TOPIC",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "WRITE",
-                "permission": "ALLOW"
+            "name" : "kafka-connect-application-9",
+            "aclDetails" : {
+                "name" : "another-test-topic",
+                "type" : "TOPIC",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "WRITE",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "kafka-connect-application-10",
-            "aclDetails": {
-                "name": "another-test-topic",
-                "type": "TOPIC",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "DESCRIBE",
-                "permission": "ALLOW"
+            "name" : "kafka-connect-application-10",
+            "aclDetails" : {
+                "name" : "another-test-topic",
+                "type" : "TOPIC",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "DESCRIBE",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "kafka-connect-application-11",
-            "aclDetails": {
-                "name": "test-topic",
-                "type": "TOPIC",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "READ",
-                "permission": "ALLOW"
+            "name" : "kafka-connect-application-11",
+            "aclDetails" : {
+                "name" : "test-topic",
+                "type" : "TOPIC",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "READ",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "kafka-connect-application-12",
-            "aclDetails": {
-                "name": "test-topic",
-                "type": "TOPIC",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "DESCRIBE",
-                "permission": "ALLOW"
+            "name" : "kafka-connect-application-12",
+            "aclDetails" : {
+                "name" : "test-topic",
+                "type" : "TOPIC",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "DESCRIBE",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "kafka-connect-application-13",
-            "aclDetails": {
-                "name": "connect-test-sink",
-                "type": "GROUP",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "READ",
-                "permission": "ALLOW"
+            "name" : "kafka-connect-application-13",
+            "aclDetails" : {
+                "name" : "connect-test-sink",
+                "type" : "GROUP",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "READ",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         }
     ]
 }

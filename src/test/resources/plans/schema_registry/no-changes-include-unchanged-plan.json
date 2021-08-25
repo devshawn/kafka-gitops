@@ -1,0 +1,39 @@
+{
+    "topicPlans" : [ ],
+    "schemaPlans" : [
+        {
+            "name" : "schema-1-json",
+            "action" : "NO_CHANGE",
+            "schemaDetails" : {
+                "type" : "JSON",
+                "schema" : "{\"type\":\"object\",\"properties\":{\"f1\":{\"type\":\"string\"}},\"additionalProperties\":false}",
+                "file" : null,
+                "compatibility" : "BACKWARD",
+                "references" : [ ]
+            }
+        },
+        {
+            "name" : "schema-2-avro",
+            "action" : "NO_CHANGE",
+            "schemaDetails" : {
+                "type" : "AVRO",
+                "schema" : "{\"type\":\"record\",\"name\":\"TestRecord\",\"namespace\":\"com.devshawn.kafka.gitops\",\"fields\":[{\"name\":\"hello\",\"type\":\"string\"}]}",
+                "file" : null,
+                "compatibility" : "BACKWARD",
+                "references" : [ ]
+            }
+        },
+        {
+            "name" : "schema-3-protobuf",
+            "action" : "NO_CHANGE",
+            "schemaDetails" : {
+                "type" : "PROTOBUF",
+                "schema" : "syntax = \"proto3\";\npackage com.acme;\n\nmessage OtherRecord {\n  int32 an_id = 1;\n}\n",
+                "file" : null,
+                "compatibility" : "FULL",
+                "references" : [ ]
+            }
+        }
+    ],
+    "aclPlans" : [ ]
+}

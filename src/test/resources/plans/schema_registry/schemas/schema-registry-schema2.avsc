@@ -1,0 +1,11 @@
+{
+      "type": "record",
+      "name": "TestRecord",
+      "namespace": "com.devshawn.kafka.gitops",
+      "fields": [
+            {
+                  "name": "hello",
+                  "type": "string"
+            }
+      ]
+}

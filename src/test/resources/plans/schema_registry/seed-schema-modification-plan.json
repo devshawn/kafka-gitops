@@ -1,0 +1,43 @@
+{
+    "topicPlans" : [ ],
+    "schemaPlans" : [
+        {
+            "name" : "json-value",
+            "action" : "ADD",
+            "schemaDetails" : {
+                "type" : "JSON",
+                "schema" : "{\"type\":\"object\",\"properties\":{\"f1\":{\"type\":\"string\"}}}",
+                "file" : null,
+                "compatibility" : "BACKWARD",
+                "references" : [ ]
+            }
+        },
+        {
+            "name" : "json-value1",
+            "action" : "ADD",
+            "schemaDetails" : {
+                "type" : "JSON",
+                "schema" : "{\"type\":\"object\",\"properties\":{\"f1\":{\"type\":\"string\"}}}",
+                "file" : null,
+                "compatibility" : "NONE",
+                "references" : [ ]
+            }
+        },
+        {
+            "name" : "schema-2-avro",
+            "action" : "REMOVE",
+            "schemaDetails" : null
+        },
+        {
+            "name" : "schema-1-json",
+            "action" : "REMOVE",
+            "schemaDetails" : null
+        },
+        {
+            "name" : "schema-3-protobuf",
+            "action" : "REMOVE",
+            "schemaDetails" : null
+        }
+    ],
+    "aclPlans" : [ ]
+}
