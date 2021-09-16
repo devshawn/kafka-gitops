@@ -46,6 +46,7 @@ public class AccountCommand implements Callable<Integer> {
                 .setDeleteDisabled(parent.isDeleteDisabled())
                 .setIncludeUnchangedEnabled(false)
                 .setSkipAclsDisabled(parent.areAclsDisabled())
+                .setSkipTopicsDisabled(parent.areTopicsDisabled())
                 .setStateFile(parent.getFile())
                 .build();
     }

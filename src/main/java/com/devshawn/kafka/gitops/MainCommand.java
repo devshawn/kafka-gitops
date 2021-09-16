@@ -33,6 +33,9 @@ public class MainCommand implements Callable<Integer> {
     @Option(names = {"--skip-acls"}, description = "Do not take ACLs into account during plans or applies.")
     private boolean skipAcls = false;
 
+    @Option(names = {"--skip-topics"}, description = "Do not take topics into account during plans or applies.")
+    private boolean skipTopics = false;
+
     @Option(names = {"-h", "--help"}, usageHelp = true, description = "Display this help message.")
     private boolean helpRequested = false;
 
@@ -70,6 +73,10 @@ public class MainCommand implements Callable<Integer> {
 
     public boolean areAclsDisabled() {
         return skipAcls;
+    }
+
+    public boolean areTopicsDisabled() {
+        return skipTopics;
     }
 
     public static void main(String[] args) {

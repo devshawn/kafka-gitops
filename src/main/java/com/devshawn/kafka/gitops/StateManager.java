@@ -79,7 +79,7 @@ public class StateManager {
     public DesiredPlan plan() {
         DesiredPlan desiredPlan = generatePlan();
         planManager.writePlanToFile(desiredPlan);
-        planManager.validatePlanHasChanges(desiredPlan, managerConfig.isDeleteDisabled(), managerConfig.isSkipAclsDisabled());
+        planManager.validatePlanHasChanges(desiredPlan, managerConfig.isDeleteDisabled(), managerConfig.isSkipAclsDisabled(), managerConfig.isSkipTopicsDisabled());
         return desiredPlan;
     }
 
@@ -89,7 +89,9 @@ public class StateManager {
         if (!managerConfig.isSkipAclsDisabled()) {
             planManager.planAcls(desiredState, desiredPlan);
         }
-        planManager.planTopics(desiredState, desiredPlan);
+        if (!managerConfig.isSkipTopicsDisabled()) {
+            planManager.planTopics(desiredState, desiredPlan);
+        }
         return desiredPlan.build();
     }
 
@@ -99,7 +101,7 @@ public class StateManager {
             desiredPlan = generatePlan();
         }
 
-        planManager.validatePlanHasChanges(desiredPlan, managerConfig.isDeleteDisabled(), managerConfig.isSkipAclsDisabled());
+        planManager.validatePlanHasChanges(desiredPlan, managerConfig.isDeleteDisabled(), managerConfig.isSkipAclsDisabled(), managerConfig.isSkipTopicsDisabled());
 
         applyManager.applyTopics(desiredPlan);
         if (!managerConfig.isSkipAclsDisabled()) {

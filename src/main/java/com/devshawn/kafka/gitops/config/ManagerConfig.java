@@ -18,6 +18,8 @@ public interface ManagerConfig {
 
     boolean isSkipAclsDisabled();
 
+    boolean isSkipTopicsDisabled();
+
     File getStateFile();
 
     Optional<File> getPlanFile();
