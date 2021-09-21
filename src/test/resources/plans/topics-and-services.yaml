@@ -1,11 +1,11 @@
 topics:
   MY_TOPIC:
     partitions: 6
-    replication: 1
+    replication: 2
 
   another.topic.0:
     partitions: 1
-    replication: 1
+    replication: 2
     configs:
       cleanup.policy: compact
       segment.bytes: 100000

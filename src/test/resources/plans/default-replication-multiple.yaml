@@ -9,7 +9,7 @@ topics:
 
   another-topic:
     partitions: 3
-    replication: 1
+    replication: 2
 
   last-topic:
     partitions: 3

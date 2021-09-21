@@ -34,7 +34,7 @@
                 {
                     "key": "segment.bytes",
                     "value": null,
-                    "previousValue": "100000",
+                    "previousValue": null,
                     "action": "REMOVE"
                 },
                 {

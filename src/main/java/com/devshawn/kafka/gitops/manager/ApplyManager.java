@@ -3,12 +3,14 @@ package com.devshawn.kafka.gitops.manager;
 import com.devshawn.kafka.gitops.config.ManagerConfig;
 import com.devshawn.kafka.gitops.domain.plan.DesiredPlan;
 import com.devshawn.kafka.gitops.domain.plan.TopicConfigPlan;
+import com.devshawn.kafka.gitops.domain.plan.TopicDetailsPlan;
 import com.devshawn.kafka.gitops.domain.plan.TopicPlan;
 import com.devshawn.kafka.gitops.enums.PlanAction;
 import com.devshawn.kafka.gitops.service.KafkaService;
 import com.devshawn.kafka.gitops.util.LogUtil;
 import org.apache.kafka.clients.admin.AlterConfigOp;
 import org.apache.kafka.clients.admin.ConfigEntry;
+import org.apache.kafka.common.Node;
 import org.apache.kafka.common.config.ConfigResource;
 
 import java.util.*;
@@ -24,13 +26,25 @@ public class ApplyManager {
     }
 
     public void applyTopics(DesiredPlan desiredPlan) {
+        Collection<Node> clusterNodes = kafkaService.describeClusterNodes();
         desiredPlan.getTopicPlans().forEach(topicPlan -> {
             if (topicPlan.getAction() == PlanAction.ADD) {
                 LogUtil.printTopicPreApply(topicPlan);
-                kafkaService.createTopic(topicPlan.getName(), topicPlan.getTopicDetails().get());
+                kafkaService.createTopic(topicPlan.getName(), topicPlan.getTopicDetailsPlan().get(), topicPlan.getTopicConfigPlans());
                 LogUtil.printPostApply();
             } else if (topicPlan.getAction() == PlanAction.UPDATE) {
                 LogUtil.printTopicPreApply(topicPlan);
+                
+                if(topicPlan.getTopicDetailsPlan().isPresent()) {
+                    // Update Replication factor and partition number
+                    TopicDetailsPlan topicDetailsPlan = topicPlan.getTopicDetailsPlan().get();
+                    if(topicDetailsPlan.getPartitionsAction() == PlanAction.UPDATE) {
+                        kafkaService.addTopicPartition(topicPlan.getName(), topicDetailsPlan.getPartitions().get());
+                    }
+                    if(topicDetailsPlan.getReplicationAction() == PlanAction.UPDATE) {
+                        kafkaService.updateTopicReplication(clusterNodes, topicPlan.getName(), topicDetailsPlan.getReplication().get());
+                    }
+                }
                 topicPlan.getTopicConfigPlans().forEach(topicConfigPlan -> applyTopicConfiguration(topicPlan, topicConfigPlan));
                 LogUtil.printPostApply();
             } else if (topicPlan.getAction() == PlanAction.REMOVE && !managerConfig.isDeleteDisabled()) {

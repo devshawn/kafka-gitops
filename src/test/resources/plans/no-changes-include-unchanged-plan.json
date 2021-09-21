@@ -3,43 +3,51 @@
         {
             "name": "delete-topic",
             "action": "NO_CHANGE",
-            "topicDetails": {
+            "topicDetailsPlan": {
                 "partitions": 1,
-                "replication": 1,
-                "configs": {}
+                "previousPartitions": null,
+                "partitionsAction": "NO_CHANGE",
+                "replication": 2,
+                "previousReplication": null,
+                "replicationAction": "NO_CHANGE"
             },
             "topicConfigPlans": []
         },
         {
             "name": "test-topic",
             "action": "NO_CHANGE",
-            "topicDetails": {
+            "topicDetailsPlan": {
                 "partitions": 1,
-                "replication": 1,
-                "configs": {}
+                "previousPartitions": null,
+                "partitionsAction": "NO_CHANGE",
+                "replication": 2,
+                "previousReplication": null,
+                "replicationAction": "NO_CHANGE"
             },
             "topicConfigPlans": []
         },
         {
             "name": "topic-with-configs-1",
             "action": "NO_CHANGE",
-            "topicDetails": {
+            "topicDetailsPlan": {
                 "partitions": 3,
-                "replication": 1,
-                "configs": {
-                    "cleanup.policy": "compact",
-                    "segment.bytes": "100000"
-                }
+                "previousPartitions": null,
+                "partitionsAction": "NO_CHANGE",
+                "replication": 2,
+                "previousReplication": null,
+                "replicationAction": "NO_CHANGE"
             },
             "topicConfigPlans": [
                 {
                     "key": "cleanup.policy",
                     "value": "compact",
+                    "previousValue": null,
                     "action": "NO_CHANGE"
                 },
                 {
                     "key": "segment.bytes",
                     "value": "100000",
+                    "previousValue": null,
                     "action": "NO_CHANGE"
                 }
             ]
@@ -47,17 +55,19 @@
         {
             "name": "topic-with-configs-2",
             "action": "NO_CHANGE",
-            "topicDetails": {
+            "topicDetailsPlan": {
                 "partitions": 6,
-                "replication": 1,
-                "configs": {
-                    "retention.ms": "60000"
-                }
+                "previousPartitions": null,
+                "partitionsAction": "NO_CHANGE",
+                "replication": 2,
+                "previousReplication": null,
+                "replicationAction": "NO_CHANGE"
             },
             "topicConfigPlans": [
                 {
                     "key": "retention.ms",
                     "value": "60000",
+                    "previousValue": null,
                     "action": "NO_CHANGE"
                 }
             ]

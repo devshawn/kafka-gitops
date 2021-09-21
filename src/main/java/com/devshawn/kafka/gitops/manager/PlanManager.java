@@ -5,6 +5,7 @@ import com.devshawn.kafka.gitops.domain.plan.AclPlan;
 import com.devshawn.kafka.gitops.domain.plan.DesiredPlan;
 import com.devshawn.kafka.gitops.domain.plan.PlanOverview;
 import com.devshawn.kafka.gitops.domain.plan.TopicConfigPlan;
+import com.devshawn.kafka.gitops.domain.plan.TopicDetailsPlan;
 import com.devshawn.kafka.gitops.domain.plan.TopicPlan;
 import com.devshawn.kafka.gitops.domain.state.AclDetails;
 import com.devshawn.kafka.gitops.domain.state.DesiredState;
@@ -12,13 +13,14 @@ import com.devshawn.kafka.gitops.domain.state.TopicDetails;
 import com.devshawn.kafka.gitops.enums.PlanAction;
 import com.devshawn.kafka.gitops.exception.PlanIsUpToDateException;
 import com.devshawn.kafka.gitops.exception.ReadPlanInputException;
+import com.devshawn.kafka.gitops.exception.ValidationException;
 import com.devshawn.kafka.gitops.exception.WritePlanOutputException;
 import com.devshawn.kafka.gitops.service.KafkaService;
 import com.devshawn.kafka.gitops.util.PlanUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.clients.admin.Config;
 import org.apache.kafka.clients.admin.ConfigEntry;
-import org.apache.kafka.clients.admin.TopicListing;
+import org.apache.kafka.clients.admin.TopicDescription;
 import org.apache.kafka.common.acl.AclBinding;
 import org.apache.kafka.common.config.ConfigResource;
 import org.slf4j.LoggerFactory;
@@ -47,37 +49,74 @@ public class PlanManager {
     }
 
     public void planTopics(DesiredState desiredState, DesiredPlan.Builder desiredPlan) {
-        List<TopicListing> topics = kafkaService.getTopics();
-        List<String> topicNames = topics.stream().map(TopicListing::name).collect(Collectors.toList());
+        Map<String, TopicDescription> topics = kafkaService.getTopics(); 
+        List<String> topicNames = topics.entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toList());
         Map<String, List<ConfigEntry>> topicConfigs = fetchTopicConfigurations(topicNames);
 
         desiredState.getTopics().forEach((key, value) -> {
-            TopicPlan.Builder topicPlan = new TopicPlan.Builder()
-                    .setName(key)
-                    .setTopicDetails(value);
+            TopicDetailsPlan.Builder topicDetailsPlan = new TopicDetailsPlan.Builder();
+            topicDetailsPlan.setPartitionsAction(PlanAction.NO_CHANGE)
+              .setReplicationAction(PlanAction.NO_CHANGE);
 
+            TopicPlan.Builder topicPlan = new TopicPlan.Builder()
+                .setName(key);
+            boolean topicDetailsAddOrUpdate = false;
             if (!topicNames.contains(key)) {
                 log.info("[PLAN] Topic {} does not exist; it will be created.", key);
                 topicPlan.setAction(PlanAction.ADD);
+                topicDetailsPlan.setPartitionsAction(PlanAction.ADD)
+                    .setPartitions(value.getPartitions())
+                    .setReplicationAction(PlanAction.ADD)
+                    .setReplication(value.getReplication().get());
+                planTopicConfigurations(key, value, topicConfigs.get(key), topicPlan);
+                topicDetailsAddOrUpdate = true;
             } else {
                 log.info("[PLAN] Topic {} exists, it will not be created.", key);
+                TopicDescription topicDescription = topics.get(key);
+                
                 topicPlan.setAction(PlanAction.NO_CHANGE);
+                topicDetailsPlan.setPartitions(topicDescription.partitions().size())
+                    .setReplication(topicDescription.partitions().get(0).replicas().size());
+
+                if (value.getPartitions().intValue() != topicDescription.partitions().size()) {
+                    if( value.getPartitions().intValue() < topicDescription.partitions().size()) {
+                        throw new ValidationException("Removing the partition number is not supported by Apache Kafka "
+                            + "(topic: " + key + " ("+topicDescription.partitions().size()+" -> "+value.getPartitions().intValue()+"))");
+                    }
+                    topicDetailsPlan.setPartitions(value.getPartitions())
+                        .setPreviousPartitions(topicDescription.partitions().size());
+                    topicDetailsPlan.setPartitionsAction(PlanAction.UPDATE);
+                    topicDetailsAddOrUpdate = true;
+                }
+                if (value.getReplication().isPresent() && 
+                       ( value.getReplication().get().intValue() != topicDescription.partitions().get(0).replicas().size()) ) {
+                    topicDetailsPlan.setReplication(value.getReplication().get())
+                        .setPreviousReplication(topicDescription.partitions().get(0).replicas().size());
+                    topicDetailsPlan.setReplicationAction(PlanAction.UPDATE);
+                    topicDetailsAddOrUpdate = true;
+                }
+                if (topicDetailsAddOrUpdate) {
+                    topicPlan.setAction(PlanAction.UPDATE);
+                }
+
                 planTopicConfigurations(key, value, topicConfigs.get(key), topicPlan);
             }
+
+            topicPlan.setTopicDetailsPlan(topicDetailsPlan.build());
 
             desiredPlan.addTopicPlans(topicPlan.build());
         });
 
-        topics.forEach(currentTopic -> {
-            boolean shouldIgnore = desiredState.getPrefixedTopicsToIgnore().stream().anyMatch(it -> currentTopic.name().startsWith(it));
+        topics.forEach((currentTopicName, currentTopicDescription) -> {
+            boolean shouldIgnore = desiredState.getPrefixedTopicsToIgnore().stream().anyMatch(it -> currentTopicName.startsWith(it));
             if (shouldIgnore) {
-                log.info("[PLAN] Ignoring topic {} due to prefix", currentTopic.name());
+                log.info("[PLAN] Ignoring topic {} due to prefix", currentTopicName);
                 return;
             }
 
-            if (!managerConfig.isDeleteDisabled() && desiredState.getTopics().getOrDefault(currentTopic.name(), null) == null) {
+            if (!managerConfig.isDeleteDisabled() && desiredState.getTopics().getOrDefault(currentTopicName, null) == null) {
                 TopicPlan topicPlan = new TopicPlan.Builder()
-                        .setName(currentTopic.name())
+                        .setName(currentTopicName)
                         .setAction(PlanAction.REMOVE)
                         .build();
 
@@ -88,7 +127,7 @@ public class PlanManager {
 
     private void planTopicConfigurations(String topicName, TopicDetails topicDetails, List<ConfigEntry> configs, TopicPlan.Builder topicPlan) {
         Map<String, TopicConfigPlan> configPlans = new HashMap<>();
-        List<ConfigEntry> customConfigs = configs.stream()
+        List<ConfigEntry> customConfigs = configs == null ? new ArrayList<>() : configs.stream()
                 .filter(it -> it.source() == ConfigEntry.ConfigSource.DYNAMIC_TOPIC_CONFIG)
                 .collect(Collectors.toList());
 
@@ -104,8 +143,11 @@ public class PlanManager {
                 configPlans.put(currentConfig.name(), topicConfigPlan.build());
             } else if (newConfig == null) {
                 topicConfigPlan.setAction(PlanAction.REMOVE);
+                topicConfigPlan.setPreviousValue(currentConfig.value());
                 configPlans.put(currentConfig.name(), topicConfigPlan.build());
-                topicPlan.setAction(PlanAction.UPDATE);
+                if (topicPlan.getAction() == null || topicPlan.getAction().equals(PlanAction.NO_CHANGE)) {
+                  topicPlan.setAction(PlanAction.UPDATE);
+                }
             }
         });
 
@@ -119,11 +161,16 @@ public class PlanManager {
             if (currentConfig == null) {
                 topicConfigPlan.setAction(PlanAction.ADD);
                 configPlans.put(key, topicConfigPlan.build());
-                topicPlan.setAction(PlanAction.UPDATE);
+                if (topicPlan.getAction() == null || topicPlan.getAction().equals(PlanAction.NO_CHANGE)) {
+                  topicPlan.setAction(PlanAction.UPDATE);
+                }
             } else if (!currentConfig.value().equals(value)) {
-                topicConfigPlan.setAction(PlanAction.UPDATE);
+                topicConfigPlan.setPreviousValue(currentConfig.value())
+                .setAction(PlanAction.UPDATE);
                 configPlans.put(key, topicConfigPlan.build());
-                topicPlan.setAction(PlanAction.UPDATE);
+                if (topicPlan.getAction() == null || topicPlan.getAction().equals(PlanAction.NO_CHANGE)) {
+                  topicPlan.setAction(PlanAction.UPDATE);
+                }
             }
         });
 
@@ -203,7 +250,7 @@ public class PlanManager {
                 writer.write(objectMapper.writeValueAsString(outputPlan));
                 writer.close();
             } catch (IOException ex) {
-                throw new WritePlanOutputException(ex.getMessage());
+                throw new WritePlanOutputException(ex.getMessage() + " ('" + managerConfig.getPlanFile().get() + "')");
             }
         }
     }

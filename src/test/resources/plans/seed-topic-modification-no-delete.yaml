@@ -1,10 +1,10 @@
 topics:
   test-topic:
     partitions: 1
-    replication: 1
+    replication: 2
     configs:
       retention.ms: 60000
 
   new-topic:
     partitions: 6
-    replication: 1
+    replication: 2

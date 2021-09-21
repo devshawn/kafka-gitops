@@ -3,17 +3,12 @@
         {
             "name": "test-topic",
             "action": "UPDATE",
-            "topicDetails": {
-                "partitions": 1,
-                "replication": 1,
-                "configs": {
-                    "retention.ms": "60000"
-                }
-            },
+            "topicDetailsPlan": null,
             "topicConfigPlans": [
                 {
                     "key": "retention.ms",
                     "value": "60000",
+                    "previousValue": null,
                     "action": "ADD"
                 }
             ]
@@ -21,29 +16,32 @@
         {
             "name": "new-topic",
             "action": "ADD",
-            "topicDetails": {
+            "topicDetailsPlan": {
                 "partitions": 6,
-                "replication": 1,
-                "configs": {}
+                "previousPartitions": null,
+                "partitionsAction": "ADD",
+                "replication": 2,
+                "previousReplication": null,
+                "replicationAction": "ADD"
             },
             "topicConfigPlans": []
         },
         {
             "name": "delete-topic",
             "action": "REMOVE",
-            "topicDetails": null,
+            "topicDetailsPlan": null,
             "topicConfigPlans": []
         },
         {
             "name": "topic-with-configs-2",
             "action": "REMOVE",
-            "topicDetails": null,
+            "topicDetailsPlan": null,
             "topicConfigPlans": []
         },
         {
             "name": "topic-with-configs-1",
             "action": "REMOVE",
-            "topicDetails": null,
+            "topicDetailsPlan": null,
             "topicConfigPlans": []
         }
     ],

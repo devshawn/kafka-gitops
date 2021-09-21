@@ -4,9 +4,9 @@ import com.devshawn.kafka.gitops.domain.plan.AclPlan;
 import com.devshawn.kafka.gitops.domain.plan.DesiredPlan;
 import com.devshawn.kafka.gitops.domain.plan.PlanOverview;
 import com.devshawn.kafka.gitops.domain.plan.TopicConfigPlan;
+import com.devshawn.kafka.gitops.domain.plan.TopicDetailsPlan;
 import com.devshawn.kafka.gitops.domain.plan.TopicPlan;
 import com.devshawn.kafka.gitops.domain.state.AclDetails;
-import com.devshawn.kafka.gitops.domain.state.TopicDetails;
 import com.devshawn.kafka.gitops.enums.PlanAction;
 import com.devshawn.kafka.gitops.exception.KafkaExecutionException;
 import com.devshawn.kafka.gitops.exception.WritePlanOutputException;
@@ -41,13 +41,18 @@ public class LogUtil {
         switch (topicPlan.getAction()) {
             case ADD:
                 System.out.println(green(String.format("+ [TOPIC] %s", topicPlan.getName())));
-                printTopicConfigPlanForNewTopics(topicPlan.getTopicDetails().get());
+                printTopicConfigPlanForNewTopics(topicPlan);
                 System.out.println("\n");
                 break;
             case UPDATE:
                 System.out.println(yellow(String.format("~ [TOPIC] %s", topicPlan.getName())));
-                System.out.println(yellow("\t~ configs:"));
-                topicPlan.getTopicConfigPlans().forEach(LogUtil::printTopicConfigPlan);
+                if(topicPlan.getTopicDetailsPlan().isPresent()) {
+                    LogUtil.printTopicDetailsPlan(topicPlan.getTopicDetailsPlan().get());
+                }
+                if(!topicPlan.getTopicConfigPlans().isEmpty()) {
+                    System.out.println(yellow("\t~ configs:"));
+                    topicPlan.getTopicConfigPlans().forEach(LogUtil::printTopicConfigPlan);
+                }
                 System.out.println("\n");
                 break;
             case REMOVE:
@@ -57,13 +62,42 @@ public class LogUtil {
         }
     }
 
-    private static void printTopicConfigPlanForNewTopics(TopicDetails topicDetails) {
-        System.out.println(green(String.format("\t+ partitions: %s", topicDetails.getPartitions())));
-        System.out.println(green(String.format("\t+ replication: %s", topicDetails.getReplication().get())));
-        if (topicDetails.getConfigs().size() > 0) {
+    private static void printTopicConfigPlanForNewTopics(TopicPlan topicPlan) {
+        System.out.println(green(String.format("\t+ partitions: %s", topicPlan.getTopicDetailsPlan().get().getPartitions().get())));
+        System.out.println(green(String.format("\t+ replication: %s", topicPlan.getTopicDetailsPlan().get().getReplication().get())));
+        if (! topicPlan.getTopicConfigPlans().isEmpty()) {
             System.out.println(green("\t+ configs:"));
-            topicDetails.getConfigs().forEach((key, value) -> System.out.println(green(String.format("\t\t+ %s: %s", key, value))));
+            topicPlan.getTopicConfigPlans().forEach(topicConfigPlan -> System.out.println(green(String.format("\t\t+ %s: %s", topicConfigPlan.getKey(), topicConfigPlan.getValue().get()))));
         }
+    }
+
+    private static void printTopicDetailsPlan(TopicDetailsPlan topicDetailsPlan) {
+        switch (topicDetailsPlan.getPartitionsAction()) {
+            case ADD:
+                System.out.println(green(String.format("\t+ partitions: %s", topicDetailsPlan.getPartitions().get())));
+                break;
+            case UPDATE:
+                System.out.println(yellow(String.format("\t~ partitions: %s (%s)", topicDetailsPlan.getPartitions().get(), topicDetailsPlan.getPreviousPartitions().get())));
+                break;
+            case REMOVE:
+                System.out.println(red(String.format("\t- partitions (%s)", topicDetailsPlan.getPreviousPartitions().get())));
+                break;
+            case NO_CHANGE:
+                break;
+        }
+        switch (topicDetailsPlan.getReplicationAction()) {
+          case ADD:
+              System.out.println(green(String.format("\t+ replication: %s", topicDetailsPlan.getReplication().get())));
+              break;
+          case UPDATE:
+              System.out.println(yellow(String.format("\t~ replication: %s (%s)", topicDetailsPlan.getReplication().get(), topicDetailsPlan.getPreviousReplication().get())));
+              break;
+          case REMOVE:
+              System.out.println(red(String.format("\t- replication (%s)", topicDetailsPlan.getPreviousReplication().get())));
+              break;
+          case NO_CHANGE:
+              break;
+      }
     }
 
     private static void printTopicConfigPlan(TopicConfigPlan topicConfigPlan) {
@@ -72,11 +106,13 @@ public class LogUtil {
                 System.out.println(green(String.format("\t\t+ %s: %s", topicConfigPlan.getKey(), topicConfigPlan.getValue().get())));
                 break;
             case UPDATE:
-                System.out.println(yellow(String.format("\t\t~ %s: %s", topicConfigPlan.getKey(), topicConfigPlan.getValue().get())));
+                System.out.println(yellow(String.format("\t\t~ %s: %s ( %s )", topicConfigPlan.getKey(), topicConfigPlan.getValue().get(), topicConfigPlan.getPreviousValue().get())));
                 break;
             case REMOVE:
-                System.out.println(red(String.format("\t\t- %s", topicConfigPlan.getKey())));
+                System.out.println(red(String.format("\t\t- %s (%s)", topicConfigPlan.getKey(), topicConfigPlan.getPreviousValue().get())));
                 break;
+            case NO_CHANGE:
+              break;
         }
     }
 

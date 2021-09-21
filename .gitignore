@@ -1,3 +1,8 @@
+.classpath
+.factorypath
+.project
+.settings/
+bin/
 .idea/
 *.iml
 .gradle/
@@ -7,3 +12,4 @@ docker/data/
 state.yaml
 plan.json
 test.py
+/generated/

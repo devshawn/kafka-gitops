@@ -3,30 +3,39 @@
         {
             "name": "test-topic",
             "action": "ADD",
-            "topicDetails": {
+            "topicDetailsPlan": {
                 "partitions": 6,
+                "previousPartitions": null,
+                "partitionsAction": "ADD",
                 "replication": 3,
-                "configs": {}
+                "previousReplication": null,
+                "replicationAction": "ADD"
             },
             "topicConfigPlans": []
         },
         {
             "name": "another-topic",
             "action": "ADD",
-            "topicDetails": {
+            "topicDetailsPlan": {
                 "partitions": 3,
-                "replication": 1,
-                "configs": {}
+                "previousPartitions": null,
+                "partitionsAction": "ADD",
+                "replication": 2,
+                "previousReplication": null,
+                "replicationAction": "ADD"
             },
             "topicConfigPlans": []
         },
         {
             "name": "last-topic",
             "action": "ADD",
-            "topicDetails": {
+            "topicDetailsPlan": {
                 "partitions": 3,
+                "previousPartitions": null,
+                "partitionsAction": "ADD",
                 "replication": 4,
-                "configs": {}
+                "previousReplication": null,
+                "replicationAction": "ADD"
             },
             "topicConfigPlans": []
         }

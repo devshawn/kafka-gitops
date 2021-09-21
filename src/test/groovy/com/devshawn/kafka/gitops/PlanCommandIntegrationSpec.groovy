@@ -25,7 +25,7 @@ class PlanCommandIntegrationSpec extends Specification {
     }
 
     void cleanupSpec() {
-        TestUtils.cleanUpCluster()
+//        TestUtils.cleanUpCluster()
     }
 
     void 'test various valid plans - #planName'() {
@@ -132,6 +132,9 @@ class PlanCommandIntegrationSpec extends Specification {
         "seed-topic-modification-no-delete" | true
         "seed-acl-exists"                   | true
         "seed-blacklist-topics"             | false
+        "seed-topic-add-replicas"           | false
+        "seed-topic-remove-replicas"        | false
+        "seed-topic-add-partitions"         | false
     }
 
     void 'test include unchanged flag - #planNam #includeUnchanged'() {
@@ -200,7 +203,8 @@ class PlanCommandIntegrationSpec extends Specification {
                 "invalid-missing-user-principal",
                 "invalid-storage-topics",
                 "invalid-default-replication-1",
-                "invalid-default-replication-2"
+                "invalid-default-replication-2",
+                "invalid-topic-remove-partitions"
         ]
     }
 
@@ -241,7 +245,10 @@ class PlanCommandIntegrationSpec extends Specification {
 
         then:
         exitCode == 2
-        out.toString().contains("Permission denied") || out.toString().contains("Read-only")
+        out.toString().contains("Permission denied") \
+          || out.toString().contains("Permission non accordée") \
+          || out.toString().contains("Read-only") \
+          || out.toString().contains("Lecture seule")
 
         cleanup:
         System.setOut(oldOut)
