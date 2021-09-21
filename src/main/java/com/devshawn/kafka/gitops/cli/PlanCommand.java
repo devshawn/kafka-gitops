@@ -33,7 +33,7 @@ public class PlanCommand implements Callable<Integer> {
     public Integer call() {
         try {
             System.out.println("Generating execution plan...\n");
-            ParserService parserService = new ParserService(parent.getFile());
+            ParserService parserService = new ParserService(parent.getStateFile());
             StateManager stateManager = new StateManager(generateStateManagerConfig(), parserService);
             DesiredPlan desiredPlan = stateManager.plan();
             LogUtil.printPlan(desiredPlan, parent.isDeleteDisabled(), parent.areAclsDisabled());
@@ -58,7 +58,8 @@ public class PlanCommand implements Callable<Integer> {
                 .setVerboseRequested(parent.isVerboseRequested())
                 .setDeleteDisabled(parent.isDeleteDisabled())
                 .setIncludeUnchangedEnabled(includeUnchanged)
-                .setStateFile(parent.getFile())
+                .setConfigFile(parent.getConfigFile())
+                .setStateFile(parent.getStateFile())
                 .setSkipAclsDisabled(parent.areAclsDisabled())
                 .setNullablePlanFile(outputFile)
                 .build();

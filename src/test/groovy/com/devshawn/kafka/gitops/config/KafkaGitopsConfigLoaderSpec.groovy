@@ -1,6 +1,6 @@
 package com.devshawn.kafka.gitops.config
 
-
+import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.common.config.SaslConfigs
 import org.junit.ClassRule
 import org.junit.contrib.java.lang.system.EnvironmentVariables
@@ -45,5 +45,17 @@ class KafkaGitopsConfigLoaderSpec extends Specification {
         config.config.get(SaslConfigs.SASL_JAAS_CONFIG) == "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"te\\\"st\" password=\"te\\\"st-secr\\\"et\";"
     }
 
+    void 'test command config file'() {
+        setup:
+        File configFile = new File(getClass().getResource("/command.properties").toURI())
+
+        when:
+        KafkaGitopsConfig config = KafkaGitopsConfigLoader.load(configFile)
+
+        then:
+        config.config.get(CommonClientConfigs.CLIENT_ID_CONFIG) == "kafka-gitops"
+        config.config.get(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG) == "localhost:9092"
+        config.config.get(SaslConfigs.SASL_MECHANISM) == "PLAIN"
+    }
 
 }

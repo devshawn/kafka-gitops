@@ -23,9 +23,13 @@ import java.util.concurrent.Callable;
         description = "Manage Kafka resources with a desired state file.")
 public class MainCommand implements Callable<Integer> {
 
+    @Option(names = {"-c", "--command-config"}, paramLabel = "<file>",
+            description = "Command config properties file.")
+    private File configFile;
+
     @Option(names = {"-f", "--file"}, paramLabel = "<file>",
             description = "Specify the desired state file.", defaultValue = "state.yaml")
-    private File file;
+    private File stateFile;
 
     @Option(names = {"--no-delete"}, description = "Disable the ability to delete resources.")
     private boolean deleteDisabled = false;
@@ -60,8 +64,12 @@ public class MainCommand implements Callable<Integer> {
         return verboseRequested;
     }
 
-    public File getFile() {
-        return file;
+    public File getConfigFile() {
+        return configFile;
+    }
+
+    public File getStateFile() {
+        return stateFile;
     }
 
     public boolean isDeleteDisabled() {

@@ -21,7 +21,7 @@ public class ValidateCommand implements Callable<Integer> {
     @Override
     public Integer call() {
         try {
-            ParserService parserService = new ParserService(parent.getFile());
+            ParserService parserService = new ParserService(parent.getStateFile());
             StateManager stateManager = new StateManager(generateStateManagerConfig(), parserService);
             stateManager.getAndValidateStateFile();
             LogUtil.printValidationResult("Successfully validated the desired state file.", true);
@@ -38,7 +38,8 @@ public class ValidateCommand implements Callable<Integer> {
                 .setDeleteDisabled(parent.isDeleteDisabled())
                 .setIncludeUnchangedEnabled(false)
                 .setSkipAclsDisabled(parent.areAclsDisabled())
-                .setStateFile(parent.getFile())
+                .setConfigFile(parent.getConfigFile())
+                .setStateFile(parent.getStateFile())
                 .build();
     }
 }

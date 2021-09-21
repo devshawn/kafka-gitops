@@ -5,8 +5,13 @@ import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.common.config.SaslConfigs;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class KafkaGitopsConfigLoader {
@@ -14,12 +19,30 @@ public class KafkaGitopsConfigLoader {
     private static org.slf4j.Logger log = LoggerFactory.getLogger(KafkaGitopsConfigLoader.class);
 
     public static KafkaGitopsConfig load() {
+        return load(null);
+    }
+
+    public static KafkaGitopsConfig load(File configFile) {
         KafkaGitopsConfig.Builder builder = new KafkaGitopsConfig.Builder();
-        setConfig(builder);
+        setConfigFromFile(configFile, builder);
+        setConfigFromEnvironment(builder);
         return builder.build();
     }
 
-    private static void setConfig(KafkaGitopsConfig.Builder builder) {
+    private static void setConfigFromFile(File configFile, KafkaGitopsConfig.Builder builder) {
+        if (configFile == null) {
+            return;
+        }
+        try(InputStream inputStream = new FileInputStream(configFile)) {
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            properties.forEach( (k, v) -> builder.putConfig(k.toString(), v));
+        } catch (IOException ioExc) {
+            log.error("Failed to load config from " + configFile, ioExc);
+        }
+    }
+
+    private static void setConfigFromEnvironment(KafkaGitopsConfig.Builder builder) {
         Map<String, Object> config = new HashMap<>();
         AtomicReference<String> username = new AtomicReference<>();
         AtomicReference<String> password = new AtomicReference<>();
