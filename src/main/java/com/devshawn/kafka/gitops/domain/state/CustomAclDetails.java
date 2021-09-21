@@ -46,6 +46,9 @@ public abstract class CustomAclDetails {
     }
 
     public static class Builder extends CustomAclDetails_Builder {
-
+        public Builder() {
+            setPermission(AclPermissionType.ALLOW.name());
+            setHost("*");
+        }
     }
 }
