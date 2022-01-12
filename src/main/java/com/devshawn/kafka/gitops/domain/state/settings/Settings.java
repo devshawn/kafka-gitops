@@ -9,7 +9,7 @@ import java.util.Optional;
 @JsonDeserialize(builder = Settings.Builder.class)
 public interface Settings {
 
-    Optional<SettingsCCloud> getCcloud();
+    Optional<SettingsConfluent> getConfluent();
 
     Optional<SettingsTopics> getTopics();
 

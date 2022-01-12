@@ -14,6 +14,7 @@ public class ConfluentCloudService {
     private static org.slf4j.Logger log = LoggerFactory.getLogger(ConfluentCloudService.class);
 
     private final ObjectMapper objectMapper;
+    private static final String confluentExecutable;
     private static final String ccloudExecutable;
 
     public ConfluentCloudService(ObjectMapper objectMapper) {
@@ -21,7 +22,7 @@ public class ConfluentCloudService {
     }
 
     public List<ServiceAccount> getServiceAccounts() {
-        log.info("Fetching service account list from Confluent Cloud via ccloud tool.");
+        log.info("Fetching service account list from Confluent Cloud via confluent tool.");
         try {
             String result = execCmd(new String[]{ccloudExecutable, "service-account", "list", "-o", "json"});
             return objectMapper.readValue(result, new TypeReference<List<ServiceAccount>>() {
@@ -33,11 +34,11 @@ public class ConfluentCloudService {
     }
 
     public ServiceAccount createServiceAccount(String name, boolean isUser) {
-        log.info("Creating service account {} in Confluent Cloud via ccloud tool.", name);
+        log.info("Creating service account {} in Confluent Cloud via confluent tool.", name);
         try {
             String serviceName = isUser ? String.format("user-%s", name) : name;
             String description = isUser ? String.format("User: %s", name) : String.format("Service account: %s", name);
-            String result = execCmd(new String[]{ccloudExecutable, "service-account", "create", serviceName, "--description", description, "-o", "json"});
+            String result = execCmd(new String[]{confluentExecutable, "iam", "service-account", "create", serviceName, "--description", description, "-o", "json"});
             return objectMapper.readValue(result, ServiceAccount.class);
         } catch (IOException ex) {
             throw new ConfluentCloudException(String.format("There was an error creating Confluent Cloud service account: %s.", name));
@@ -50,7 +51,9 @@ public class ConfluentCloudService {
     }
 
     static {
+        confluentExecutable = System.getenv("CONFLUENT_EXECUTABLE_PATH") != null ? System.getenv("CONFLUENT_EXECUTABLE_PATH") : "confluent";
+        log.info("Using confluent executable at: {}", confluentExecutable);
         ccloudExecutable = System.getenv("CCLOUD_EXECUTABLE_PATH") != null ? System.getenv("CCLOUD_EXECUTABLE_PATH") : "ccloud";
-        log.info("Using ccloud executable at: {}", ccloudExecutable);
+        log.info("Using ccloud executable at: {}", confluentExecutable);
     }
 }
