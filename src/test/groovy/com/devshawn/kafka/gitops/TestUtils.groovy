@@ -1,10 +1,17 @@
 package com.devshawn.kafka.gitops
 
 import java.nio.file.Paths
+import java.util.concurrent.atomic.AtomicReference
+
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.admin.AdminClient
 import org.apache.kafka.clients.admin.NewTopic
-import org.apache.kafka.common.acl.*
+import org.apache.kafka.common.acl.AccessControlEntry;
+import org.apache.kafka.common.acl.AccessControlEntryFilter;
+import org.apache.kafka.common.acl.AclBinding;
+import org.apache.kafka.common.acl.AclBindingFilter;
+import org.apache.kafka.common.acl.AclOperation;
+import org.apache.kafka.common.acl.AclPermissionType;
 import org.apache.kafka.common.config.SaslConfigs
 import org.apache.kafka.common.resource.PatternType
 import org.apache.kafka.common.resource.ResourcePattern
@@ -13,22 +20,23 @@ import org.apache.kafka.common.resource.ResourceType
 import com.devshawn.kafka.gitops.config.SchemaRegistryConfigLoader
 import com.devshawn.kafka.gitops.enums.SchemaCompatibility
 import com.devshawn.kafka.gitops.enums.SchemaType
-import com.devshawn.kafka.gitops.exception.ValidationException
 import com.devshawn.kafka.gitops.service.SchemaRegistryService
-import groovy.swing.factory.CollectionFactory
 import io.confluent.kafka.schemaregistry.AbstractSchemaProvider
 import io.confluent.kafka.schemaregistry.ParsedSchema
-import io.confluent.kafka.schemaregistry.SchemaProvider
-import io.confluent.kafka.schemaregistry.avro.AvroSchemaProvider
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.rest.RestService
-import io.confluent.kafka.schemaregistry.client.security.basicauth.SaslBasicAuthCredentialProvider
-import io.confluent.kafka.schemaregistry.json.JsonSchemaProvider
-import io.confluent.kafka.schemaregistry.protobuf.ProtobufSchemaProvider
 import spock.util.concurrent.PollingConditions
 
 class TestUtils {
+    private static final AtomicReference<CachedSchemaRegistryClient> cachedSchemaRegistryClientRef = new AtomicReference<>();
+
+    static {
+        Map<String, Object> config = SchemaRegistryConfigLoader.load().getConfig();
+        RestService restService = new RestService(config.get(SchemaRegistryConfigLoader.SCHEMA_REGISTRY_URL_KEY).toString())
+        CachedSchemaRegistryClient cachedSchemaRegistryClient = new CachedSchemaRegistryClient(restService, 10, config);
+        cachedSchemaRegistryClientRef.set(cachedSchemaRegistryClient);
+    }
 
     private TestUtils() {
     }
@@ -52,7 +60,7 @@ class TestUtils {
 
     static void cleanUpSchemaRegistry() {
         try {
-            CachedSchemaRegistryClient schemaRegistryClient = getSchemaRegistryClient();
+            CachedSchemaRegistryClient schemaRegistryClient = cachedSchemaRegistryClientRef.get();
 
             Collection<String> subjects = schemaRegistryClient.getAllSubjects();
             for (subject in subjects) {
@@ -69,7 +77,7 @@ class TestUtils {
 
     static void seedSchemaRegistry() {
         try {
-            CachedSchemaRegistryClient schemaRegistryClient = getSchemaRegistryClient();
+            CachedSchemaRegistryClient schemaRegistryClient = cachedSchemaRegistryClientRef.get();
             createSchema("schema-1-json", SchemaType.JSON, 
                 "{\"type\":\"object\",\"properties\":{\"f1\":{\"type\":\"string\"}}, \"additionalProperties\": false}", schemaRegistryClient, SchemaCompatibility.BACKWARD)
             createSchema("schema-2-avro", SchemaType.AVRO,
@@ -92,16 +100,17 @@ class TestUtils {
     }
 
     static void cleanUpKafkaCluster() {
-        def conditions = new PollingConditions(timeout: 120, initialDelay: 2, factor: 1.25)
+        def conditions = new PollingConditions(timeout: 120, initialDelay: 2, delay: 2)
 
         try {
             AdminClient adminClient = AdminClient.create(getKafkaConfig())
             Set<String> topics = adminClient.listTopics().names().get();
             // Do not remove the schema registry topic
             topics.remove("_schemas");
-            adminClient.deleteTopics(topics).all().get()
-            
+            adminClient.deleteTopics(topics)
+
             conditions.eventually {
+                println "Testing if kafka topics still exist..."
                 Set<String> remainingTopics = adminClient.listTopics().names().get()
                 assert remainingTopics.size() == 1
                 assert remainingTopics.getAt(0).equals("_schemas")
@@ -110,9 +119,11 @@ class TestUtils {
             AclBindingFilter filter = getWildcardFilter()
             adminClient.deleteAcls(Collections.singletonList(filter))
             conditions.eventually {
+                println "Testing if kafka acls still exist..."
                 List<AclBinding> acls = new ArrayList<>(adminClient.describeAcls(filter).values().get())
                 assert acls.size() == 0
             }
+            adminClient.close();
             println "Finished cleaning up kafka cluster"
         } catch (Exception ex) {
             println "Error cleaning up kafka cluster"
@@ -139,6 +150,7 @@ class TestUtils {
                 List<AclBinding> newAcls = new ArrayList<>(adminClient.describeAcls(getWildcardFilter()).values().get())
                 assert newAcls.size() == 1
             }
+            adminClient.close();
             println "Finished seeding kafka cluster"
         } catch (Exception ex) {
             println "Error seeding up kafka cluster"
@@ -153,7 +165,7 @@ class TestUtils {
     }
 
     static void createSchema(String subject, SchemaType type, ParsedSchema schema , SchemaRegistryClient client, SchemaCompatibility compatibility) {
-        CachedSchemaRegistryClient schemaRegistryClient = getSchemaRegistryClient();
+        CachedSchemaRegistryClient schemaRegistryClient = cachedSchemaRegistryClientRef.get();
         int id = schemaRegistryClient.register(subject, schema);
         String compat = schemaRegistryClient.updateCompatibility(subject, compatibility.toString());
         println "Schema subject '" + subject + "' with id " + id + " created (compatibility: " + compat + ")"
@@ -195,17 +207,4 @@ class TestUtils {
         ]
     }
 
-    static CachedSchemaRegistryClient getSchemaRegistryClient() {
-          Map<String, Object> config = SchemaRegistryConfigLoader.load().getConfig();
-          RestService restService = new RestService(config.get(SchemaRegistryConfigLoader.SCHEMA_REGISTRY_URL_KEY).toString())
-          if(config.get(SchemaRegistryConfigLoader.SCHEMA_REGISTRY_SASL_CONFIG_KEY) != null) {
-              SaslBasicAuthCredentialProvider saslBasicAuthCredentialProvider = new SaslBasicAuthCredentialProvider()
-              Map<String, Object> clientConfig = new HashMap<>()
-              clientConfig.put(SaslConfigs.SASL_JAAS_CONFIG, config
-                  .get(SchemaRegistryConfigLoader.SCHEMA_REGISTRY_SASL_CONFIG_KEY).toString())
-              saslBasicAuthCredentialProvider.configure(clientConfig)
-              restService.setBasicAuthCredentialProvider(saslBasicAuthCredentialProvider)
-          }
-        return  new CachedSchemaRegistryClient(restService, 10);
-    }
 }

@@ -102,11 +102,8 @@ public class ApplyManager {
                 LogUtil.printSchemaPreApply(schemaPlan);
                 schemaRegistryService.register(schemaPlan);
                 LogUtil.printPostApply();
-            } else if (schemaPlan.getAction() == PlanAction.UPDATE) {
-                LogUtil.printSchemaPreApply(schemaPlan);
-                schemaRegistryService.register(schemaPlan);
-                LogUtil.printPostApply();
-            } else if (schemaPlan.getAction() == PlanAction.REMOVE && !managerConfig.isDeleteDisabled()) {
+            } else if (schemaPlan.getAction() == PlanAction.UPDATE ||
+                  (schemaPlan.getAction() == PlanAction.REMOVE && !managerConfig.isDeleteDisabled())) {
                 LogUtil.printSchemaPreApply(schemaPlan);
                 schemaRegistryService.deleteSubject(schemaPlan.getName(), true);
                 LogUtil.printPostApply();

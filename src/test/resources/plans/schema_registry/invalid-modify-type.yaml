@@ -21,4 +21,5 @@ package com.acme;
 
 message OtherRecord {
   int32 an_id = 1;
-}'
+}
+'

@@ -5,7 +5,7 @@ Applying: [CREATE]
 + [SCHEMA] json-value2
 	 + type: JSON
 	 + compatibility: FULL
-	 + schema: 
+	 + schema:
 ----------------------
 {"type":"object","properties":{"f1":{"type":"string"}}}
 ----------------------
@@ -18,7 +18,7 @@ Applying: [CREATE]
 + [SCHEMA] json-value3
 	 + type: JSON
 	 + compatibility: NONE
-	 + schema: 
+	 + schema:
 ----------------------
 {"type":"object","properties":{"f1":{"type":"string"}}}
 ----------------------

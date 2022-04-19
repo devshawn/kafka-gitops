@@ -8,7 +8,7 @@ schemas:
   schema-1-json:
     type: JSON
     compatibility: BACKWARD
-    schema: "{\"type\":\"object\",\"properties\":{\"f1\":{\"type\":\"string\"}}, \"additionalProperties\": false}"
+    schema: "{\"type\":\"object\", \"properties\":{\"f1\":{\"type\":\"string\"}}, \"additionalProperties\": false}"
   schema-2-avro:
     type: AVRO
     compatibility: BACKWARD
@@ -21,4 +21,5 @@ package com.acme;
 
 message OtherRecord {
   int32 an_id = 1;
-}'
+}
+'

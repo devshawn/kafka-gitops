@@ -78,7 +78,9 @@ public class StateManager {
         DesiredStateFile desiredStateFile = parserService.parseStateFile();
         validateTopics(desiredStateFile);
         validateCustomAcls(desiredStateFile);
-        validateSchemas(desiredStateFile);
+        if (schemaRegistryService.isEnabled()) {
+            validateSchemas(desiredStateFile);
+        }
         this.describeAclEnabled = StateUtil.isDescribeTopicAclEnabled(desiredStateFile);
         return desiredStateFile;
     }
@@ -97,7 +99,9 @@ public class StateManager {
             planManager.planAcls(desiredState, desiredPlan);
         }
         planManager.planTopics(desiredState, desiredPlan);
-        planManager.planSchemas(desiredState, desiredPlan);
+        if (schemaRegistryService.isEnabled()) {
+          planManager.planSchemas(desiredState, desiredPlan);
+        }
         return desiredPlan.build();
     }
 
@@ -113,7 +117,9 @@ public class StateManager {
         if (!managerConfig.isSkipAclsDisabled()) {
             applyManager.applyAcls(desiredPlan);
         }
-        applyManager.applySchemas(desiredPlan);
+        if (schemaRegistryService.isEnabled()) {
+          applyManager.applySchemas(desiredPlan);
+        }
 
         return desiredPlan;
     }
@@ -345,14 +351,12 @@ public class StateManager {
 
     private void validateSchemas(DesiredStateFile desiredStateFile) {
         Optional<SchemaCompatibility> defaultSchemaCompatibility = StateUtil.fetchDefaultSchemasCompatibility(desiredStateFile);
-        if (!defaultSchemaCompatibility.isPresent()) {
-            desiredStateFile.getSchemas().forEach((subject, details) -> {
-                if (!details.getCompatibility().isPresent()) {
-                    throw new ValidationException(String.format("Not set: [compatibility] in state file definition: schema -> %s", subject));
-                }
-                schemaRegistryService.validateSchema(subject, details);
-            });
-        }
+        desiredStateFile.getSchemas().forEach((subject, details) -> {
+            if (!defaultSchemaCompatibility.isPresent() && !details.getCompatibility().isPresent()) {
+                throw new ValidationException(String.format("Not set: [compatibility] in state file definition: schema -> %s", subject));
+            }
+            //Schema parsing is deferred in the PlanManager in order not to do it more than one time.
+        });
     }
 
     private boolean isConfluentCloudEnabled(DesiredStateFile desiredStateFile) {

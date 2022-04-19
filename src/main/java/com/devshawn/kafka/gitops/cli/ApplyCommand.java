@@ -48,6 +48,8 @@ public class ApplyCommand implements Callable<Integer> {
             LogUtil.printKafkaExecutionError(ex, true);
         } catch (SchemaRegistryExecutionException ex) {
             LogUtil.printSchemaRegistryExecutionError(ex, true);
+        } catch (Exception ex) {
+            LogUtil.printGenericError(ex, true);
         }
         return 2;
     }

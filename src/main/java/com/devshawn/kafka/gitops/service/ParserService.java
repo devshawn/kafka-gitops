@@ -64,7 +64,7 @@ public class ParserService {
         return desiredStateFile;
     }
 
-    public DesiredStateFile parseStateFile(File stateFile) {
+    private DesiredStateFile parseStateFile(File stateFile) {
         log.info("Parsing desired state file...");
 
         try {

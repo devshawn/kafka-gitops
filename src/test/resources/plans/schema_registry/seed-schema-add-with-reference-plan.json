@@ -1,0 +1,33 @@
+{
+    "topicPlans" : [ ],
+    "schemaPlans" : [
+        {
+            "name" : "schema-2-json",
+            "action" : "ADD",
+            "schemaDetails" : {
+                "type" : "JSON",
+                "schema" : "{\"type\":\"object\",\"properties\":{\"f1\":{\"$ref\":\"otherschema\"}},\"additionalProperties\":false}",
+                "file" : null,
+                "compatibility" : "FORWARD",
+                "references" : [
+                    {
+                        "name" : "otherschema",
+                        "subject" : "schema-1-json",
+                        "version" : 1
+                    }
+                ]
+            }
+        },
+        {
+            "name" : "schema-2-avro",
+            "action" : "REMOVE",
+            "schemaDetails" : null
+        },
+        {
+            "name" : "schema-3-protobuf",
+            "action" : "REMOVE",
+            "schemaDetails" : null
+        }
+    ],
+    "aclPlans" : [ ]
+}

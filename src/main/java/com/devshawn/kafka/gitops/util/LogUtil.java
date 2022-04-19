@@ -64,6 +64,8 @@ public class LogUtil {
                 System.out.println(red(String.format("- [TOPIC] %s", topicPlan.getName())));
                 System.out.println("\n");
                 break;
+            case NO_CHANGE:
+                break;
         }
     }
 
@@ -117,7 +119,7 @@ public class LogUtil {
                 System.out.println(red(String.format("\t\t- %s (%s)", topicConfigPlan.getKey(), topicConfigPlan.getPreviousValue().get())));
                 break;
             case NO_CHANGE:
-              break;
+                break;
         }
     }
 
@@ -147,6 +149,9 @@ public class LogUtil {
                 System.out.println(red(String.format("\t - permission: %s", aclDetails.getPermission())));
                 System.out.println("\n");
                 break;
+            case UPDATE:
+            case NO_CHANGE:
+                break;
         }
     }
 
@@ -158,11 +163,11 @@ public class LogUtil {
                 if(schemaPlan.getSchemaDetails().get().getCompatibility().isPresent()) {
                     System.out.println(green(String.format("\t + compatibility: %s", schemaPlan.getSchemaDetails().get().getCompatibility().get())));
                 }
-                System.out.println(green(String.format("\t + schema: \n----------------------\n%s\n----------------------",
+                System.out.println(green(String.format("\t + schema:\n----------------------\n%s\n----------------------",
                     schemaPlan.getSchemaDetails().get().getSchema())));
                 if (!schemaPlan.getSchemaDetails().get().getReferences().isEmpty()) {
                     schemaPlan.getSchemaDetails().get().getReferences().forEach(referenceDetail -> {
-                        System.out.println(green(String.format("\t + references:")));
+                        System.out.println(green("\t + references:"));
                         System.out.println(green(String.format("\t\t + name: %s", referenceDetail.getName())));
                         System.out.println(green(String.format("\t\t + subject: %s", referenceDetail.getSubject())));
                         System.out.println(green(String.format("\t\t + version: %s", referenceDetail.getVersion())));
@@ -172,11 +177,17 @@ public class LogUtil {
                 break;
             case UPDATE:
                 System.out.println(yellow(String.format("~ [SCHEMA] %s", schemaPlan.getName())));
+                if(schemaPlan.getDiff().isPresent()) {
+                    System.out.println(yellow(String.format("\t ~ diff:\n----------------------\n%s\n----------------------",
+                        schemaPlan.getDiff().get())));
+                }
                 System.out.println("\n");
                 break;
             case REMOVE:
                 System.out.println(red(String.format("- [SCHEMA] %s", schemaPlan.getName())));
                 System.out.println("\n");
+                break;
+            case NO_CHANGE:
                 break;
         }
     }
@@ -272,7 +283,7 @@ public class LogUtil {
         printGenericError(ex, false);
     }
 
-    public static void printGenericError(RuntimeException ex, boolean apply) {
+    public static void printGenericError(Exception ex, boolean apply) {
         System.out.println(String.format("[%s] %s\n", red("ERROR"), ex.getMessage()));
         if (apply) {
             printApplyErrorMessage();
@@ -357,7 +368,8 @@ public class LogUtil {
                 return yellow("UPDATE");
             case REMOVE:
                 return red("DELETE");
+            default:
+                return null;
         }
-        return null;
     }
 }

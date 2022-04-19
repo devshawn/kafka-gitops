@@ -52,6 +52,8 @@ public class PlanCommand implements Callable<Integer> {
             LogUtil.printPlanOutputError(ex);
         } catch (SchemaRegistryExecutionException ex) {
             LogUtil.printSchemaRegistryExecutionError(ex);
+        } catch (Exception ex) {
+            LogUtil.printGenericError(ex, false);
         }
         return 2;
     }

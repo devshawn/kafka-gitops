@@ -64,8 +64,7 @@ class ApplyCommandIntegrationSpec extends Specification {
                 "custom-group-id-connect",
                 "custom-application-id-streams",
                 "custom-storage-topic",
-                "custom-storage-topics",
-                "schema-registry-simple"
+                "custom-storage-topics"
         ]
     }
 
@@ -242,5 +241,6 @@ class ApplyCommandIntegrationSpec extends Specification {
           "seed-schema-modification-3"         | false
           "seed-schema-modification-4"         | false
           "seed-schema-modification"           | true
+          "seed-schema-add-with-reference"     | false
     }
 }

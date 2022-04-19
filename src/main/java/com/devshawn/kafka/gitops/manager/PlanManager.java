@@ -24,6 +24,7 @@ import com.devshawn.kafka.gitops.domain.plan.TopicDetailsPlan;
 import com.devshawn.kafka.gitops.domain.plan.TopicPlan;
 import com.devshawn.kafka.gitops.domain.state.AclDetails;
 import com.devshawn.kafka.gitops.domain.state.DesiredState;
+import com.devshawn.kafka.gitops.domain.state.SchemaDetails;
 import com.devshawn.kafka.gitops.domain.state.TopicDetails;
 import com.devshawn.kafka.gitops.enums.PlanAction;
 import com.devshawn.kafka.gitops.enums.SchemaCompatibility;
@@ -35,6 +36,8 @@ import com.devshawn.kafka.gitops.service.KafkaService;
 import com.devshawn.kafka.gitops.service.SchemaRegistryService;
 import com.devshawn.kafka.gitops.util.PlanUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.confluent.kafka.schemaregistry.ParsedSchema;
 import io.confluent.kafka.schemaregistry.client.SchemaMetadata;
 
 public class PlanManager {
@@ -241,10 +244,15 @@ public class PlanManager {
         });
 
         desiredState.getSchemas().forEach((subject, schemaDetails) -> {
+            // We now parse all the schemas
+            ParsedSchema parsedSchema = schemaRegistryService.parseSchema(subject, schemaDetails);
+
+            //We store a properly formatted schema in the plan
+            SchemaDetails formattedSchemaDetails = SchemaDetails.Builder.from(schemaDetails).setSchema(parsedSchema.canonicalString()).build();
             SchemaPlan.Builder schemaPlan = new SchemaPlan.Builder()
                     .setName(subject)
-                    .setSchemaDetails(schemaDetails);
-
+                    .setSchemaDetails(formattedSchemaDetails);
+            
             if (!currentSubjectSchemasMap.containsKey(subject)) {
                 log.info("[PLAN] Schema Subject '{}' does not exist; it will be created.", subject);
                 schemaPlan.setAction(PlanAction.ADD);
@@ -264,14 +272,17 @@ public class PlanManager {
                       + ", current compatibilty: " + currentCompatibility
                       + ", new compatibilty:" + schemaDetails.getCompatibility().get() + ")");
                 }
-                boolean diff = schemaRegistryService.deepEquals(schemaDetails, currentSubjectSchemasMap.get(subject));
-                if (diff) {
-                    log.info("[PLAN] Schema Subject '{}' exists and has not changed; it will not be created.", subject);
+                String diff = schemaRegistryService.deepEquals(parsedSchema, currentSubjectSchemasMap.get(subject));
+                if (diff.isEmpty()) {
+                    log.info("[PLAN] Schema Subject '{}' exists and has not changed; it will not be updated.", subject);
                     schemaPlan.setAction(PlanAction.NO_CHANGE);
                 } else {
-                    log.info("[PLAN] Schema Subject '{}' exists and has changed; it will be updated.", subject);
+                    //test compatibility:
+                    schemaRegistryService.testSchemaCompatibility(subject, parsedSchema);
+                    log.info("[PLAN] Schema Subject '{}' exists and has changed; it will be updated. Actual diff:\n {}", subject, 
+                            diff);
+                    schemaPlan.setDiff(diff);
                     schemaPlan.setAction(PlanAction.UPDATE);
-                    // TODO: Set diff string for logging?
                 }
             }
 

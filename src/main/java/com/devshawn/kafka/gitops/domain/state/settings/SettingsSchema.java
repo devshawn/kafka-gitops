@@ -1,6 +1,5 @@
 package com.devshawn.kafka.gitops.domain.state.settings;
 
-import com.devshawn.kafka.gitops.enums.SchemaCompatibility;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.inferred.freebuilder.FreeBuilder;
 

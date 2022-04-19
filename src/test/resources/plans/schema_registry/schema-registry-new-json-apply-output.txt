@@ -5,7 +5,7 @@ Applying: [CREATE]
 + [SCHEMA] json-value
 	 + type: JSON
 	 + compatibility: BACKWARD
-	 + schema: 
+	 + schema:
 ----------------------
 {"type":"object","properties":{"f1":{"type":"string"}}}
 ----------------------

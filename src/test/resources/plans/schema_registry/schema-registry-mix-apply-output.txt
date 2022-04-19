@@ -5,7 +5,7 @@ Applying: [CREATE]
 + [SCHEMA] json-value
 	 + type: JSON
 	 + compatibility: FULL
-	 + schema: 
+	 + schema:
 ----------------------
 {"type":"object","properties":{"f1":{"type":"string"}}}
 ----------------------
@@ -18,7 +18,7 @@ Applying: [CREATE]
 + [SCHEMA] avro-value1
 	 + type: AVRO
 	 + compatibility: NONE
-	 + schema: 
+	 + schema:
 ----------------------
 {"type":"record","name":"TestRecord","namespace":"com.devshawn.kafka.gitops","fields":[{"name":"hello","type":"string"}]}
 ----------------------
@@ -31,7 +31,7 @@ Applying: [CREATE]
 + [SCHEMA] avro-value2
 	 + type: AVRO
 	 + compatibility: FORWARD
-	 + schema: 
+	 + schema:
 ----------------------
 {"type":"record","name":"TestRecord2","namespace":"com.devshawn.kafka.gitops","fields":[{"name":"hello2","type":"string"}]}
 ----------------------
