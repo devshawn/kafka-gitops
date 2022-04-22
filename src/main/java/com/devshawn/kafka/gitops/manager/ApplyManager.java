@@ -98,12 +98,11 @@ public class ApplyManager {
 
     public void applySchemas(DesiredPlan desiredPlan) {
         desiredPlan.getSchemaPlans().forEach(schemaPlan -> {
-            if (schemaPlan.getAction() == PlanAction.ADD) {
+            if (schemaPlan.getAction() == PlanAction.ADD || schemaPlan.getAction() == PlanAction.UPDATE) {
                 LogUtil.printSchemaPreApply(schemaPlan);
                 schemaRegistryService.register(schemaPlan);
                 LogUtil.printPostApply();
-            } else if (schemaPlan.getAction() == PlanAction.UPDATE ||
-                  (schemaPlan.getAction() == PlanAction.REMOVE && !managerConfig.isDeleteDisabled())) {
+            } else if (schemaPlan.getAction() == PlanAction.REMOVE && !managerConfig.isDeleteDisabled()) {
                 LogUtil.printSchemaPreApply(schemaPlan);
                 schemaRegistryService.deleteSubject(schemaPlan.getName(), true);
                 LogUtil.printPostApply();
