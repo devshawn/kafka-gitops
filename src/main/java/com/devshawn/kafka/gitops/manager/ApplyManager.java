@@ -1,6 +1,7 @@
 package com.devshawn.kafka.gitops.manager;
 
 import com.devshawn.kafka.gitops.config.ManagerConfig;
+import com.devshawn.kafka.gitops.domain.plan.AclPlan;
 import com.devshawn.kafka.gitops.domain.plan.DesiredPlan;
 import com.devshawn.kafka.gitops.domain.plan.TopicConfigPlan;
 import com.devshawn.kafka.gitops.domain.plan.TopicPlan;
@@ -63,7 +64,9 @@ public class ApplyManager {
     }
 
     public void applyAcls(DesiredPlan desiredPlan) {
-        desiredPlan.getAclPlans().forEach(aclPlan -> {
+        List<AclPlan> modifiableAclPlan = new ArrayList<>(desiredPlan.getAclPlans());
+        modifiableAclPlan.sort(Comparator.comparing(AclPlan::getAction));
+        modifiableAclPlan.forEach(aclPlan -> {
             if (aclPlan.getAction() == PlanAction.ADD) {
                 LogUtil.printAclPreApply(aclPlan);
                 kafkaService.createAcl(aclPlan.getAclDetails().toAclBinding());
