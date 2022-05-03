@@ -32,17 +32,28 @@ import io.confluent.kafka.schemaregistry.protobuf.ProtobufSchemaProvider;
 public class SchemaRegistryService {
     private final boolean schemaRegistryEnabled;
     private static final AtomicReference<CachedSchemaRegistryClient> cachedSchemaRegistryClientRef = new AtomicReference<>();
+    
+    //This client must be used only when the previous client does not expose the functionality.
+    private static final AtomicReference<RestService> schemaRegistryRestService = new AtomicReference<>();
 
     public SchemaRegistryService(SchemaRegistryConfig config) {
         this.schemaRegistryEnabled = config.getConfig().containsKey(SchemaRegistryConfigLoader.SCHEMA_REGISTRY_URL_KEY);
+        schemaRegistryRestService.updateAndGet(v -> {
+            if (isEnabled()) {
+                if (v != null) {
+                    return v;
+                }
+                return new RestService(
+                        config.getConfig().get(SchemaRegistryConfigLoader.SCHEMA_REGISTRY_URL_KEY).toString());
+            }
+            return null;
+        });
         cachedSchemaRegistryClientRef.updateAndGet(v -> {
             if (isEnabled()) {
                 if (v != null) {
                     return v;
                 }
-                RestService restService = new RestService(
-                        config.getConfig().get(SchemaRegistryConfigLoader.SCHEMA_REGISTRY_URL_KEY).toString());
-                return new CachedSchemaRegistryClient(restService, 10, config.getConfig());
+                return new CachedSchemaRegistryClient(schemaRegistryRestService.get(), 10, config.getConfig());
             }
             return null;
         });
@@ -130,11 +141,27 @@ public class SchemaRegistryService {
     }
 
     private void testSchemaCompatibility(String subject, ParsedSchema parsedSchema, AbstractSchemaProvider schemaProvider) {
-        CachedSchemaRegistryClient schemaRegistryClient = cachedSchemaRegistryClientRef.get();
+        RestService restService = schemaRegistryRestService.get();
         try {
-            List<String> differences = schemaRegistryClient.testCompatibilityVerbose(subject, parsedSchema);
+            /*
+             * WARN: this does not work for TRANSITIVE compatibility types where all the versions must be tests
+             *  we have to wait for v7.0.0 and uses:
+             *  List<String> differences = restService.testCompatibility(parsedSchema.canonicalString(), parsedSchema.schemaType(),
+                    parsedSchema.references(), subject, null, true)
+             */
+            List<String> differences = restService.testCompatibility(parsedSchema.canonicalString(), parsedSchema.schemaType(),
+                    parsedSchema.references(), subject, "latest", false);
             if (differences != null && !differences.isEmpty()) {
-                throw new ValidationException(String.format("%s schema '%s' is not compatible with the latest one: %s",
+                /*
+                 * There is a bug on the kafka version that we have which does not always return a reason...
+                 * So doing it now and putting a reason if we have it.
+                 */
+                List<String> differencesDetails = restService.testCompatibility(parsedSchema.canonicalString(), parsedSchema.schemaType(),
+                        parsedSchema.references(), subject, "latest", true);
+                if(differencesDetails != null && !differencesDetails.isEmpty()) {
+                    differences = differencesDetails;
+                }
+                throw new ValidationException(String.format("%s schema '%s' is incompatible with an earlier schema: %s",
                         schemaProvider.schemaType(), subject, differences));
             }
         } catch (IOException | RestClientException ex) {

@@ -1,0 +1,1 @@
+(?s).*\[INVALID\] AVRO schema 'test-1-avro' is incompatible with an earlier schema: \[Incompatibility\{type:TYPE_MISMATCH, location:\/fields\/7\/type, message:reader type: INT not compatible with writer type: STRING, reader:\{"type":"int","logicalType":"date"\}, writer:"string"\}\].*

@@ -1,0 +1,56 @@
+{
+  "namespace": "dto",
+  "type": "record",
+  "name": "CreateOpsDTO",
+  "fields": [
+    {
+      "name": "externalIds",
+      "type": {
+         "type": "array",
+         "items": "string"
+      } 
+    },
+    {
+      "name": "attachmentId",
+      "type": "string"
+    },
+    {
+      "name": "deliveryOfferId",
+      "type": "string"
+    },
+    {
+      "name": "deliveryOfferCode",
+      "type": "string"
+    },
+    {
+      "name": "deliveryOfferName",
+      "type": "string"
+    },
+    {
+      "name": "inherited",
+      "type": "boolean"
+    },
+    {
+      "name": "effectDate",
+      "type": {
+          "type": "int",
+          "logicalType": "date"
+      }
+    },
+    {
+      "name": "endEffectDate",
+      "type": {
+          "type": "int",
+          "logicalType": "date"
+      }
+    },
+    {
+      "name": "motifEndEffectDate",
+      "type": "string"
+    },
+    {
+      "name": "updatedBy",
+      "type": "string"
+    }
+  ]
+}

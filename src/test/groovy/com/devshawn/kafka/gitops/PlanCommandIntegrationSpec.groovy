@@ -5,6 +5,11 @@ import java.nio.file.Paths
 import org.junit.ClassRule
 import org.junit.contrib.java.lang.system.EnvironmentVariables
 import org.skyscreamer.jsonassert.JSONAssert
+
+import com.devshawn.kafka.gitops.enums.SchemaCompatibility
+import com.devshawn.kafka.gitops.enums.SchemaType
+
+import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import picocli.CommandLine
 import spock.lang.Shared
 import spock.lang.Specification
@@ -31,7 +36,7 @@ class PlanCommandIntegrationSpec extends Specification {
     }
 
     void cleanupSpec() {
-//        TestUtils.cleanUpAll()
+        //        TestUtils.cleanUpAll()
     }
 
     void 'test various valid plans - #planName'() {
@@ -56,24 +61,25 @@ class PlanCommandIntegrationSpec extends Specification {
 
         where:
         planName << [
-                "simple",
-                "application-service",
-                "kafka-connect-service",
-                "kafka-streams-service",
-                "topics-and-services",
-                "multi-file",
-                "simple-users",
-                "custom-service-acls",
-                "custom-user-acls",
-                "custom-group-id-application",
-                "custom-group-id-connect",
-                "custom-application-id-streams",
-                "custom-storage-topic",
-                "custom-storage-topics",
-                "default-replication",
-                "default-replication-multiple",
-                "describe-topic-acl-disabled",
-                "describe-topic-acl-enabled"
+            "simple",
+            "application-service",
+            "kafka-connect-service",
+            "kafka-streams-service",
+            "topics-and-services",
+            "multi-file",
+            "simple-users",
+            "custom-service-acls",
+            "custom-user-acls",
+            "custom-group-id-application-prefixed",
+            "custom-group-id-application",
+            "custom-group-id-connect",
+            "custom-application-id-streams",
+            "custom-storage-topic",
+            "custom-storage-topics",
+            "default-replication",
+            "default-replication-multiple",
+            "describe-topic-acl-disabled",
+            "describe-topic-acl-enabled"
         ]
     }
 
@@ -99,7 +105,7 @@ class PlanCommandIntegrationSpec extends Specification {
 
         where:
         planName << [
-                "skip-acls"
+            "skip-acls"
         ]
     }
 
@@ -202,15 +208,15 @@ class PlanCommandIntegrationSpec extends Specification {
 
         where:
         planName << [
-                "invalid-missing-principal",
-                "invalid-topic",
-                "unrecognized-property",
-                "invalid-format",
-                "invalid-missing-user-principal",
-                "invalid-storage-topics",
-                "invalid-default-replication-1",
-                "invalid-default-replication-2",
-                "invalid-topic-remove-partitions"
+            "invalid-missing-principal",
+            "invalid-topic",
+            "unrecognized-property",
+            "invalid-format",
+            "invalid-missing-user-principal",
+            "invalid-storage-topics",
+            "invalid-default-replication-1",
+            "invalid-default-replication-2",
+            "invalid-topic-remove-partitions"
         ]
     }
 
@@ -308,64 +314,64 @@ class PlanCommandIntegrationSpec extends Specification {
         String file = TestUtils.getResourceFilePath("plans/schema_registry/${planName}.yaml")
         MainCommand mainCommand = new MainCommand()
         CommandLine cmd = new CommandLine(mainCommand)
-  
+
         when:
         int exitCode = cmd.execute("-f", file, "plan", "-o", planOutputFile)
-  
+
         then:
         exitCode == 0
 
         when:
         String actualPlan = TestUtils.getFileContent(planOutputFile)
         String expectedPlan = TestUtils.getResourceFileContent("plans/schema_registry/${planName}-plan.json")
-  
+
         then:
         JSONAssert.assertEquals(expectedPlan, actualPlan, true)
-  
+
         where:
         planName << [
-                "schema-registry-new-json",
-                "schema-registry-new-avro",
-                "schema-registry-new-proto",
-                "schema-registry-default",
-                "schema-registry-mix"
+            "schema-registry-new-json",
+            "schema-registry-new-avro",
+            "schema-registry-new-proto",
+            "schema-registry-default",
+            "schema-registry-mix"
         ]
     }
 
     void 'test various valid schema registry plans with seed - #planName'() {
-          setup:
-          TestUtils.seedSchemaRegistry()
-          String planOutputFile = "/tmp/plan.json"
-          String file = TestUtils.getResourceFilePath("plans/schema_registry/${planName}.yaml")
-          MainCommand mainCommand = new MainCommand()
-          CommandLine cmd = new CommandLine(mainCommand)
-  
-          when:
-          int exitCode
-          if (deleteDisabled) {
-              exitCode = cmd.execute("-f", file, "--no-delete", "plan", "-o", planOutputFile)
-          } else {
-              exitCode = cmd.execute("-f", file, "plan", "-o", planOutputFile)
-          }
+        setup:
+        TestUtils.seedSchemaRegistry()
+        String planOutputFile = "/tmp/plan.json"
+        String file = TestUtils.getResourceFilePath("plans/schema_registry/${planName}.yaml")
+        MainCommand mainCommand = new MainCommand()
+        CommandLine cmd = new CommandLine(mainCommand)
 
-          then:
-          exitCode == 0
-  
-          when:
-          String actualPlan = TestUtils.getFileContent(planOutputFile)
-          String expectedPlan = TestUtils.getResourceFileContent("plans/schema_registry/${planName}-plan.json")
-  
-          then:
-          JSONAssert.assertEquals(expectedPlan, actualPlan, true)
-  
-          where:
-          planName                             | deleteDisabled
-          "seed-schema-modification"           | false
-          "seed-schema-modification-2"         | false
-          "seed-schema-modification-3"         | false
-          "seed-schema-modification-4"         | false
-          "seed-schema-modification-no-delete" | true
-          "seed-schema-add-with-reference"     | false
+        when:
+        int exitCode
+        if (deleteDisabled) {
+            exitCode = cmd.execute("-f", file, "--no-delete", "plan", "-o", planOutputFile)
+        } else {
+            exitCode = cmd.execute("-f", file, "plan", "-o", planOutputFile)
+        }
+
+        then:
+        exitCode == 0
+
+        when:
+        String actualPlan = TestUtils.getFileContent(planOutputFile)
+        String expectedPlan = TestUtils.getResourceFileContent("plans/schema_registry/${planName}-plan.json")
+
+        then:
+        JSONAssert.assertEquals(expectedPlan, actualPlan, true)
+
+        where:
+        planName                             | deleteDisabled
+        "seed-schema-modification"           | false
+        "seed-schema-modification-2"         | false
+        "seed-schema-modification-3"         | false
+        "seed-schema-modification-4"         | false
+        "seed-schema-modification-no-delete" | true
+        "seed-schema-add-with-reference"     | false
     }
 
     void 'test schema registry plan that has no changes - #includeUnchanged'() {
@@ -433,13 +439,13 @@ class PlanCommandIntegrationSpec extends Specification {
 
         where:
         planName << [
-                "invalid-type",
-                "invalid-missing-type",
-                "invalid-compatibility",
-                "invalid-missing-compatibility",
-                "invalid-unrecognized-property",
-                "invalid-missing-file-and-schema",
-                "invalid-both-file-and-schema"
+            "invalid-type",
+            "invalid-missing-type",
+            "invalid-compatibility",
+            "invalid-missing-compatibility",
+            "invalid-unrecognized-property",
+            "invalid-missing-file-and-schema",
+            "invalid-both-file-and-schema"
         ]
     }
 
@@ -469,12 +475,12 @@ class PlanCommandIntegrationSpec extends Specification {
 
         where:
         planName << [
-                "invalid-modify-type",
-                "invalid-modify-compatibility",
-                "invalid-modify-not-compatible"
+            "invalid-modify-type",
+            "invalid-modify-compatibility",
+            "invalid-modify-not-compatible"
         ]
     }
-    
+
     void 'test various invalid schema registry plans with seed (regex) - #planName'() {
         setup:
         TestUtils.seedSchemaRegistry()
@@ -487,22 +493,50 @@ class PlanCommandIntegrationSpec extends Specification {
         String file = TestUtils.getResourceFilePath("plans/schema_registry/${planName}.yaml")
         MainCommand mainCommand = new MainCommand()
         CommandLine cmd = new CommandLine(mainCommand)
-  
+
         when:
         int exitCode = cmd.execute("-f", file, "plan")
         String pattern = TestUtils.getResourceFileContent("plans/schema_registry/${planName}-output.txt")
-  
+
         then:
         exitCode == 2
         out.toString().matches(pattern)
-  
+
         cleanup:
         System.setErr(oldErr)
         System.setOut(oldOut)
-  
+
         where:
         planName << [
-                "invalid-reference"
+            "invalid-reference"
         ]
+    }
+
+    void 'test Specific compatibility plans with manual seed'() {
+        setup:
+        CachedSchemaRegistryClient schemaRegistryClient = TestUtils.cachedSchemaRegistryClientRef.get()
+        TestUtils.createSchema("test-1-avro", SchemaType.AVRO, TestUtils.getResourceFileContent("plans/schema_registry/schemas/schema-registry-schema4.avsc"),
+            schemaRegistryClient, SchemaCompatibility.BACKWARD)
+        ByteArrayOutputStream err = new ByteArrayOutputStream()
+        ByteArrayOutputStream out = new ByteArrayOutputStream()
+        PrintStream oldErr = System.err
+        PrintStream oldOut = System.out
+        System.setErr(new PrintStream(err))
+        System.setOut(new PrintStream(out))
+        String file = TestUtils.getResourceFilePath("plans/schema_registry/invalid-modify-not-compatible2.yaml")
+        MainCommand mainCommand = new MainCommand()
+        CommandLine cmd = new CommandLine(mainCommand)
+
+        when:
+        int exitCode = cmd.execute("-f", file, "plan")
+        String pattern =TestUtils.getResourceFileContent("plans/schema_registry/invalid-modify-not-compatible2-output.txt")
+
+        then:
+        exitCode == 2
+        out.toString().matches(pattern)
+
+        cleanup:
+        System.setErr(oldErr)
+        System.setOut(oldOut)
     }
 }

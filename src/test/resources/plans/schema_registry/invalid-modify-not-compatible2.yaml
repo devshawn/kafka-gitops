@@ -1,0 +1,11 @@
+settings:
+  topics:
+    blacklist:
+      prefixed:
+        - _schemas
+
+schemas:
+  test-1-avro:
+    type: AVRO
+    compatibility: BACKWARD
+    file: "schema-registry-schema5.avsc"
