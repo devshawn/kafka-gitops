@@ -5,7 +5,7 @@ Getting started with `kafka-gitops` is simple. For this tutorial, we will assume
 - You have installed the `kafka-gitops` command as [described here](/installation.md).
 - You have a kafka cluster running on `localhost:9092`. 
 
-!> **NOTE**: If you desire to use this with Confluent Cloud, read our [Confluent Cloud page][ccloud].
+!> **NOTE**: If you desire to use this with Confluent Cloud, read our [Confluent Cloud page][confluent].
 
 ## Desired State File
 
@@ -147,7 +147,7 @@ org.apache.kafka.common.errors.PolicyViolationException: Topic replication facto
 
 Congrats! You've successfully started using GitOps strategies to manage your cluster. If you have security on your cluster, read the [services][services] page to start defining services. 
 
-[ccloud]: /confluent-cloud.md
+[confluent]: /confluent-cloud.md
 [permissions]: /permissions.md
 [specification]: /specification.md
 [services]: /services.md

@@ -324,8 +324,8 @@ public class StateManager {
     }
 
     private boolean isConfluentCloudEnabled(DesiredStateFile desiredStateFile) {
-        if (desiredStateFile.getSettings().isPresent() && desiredStateFile.getSettings().get().getCcloud().isPresent()) {
-            return desiredStateFile.getSettings().get().getCcloud().get().isEnabled();
+        if (desiredStateFile.getSettings().isPresent() && desiredStateFile.getSettings().get().getConfluent().isPresent()) {
+            return desiredStateFile.getSettings().get().getConfluent().get().isEnabled();
         }
         return false;
     }

@@ -6,7 +6,7 @@ This tool was designed to work with Confluent Cloud. It can manage service accou
 
 Ensure you have installed `kafka-gitops` or are using the `kafka-gitops` docker image as described in the [installation][installation] instructions.
 
-You must have the `ccloud` command line tools installed if you wish to auto-populate the `principal` fields on services.
+You must have the `confluent` command line tool installed if you wish to auto-populate the `principal` fields on services.
 
 ## Desired State File
 
@@ -14,7 +14,7 @@ Create a basic desired state file, `state.yaml`, such as:
 
 ```yaml
 settings:
-  ccloud:
+  confluent:
     enabled: true
 
 topics:
@@ -46,18 +46,18 @@ To use `kafka-gitops` with Confluent Cloud, you'll need to set a few environment
 * `KAFKA_SASL_MECHANISM`: `PLAIN`
 * `KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM`: `HTTPS`
 
-Additionally, you'll need to login to the `ccloud` tool. You can automate this by setting the following environment variables:
+Additionally, you'll need to login to the `confluent` tool. You can automate this by setting the following environment variables:
 
-* `XX_CCLOUD_EMAIL`: Your Confluent Cloud administrator email
-* `XX_CCLOUD_PASSWORD`: Your Confluent Cloud administrator password
+* `CONFLUENT_CLOUD_EMAIL`: Your Confluent Cloud administrator email
+* `CONFLUENT_CLOUD_PASSWORD`: Your Confluent Cloud administrator password
 
-Then, you can run `ccloud login` and it will run without a prompt. This is great for CI builds.
+Then, you can run `confluent login` and it will run without a prompt. This is great for CI builds.
 
-You can optionally specify a path to a `ccloud` executable:
+You can optionally specify a path to a `confluent` executable:
 
-* `CCLOUD_EXECUTABLE_PATH`: `/full/path/to/ccloud`
+* `CONFLUENT_EXECUTABLE_PATH`: `/full/path/to/confluent`
 
-Otherwise, `ccloud` must be on your path.
+Otherwise, `confluent` must be on your path.
 
 ## Validate
 

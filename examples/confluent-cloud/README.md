@@ -13,8 +13,8 @@ The following environment variables need to be set locally or in the build job:
 
 ```bash
 # For service account creation / listing
-export XX_CCLOUD_EMAIL="Your Confluent Cloud email address"
-export XX_CCLOUD_PASSWORD="Your Confluent Cloud password"
+export CONFLUENT_CLOUD_EMAIL="Your Confluent Cloud email address"
+export CONFLUENT_CLOUD_PASSWORD="Your Confluent Cloud password"
 
 # For executing against the cluster
 export KAFKA_BOOTSTRAP_SERVERS="Your Confluent Cloud cluster URL"
@@ -32,7 +32,7 @@ export CLICOLOR_FORCE="true"
 
 Once defining services and users, you can generate service accounts. 
 
-**NOTE**: Before running `accounts` or `plan`, ensure you are logged in to Confluent Cloud. Use `ccloud login`.
+**NOTE**: Before running `accounts` or `plan`, ensure you are logged in to Confluent Cloud. Use `confluent login`.
 
 Create accounts:
 

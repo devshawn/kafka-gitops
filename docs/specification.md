@@ -19,7 +19,7 @@ The desired state file consists of:
 
 **Options**:
 
-- **ccloud** [Optional]: An object which contains an `enabled` field. Set this to true if using a Confluent Cloud cluster. 
+- **confluent** [Optional]: An object which contains an `enabled` field. Set this to true if using a Confluent Cloud cluster. 
 - **topics** [Optional]: 
     - **defaults** [Optional]: Specify topic defaults so you don't need to specify them for every topic in the state file. Currently, only replication is supported. 
     - **blacklist** [Optional]: Add a prefixed topic blacklist for ignoring specific topics when using `kafka-gitops`. This allows topics to be ignored from being deleted if they are not defined in the desired state file.
@@ -27,7 +27,7 @@ The desired state file consists of:
 **Example**:
 ```yaml
 settings:
-  ccloud:
+  confluent:
     enabled: true
   topics:
     defaults:
