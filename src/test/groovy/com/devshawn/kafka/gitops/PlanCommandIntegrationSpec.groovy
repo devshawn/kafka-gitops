@@ -370,6 +370,7 @@ class PlanCommandIntegrationSpec extends Specification {
         "seed-schema-modification-2"         | false
         "seed-schema-modification-3"         | false
         "seed-schema-modification-4"         | false
+        "seed-schema-modification-blacklist" | false
         "seed-schema-modification-no-delete" | true
         "seed-schema-add-with-reference"     | false
     }

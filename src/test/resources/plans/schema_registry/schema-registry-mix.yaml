@@ -3,7 +3,7 @@ settings:
     blacklist:
       prefixed:
         - _schemas
-  schema:
+  schemas:
     defaults:
       compatibility: FULL
     

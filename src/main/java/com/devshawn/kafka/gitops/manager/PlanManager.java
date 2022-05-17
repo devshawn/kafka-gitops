@@ -290,6 +290,12 @@ public class PlanManager {
         });
 
         currentSubjectSchemasMap.forEach((subject, schemaMetadata) -> {
+            boolean shouldIgnore = desiredState.getPrefixedSchemasToIgnore().stream().anyMatch(it -> subject.startsWith(it));
+            if (shouldIgnore) {
+                log.info("[PLAN] Schema Subject {} due to prefix", subject);
+                return;
+            }
+
             if (!managerConfig.isDeleteDisabled() && desiredState.getSchemas().getOrDefault(subject, null) == null) {
               log.info("[PLAN] Schema Subject '{}' exists and will be remove.", subject);
                 SchemaPlan schemaPlan = new SchemaPlan.Builder()

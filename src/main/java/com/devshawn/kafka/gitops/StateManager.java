@@ -156,10 +156,15 @@ public class StateManager {
 
     private DesiredState getDesiredState() {
         DesiredStateFile desiredStateFile = getAndValidateStateFile();
+        
+        // Topics
         DesiredState.Builder desiredState = new DesiredState.Builder()
                 .addAllPrefixedTopicsToIgnore(getPrefixedTopicsToIgnore(desiredStateFile));
 
         generateTopicsState(desiredState, desiredStateFile);
+
+        // Schemas
+        desiredState.addAllPrefixedSchemasToIgnore(getPrefixedSchemasToIgnore(desiredStateFile));
         generateSchemasState(desiredState, desiredStateFile);
 
         if (isConfluentCloudEnabled(desiredStateFile)) {
@@ -308,6 +313,16 @@ public class StateManager {
             }
         });
         return topics;
+    }
+
+    private List<String> getPrefixedSchemasToIgnore(DesiredStateFile desiredStateFile) {
+        List<String> schemas = new ArrayList<>();
+        try {
+            schemas.addAll(desiredStateFile.getSettings().get().getSchemas().get().getBlacklist().get().getPrefixed());
+        } catch (NoSuchElementException ex) {
+            // Do nothing, no blacklist exists
+        }
+        return schemas;
     }
 
     private GetAclOptions buildGetAclOptions(String serviceName) {

@@ -4,14 +4,16 @@ settings:
       prefixed:
         - _schemas
   schemas:
-    defaults:
-      compatibility: FULL
-    
+    blacklist:
+      prefixed:
+        - schema-2
+
 schemas:
-  json-value2:
+  json-value:
     type: JSON
-    file: schema-registry-schema1.json
-  json-value3:
+    compatibility: BACKWARD
+    schema: '{"type": "object","properties": {"f1": {"type": "string"}}}'
+  json-value1:
     type: JSON
     compatibility: NONE
     file: schema-registry-schema1.json

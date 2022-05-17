@@ -22,9 +22,9 @@ public class StateUtil {
     }
 
     public static Optional<SchemaCompatibility> fetchDefaultSchemasCompatibility(DesiredStateFile desiredStateFile) {
-      if (desiredStateFile.getSettings().isPresent() && desiredStateFile.getSettings().get().getSchema().isPresent()
-              && desiredStateFile.getSettings().get().getSchema().get().getDefaults().isPresent()) {
-          return desiredStateFile.getSettings().get().getSchema().get().getDefaults().get().getCompatibility();
+      if (desiredStateFile.getSettings().isPresent() && desiredStateFile.getSettings().get().getSchemas().isPresent()
+              && desiredStateFile.getSettings().get().getSchemas().get().getDefaults().isPresent()) {
+          return desiredStateFile.getSettings().get().getSchemas().get().getDefaults().get().getCompatibility();
       }
       return Optional.empty();
   }
