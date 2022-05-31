@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.devshawn.kafka.gitops.config.SchemaRegistryConfig;
 import com.devshawn.kafka.gitops.config.SchemaRegistryConfigLoader;
 import com.devshawn.kafka.gitops.domain.plan.SchemaPlan;
@@ -30,9 +33,11 @@ import io.confluent.kafka.schemaregistry.json.JsonSchemaProvider;
 import io.confluent.kafka.schemaregistry.protobuf.ProtobufSchemaProvider;
 
 public class SchemaRegistryService {
+    private static final Logger log = LoggerFactory.getLogger(SchemaRegistryService.class);
+
     private final boolean schemaRegistryEnabled;
-    private static final AtomicReference<CachedSchemaRegistryClient> cachedSchemaRegistryClientRef = new AtomicReference<>();
-    
+    private final AtomicReference<CachedSchemaRegistryClient> cachedSchemaRegistryClientRef = new AtomicReference<>();
+
     //This client must be used only when the previous client does not expose the functionality.
     private static final AtomicReference<RestService> schemaRegistryRestService = new AtomicReference<>();
 
@@ -73,7 +78,7 @@ public class SchemaRegistryService {
         }
     }
 
-    public void deleteSubject(String subject, boolean isPermanent) {
+    public boolean deleteSubject(String subject, boolean isPermanent) {
         final CachedSchemaRegistryClient cachedSchemaRegistryClient = cachedSchemaRegistryClientRef.get();
         try {
             // must always soft-delete
@@ -81,10 +86,19 @@ public class SchemaRegistryService {
             if (isPermanent) {
                 cachedSchemaRegistryClient.deleteSubject(subject, true);
             }
-        } catch (IOException | RestClientException ex) {
+        } catch (RestClientException ex) {
+            if(ex.getErrorCode() == 42206) {
+                log.debug("Error cleaning referenced schema ( {} )", subject);
+                return false;
+            } else {
+                throw new SchemaRegistryExecutionException(
+                        "Error thrown when attempting to get delete subject from schema registry", ex.getMessage());
+            }
+        } catch (IOException ex) {
             throw new SchemaRegistryExecutionException(
                     "Error thrown when attempting to get delete subject from schema registry", ex.getMessage());
         }
+        return true;
     }
 
     public int register(SchemaPlan schemaPlan) {
@@ -111,7 +125,7 @@ public class SchemaRegistryService {
         return id;
     }
 
-    public static AbstractSchemaProvider schemaProviderFromType(SchemaType schemaType) {
+    public AbstractSchemaProvider schemaProviderFromType(SchemaType schemaType) {
         AbstractSchemaProvider schemaProvider;
         if (schemaType == SchemaType.AVRO) {
             schemaProvider = new AvroSchemaProvider();

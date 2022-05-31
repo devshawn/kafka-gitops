@@ -2,19 +2,25 @@ package com.devshawn.kafka.gitops.manager;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.kafka.clients.admin.AlterConfigOp;
 import org.apache.kafka.clients.admin.ConfigEntry;
 import org.apache.kafka.common.Node;
 import org.apache.kafka.common.config.ConfigResource;
+
 import com.devshawn.kafka.gitops.config.ManagerConfig;
 import com.devshawn.kafka.gitops.domain.plan.DesiredPlan;
+import com.devshawn.kafka.gitops.domain.plan.SchemaPlan;
 import com.devshawn.kafka.gitops.domain.plan.TopicConfigPlan;
 import com.devshawn.kafka.gitops.domain.plan.TopicDetailsPlan;
 import com.devshawn.kafka.gitops.domain.plan.TopicPlan;
 import com.devshawn.kafka.gitops.enums.PlanAction;
+import com.devshawn.kafka.gitops.exception.SchemaRegistryExecutionException;
 import com.devshawn.kafka.gitops.service.KafkaService;
 import com.devshawn.kafka.gitops.service.SchemaRegistryService;
 import com.devshawn.kafka.gitops.util.LogUtil;
@@ -97,6 +103,7 @@ public class ApplyManager {
     }
 
     public void applySchemas(DesiredPlan desiredPlan) {
+        final List<SchemaPlan> referencedSubjects = new ArrayList<SchemaPlan>();
         desiredPlan.getSchemaPlans().forEach(schemaPlan -> {
             if (schemaPlan.getAction() == PlanAction.ADD || schemaPlan.getAction() == PlanAction.UPDATE) {
                 LogUtil.printSchemaPreApply(schemaPlan);
@@ -104,9 +111,41 @@ public class ApplyManager {
                 LogUtil.printPostApply();
             } else if (schemaPlan.getAction() == PlanAction.REMOVE && !managerConfig.isDeleteDisabled()) {
                 LogUtil.printSchemaPreApply(schemaPlan);
-                schemaRegistryService.deleteSubject(schemaPlan.getName(), true);
-                LogUtil.printPostApply();
+                if(! schemaRegistryService.deleteSubject(schemaPlan.getName(), true)) {
+                    referencedSubjects.add(schemaPlan);
+                    LogUtil.printDeferredApply();
+                }else {
+                    LogUtil.printPostApply();
+                }
             }
         });
+        if(!referencedSubjects.isEmpty()) {
+            cleanUpDeferredSchemas(referencedSubjects);
+        }
+    }
+
+    private void cleanUpDeferredSchemas(List<SchemaPlan> referencedSubjects) {
+        System.out.println("Applying deffered actions:\n");
+        int maxRetry = 1;
+        while ( ! referencedSubjects.isEmpty() || maxRetry >= 10) {
+            for (Iterator<SchemaPlan> iterator = referencedSubjects.iterator(); iterator.hasNext();) {
+                SchemaPlan referencedSubject = iterator.next();
+                LogUtil.printSchemaPreApply(referencedSubject);
+                if(! schemaRegistryService.deleteSubject(referencedSubject.getName(), true)) {
+                    LogUtil.printDeferredApply();
+                }else {
+                    LogUtil.printPostApply();
+                    iterator.remove();
+                }
+            }
+            Collections.shuffle(referencedSubjects);
+            maxRetry++;
+        }
+        if(referencedSubjects.isEmpty()) {
+            System.out.println("Deferred actions successfully applied\n");
+        } else {
+            throw new SchemaRegistryExecutionException(
+                    "Deferred actions did not succeed...", "At least one reference cannot be removed");
+        }
     }
 }

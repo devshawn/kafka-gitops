@@ -10,6 +10,7 @@ import com.devshawn.kafka.gitops.enums.SchemaCompatibility
 import com.devshawn.kafka.gitops.enums.SchemaType
 
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
+import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaReference
 import picocli.CommandLine
 import spock.lang.Shared
 import spock.lang.Specification
@@ -535,6 +536,41 @@ class PlanCommandIntegrationSpec extends Specification {
         then:
         exitCode == 2
         out.toString().matches(pattern)
+
+        cleanup:
+        System.setErr(oldErr)
+        System.setOut(oldOut)
+    }
+    void 'test Specific for next deferred apply with manual seed'() {
+        setup:
+        CachedSchemaRegistryClient schemaRegistryClient = TestUtils.cachedSchemaRegistryClientRef.get()
+        TestUtils.seedSchemaRegistry()
+        TestUtils.createSchema("schema-10-json", SchemaType.JSON, "{\"type\":\"object\",\"properties\":{\"test2\":{\"type\":\"string\"}}, \"additionalProperties\": false}",
+                        schemaRegistryClient, SchemaCompatibility.BACKWARD)
+        List<SchemaReference> reference = new ArrayList()
+        reference.add(new SchemaReference("otherschema", "schema-10-json", 1))
+        List<Integer> subjects = schemaRegistryClient.getAllVersions("schema-10-json");
+        TestUtils.createSchema("schema-11-json", SchemaType.JSON, '{"type":"object","properties":{"test2":{"\$ref":"otherschema"}}, "additionalProperties": false}',
+            schemaRegistryClient, SchemaCompatibility.BACKWARD, reference)
+        ByteArrayOutputStream err = new ByteArrayOutputStream()
+        ByteArrayOutputStream out = new ByteArrayOutputStream()
+        PrintStream oldErr = System.err
+        PrintStream oldOut = System.out
+        System.setErr(new PrintStream(err))
+        System.setOut(new PrintStream(out))
+        String planOutputFile = "/tmp/plan.json"
+        String file = TestUtils.getResourceFilePath("plans/schema_registry/seed-schema-delete-reference.yaml")
+        MainCommand mainCommand = new MainCommand()
+        CommandLine cmd = new CommandLine(mainCommand)
+
+        when:
+        int exitCode = cmd.execute("-f", file, "plan", "-o", planOutputFile)
+        String actualPlan = TestUtils.getFileContent(planOutputFile)
+        String expectedPlan = TestUtils.getResourceFileContent("plans/schema_registry/seed-schema-delete-reference-plan.json")
+        
+        then:
+        exitCode == 0
+        JSONAssert.assertEquals(expectedPlan, actualPlan, true)
 
         cleanup:
         System.setErr(oldErr)

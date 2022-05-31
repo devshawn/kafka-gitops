@@ -215,6 +215,10 @@ public class LogUtil {
         System.out.println("Successfully applied.\n");
     }
 
+    public static void printDeferredApply() {
+        System.out.println("Applied deferred...\n");
+    }
+
     /*
      * Helpers
      */

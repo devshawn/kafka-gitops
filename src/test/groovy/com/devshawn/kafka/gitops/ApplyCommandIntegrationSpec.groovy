@@ -2,8 +2,16 @@ package com.devshawn.kafka.gitops
 
 import java.nio.file.Path
 import java.nio.file.Paths
+
 import org.junit.Rule
 import org.junit.contrib.java.lang.system.EnvironmentVariables
+import org.skyscreamer.jsonassert.JSONAssert
+
+import com.devshawn.kafka.gitops.enums.SchemaCompatibility
+import com.devshawn.kafka.gitops.enums.SchemaType
+
+import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
+import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaReference
 import picocli.CommandLine
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -242,5 +250,35 @@ class ApplyCommandIntegrationSpec extends Specification {
           "seed-schema-modification-4"         | false
           "seed-schema-modification"           | true
           "seed-schema-add-with-reference"     | false
+    }
+
+    void 'test Specific for next deferred apply with manual seed'() {
+        setup:
+        CachedSchemaRegistryClient schemaRegistryClient = TestUtils.cachedSchemaRegistryClientRef.get()
+        TestUtils.seedSchemaRegistry()
+        TestUtils.createSchema("schema-10-json", SchemaType.JSON, "{\"type\":\"object\",\"properties\":{\"test2\":{\"type\":\"string\"}}, \"additionalProperties\": false}",
+                        schemaRegistryClient, SchemaCompatibility.BACKWARD)
+        List<SchemaReference> reference = new ArrayList()
+        reference.add(new SchemaReference("otherschema", "schema-10-json", 1))
+        List<Integer> subjects = schemaRegistryClient.getAllVersions("schema-10-json");
+        TestUtils.createSchema("schema-11-json", SchemaType.JSON, '{"type":"object","properties":{"test2":{"\$ref":"otherschema"}}, "additionalProperties": false}',
+            schemaRegistryClient, SchemaCompatibility.BACKWARD, reference)
+        
+        ByteArrayOutputStream out = new ByteArrayOutputStream()
+        PrintStream oldOut = System.out
+        System.setOut(new PrintStream(out))
+        String file = TestUtils.getResourceFilePath("plans/schema_registry/seed-schema-delete-reference-plan.json")
+        MainCommand mainCommand = new MainCommand()
+        CommandLine cmd = new CommandLine(mainCommand)
+
+        when:
+        int exitCode = cmd.execute("apply", "-p", file)
+
+        then:
+        out.toString() == TestUtils.getResourceFileContent("plans/schema_registry/seed-schema-delete-reference-apply-output.txt")
+        exitCode == 0
+
+        cleanup:
+        System.setOut(oldOut)
     }
 }

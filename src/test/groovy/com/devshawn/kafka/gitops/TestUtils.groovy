@@ -19,6 +19,7 @@ import org.apache.kafka.common.resource.ResourcePattern
 import org.apache.kafka.common.resource.ResourcePatternFilter
 import org.apache.kafka.common.resource.ResourceType
 
+import com.devshawn.kafka.gitops.config.SchemaRegistryConfig
 import com.devshawn.kafka.gitops.config.SchemaRegistryConfigLoader
 import com.devshawn.kafka.gitops.enums.SchemaCompatibility
 import com.devshawn.kafka.gitops.enums.SchemaType
@@ -29,6 +30,7 @@ import io.confluent.kafka.schemaregistry.ParsedSchema
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
 import io.confluent.kafka.schemaregistry.client.rest.RestService
+import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaReference
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException
 import spock.util.concurrent.PollingConditions
 
@@ -172,12 +174,18 @@ class TestUtils {
     }
 
     static void createSchema(String subject, SchemaType type, String schema , SchemaRegistryClient client, SchemaCompatibility compatibility) {
-        AbstractSchemaProvider schemaProvider = SchemaRegistryService.schemaProviderFromType(type)
+        AbstractSchemaProvider schemaProvider = new SchemaRegistryService(SchemaRegistryConfigLoader.load()).schemaProviderFromType(type)
         ParsedSchema parsedSchema = schemaProvider.parseSchema(schema, Collections.emptyList()).get()
-        createSchema(subject, type, parsedSchema, client, compatibility)
+        internalCreateSchema(subject, type, parsedSchema, client, compatibility)
     }
 
-    static void createSchema(String subject, SchemaType type, ParsedSchema schema , SchemaRegistryClient client, SchemaCompatibility compatibility) {
+    static void createSchema(String subject, SchemaType type, String schema , SchemaRegistryClient client, SchemaCompatibility compatibility, List<SchemaReference> references) {
+        AbstractSchemaProvider schemaProvider = new SchemaRegistryService(SchemaRegistryConfigLoader.load()).schemaProviderFromType(type)
+        ParsedSchema parsedSchema = schemaProvider.parseSchema(schema, references).get()
+        internalCreateSchema(subject, type, parsedSchema, client, compatibility)
+    }
+
+    private static void internalCreateSchema(String subject, SchemaType type, ParsedSchema schema , SchemaRegistryClient client, SchemaCompatibility compatibility) {
         CachedSchemaRegistryClient schemaRegistryClient = cachedSchemaRegistryClientRef.get()
         int id = schemaRegistryClient.register(subject, schema)
         String compat = schemaRegistryClient.updateCompatibility(subject, compatibility.toString())
