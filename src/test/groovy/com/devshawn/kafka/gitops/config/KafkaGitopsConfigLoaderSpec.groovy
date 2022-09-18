@@ -48,13 +48,14 @@ class KafkaGitopsConfigLoaderSpec extends Specification {
     void 'test command config file'() {
         setup:
         File configFile = new File(getClass().getResource("/command.properties").toURI())
+        environmentVariables.clear("KAFKA_BOOTSTRAP_SERVERS")
 
         when:
         KafkaGitopsConfig config = KafkaGitopsConfigLoader.load(configFile)
 
         then:
-        config.config.get(CommonClientConfigs.CLIENT_ID_CONFIG) == "kafka-gitops"
-        config.config.get(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG) == "localhost:9092"
+        config.config.get(CommonClientConfigs.CLIENT_ID_CONFIG) == "kafka-client-id"
+        config.config.get(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG) == "example.com:9092"
         config.config.get(SaslConfigs.SASL_MECHANISM) == "PLAIN"
     }
 

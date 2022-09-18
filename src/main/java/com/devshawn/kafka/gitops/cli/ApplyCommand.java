@@ -55,7 +55,7 @@ public class ApplyCommand implements Callable<Integer> {
                 .setDeleteDisabled(parent.isDeleteDisabled())
                 .setIncludeUnchangedEnabled(false)
                 .setSkipAclsDisabled(parent.areAclsDisabled())
-                .setConfigFile(parent.getConfigFile())
+                .setNullableConfigFile(parent.getConfigFile())
                 .setStateFile(parent.getStateFile())
                 .setNullablePlanFile(planFile)
                 .build();

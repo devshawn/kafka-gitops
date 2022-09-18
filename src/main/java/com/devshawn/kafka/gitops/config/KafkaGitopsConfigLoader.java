@@ -33,7 +33,7 @@ public class KafkaGitopsConfigLoader {
         if (configFile == null) {
             return;
         }
-        try(InputStream inputStream = new FileInputStream(configFile)) {
+        try (InputStream inputStream = new FileInputStream(configFile)) {
             Properties properties = new Properties();
             properties.load(inputStream);
             properties.forEach( (k, v) -> builder.putConfig(k.toString(), v));
@@ -60,21 +60,21 @@ public class KafkaGitopsConfigLoader {
             }
         });
 
-        handleDefaultConfig(config);
         handleAuthentication(username, password, config);
 
         log.info("Kafka Config: {}", config);
 
         builder.putAllConfig(config);
+        handleDefaultConfig(builder);
     }
 
-    private static void handleDefaultConfig(Map<String, Object> config) {
-        if (!config.containsKey(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG)) {
-            config.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+    private static void handleDefaultConfig(KafkaGitopsConfig.Builder builder) {
+        if (!builder.getConfig().containsKey(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG)) {
+            builder.putConfig(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         }
 
-        if (!config.containsKey(CommonClientConfigs.CLIENT_ID_CONFIG)) {
-            config.put(CommonClientConfigs.CLIENT_ID_CONFIG, "kafka-gitops");
+        if (!builder.getConfig().containsKey(CommonClientConfigs.CLIENT_ID_CONFIG)) {
+            builder.putConfig(CommonClientConfigs.CLIENT_ID_CONFIG, "kafka-gitops");
         }
     }
 
