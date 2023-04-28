@@ -20,7 +20,7 @@ services:
       - ZOOKEEPER_SERVERS=zoo1:2888:3888
 
   kafka1:
-    image: confluentinc/cp-kafka:7.1.1
+    image: confluentinc/cp-kafka:7.3.3
     user: "0:0"
     hostname: kafka1
     ports:
@@ -50,7 +50,7 @@ services:
       - zoo1
 
   kafka2:
-    image: confluentinc/cp-kafka:7.1.1
+    image: confluentinc/cp-kafka:7.3.3
     user: "0:0"
     hostname: kafka2
     ports:
@@ -80,7 +80,7 @@ services:
       - zoo1
 
   kafka3:
-    image: confluentinc/cp-kafka:7.1.1
+    image: confluentinc/cp-kafka:7.3.3
     user: "0:0"
     hostname: kafka3
     ports:
@@ -110,7 +110,7 @@ services:
       - zoo1
 
   schema-registry:
-    image: confluentinc/cp-schema-registry:7.1.1
+    image: confluentinc/cp-schema-registry:7.3.3
     hostname: schema-registry
     ports:
       - "8082:8082"

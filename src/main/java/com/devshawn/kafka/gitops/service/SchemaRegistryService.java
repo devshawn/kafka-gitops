@@ -248,7 +248,7 @@ public class SchemaRegistryService {
                     "Error thrown when attempting to get schema compatibility for subject '" + subject + "'",
                     ex.getMessage());
         } catch (RestClientException ex) {
-            if (ex.getErrorCode() == 40401) {
+            if (ex.getErrorCode() == 40401 || ex.getErrorCode() == 40408) {
                 return globalCompatibility;
             }
             throw new SchemaRegistryExecutionException(
