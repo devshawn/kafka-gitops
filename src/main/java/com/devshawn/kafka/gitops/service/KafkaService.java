@@ -178,7 +178,7 @@ public class KafkaService {
     }
 
     private Map<String, TopicDescription> getTopicDescription(Set<String> topics, AdminClient adminClient) throws InterruptedException, ExecutionException {
-        return adminClient.describeTopics(topics).all().get();
+        return adminClient.describeTopics(topics).allTopicNames().get();
     }
 
     public Map<ConfigResource, Config> describeConfigsForTopics(List<String> topicNames) {

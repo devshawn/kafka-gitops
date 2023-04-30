@@ -1,7 +1,17 @@
 package com.devshawn.kafka.gitops
 
+import java.nio.file.Path
+import java.nio.file.Paths
+
 import org.junit.Rule
 import org.junit.contrib.java.lang.system.EnvironmentVariables
+import org.skyscreamer.jsonassert.JSONAssert
+
+import com.devshawn.kafka.gitops.enums.SchemaCompatibility
+import com.devshawn.kafka.gitops.enums.SchemaType
+
+import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
+import io.confluent.kafka.schemaregistry.client.rest.entities.SchemaReference
 import picocli.CommandLine
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -13,16 +23,20 @@ class ApplyCommandIntegrationSpec extends Specification {
     EnvironmentVariables environmentVariables
 
     void setup() {
-        environmentVariables.set("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
+        environmentVariables.set("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092,localhost:9093,localhost:9094")
         environmentVariables.set("KAFKA_SASL_JAAS_USERNAME", "test")
         environmentVariables.set("KAFKA_SASL_JAAS_PASSWORD", "test-secret")
         environmentVariables.set("KAFKA_SASL_MECHANISM", "PLAIN")
         environmentVariables.set("KAFKA_SECURITY_PROTOCOL", "SASL_PLAINTEXT")
-        TestUtils.cleanUpCluster()
+        environmentVariables.set("SCHEMA_REGISTRY_URL", "http://localhost:8082")
+        Path resourceDirectory = Paths.get("src","test","resources", "plans", "schema_registry", "schemas");
+        String absolutePath = resourceDirectory.toFile().getAbsolutePath();
+        environmentVariables.set("SCHEMA_DIRECTORY", absolutePath)
+        TestUtils.cleanUpAll()
     }
 
     void cleanupSpec() {
-//        TestUtils.cleanUpCluster()
+//        TestUtils.cleanUpAll()
     }
 
     void 'test various successful applies - #planFile'() {
@@ -89,7 +103,7 @@ class ApplyCommandIntegrationSpec extends Specification {
 
     void 'test various valid applies with seed - #planFile #deleteDisabled'() {
         setup:
-        TestUtils.seedCluster()
+        TestUtils.seedKafkaCluster()
         ByteArrayOutputStream out = new ByteArrayOutputStream()
         PrintStream oldOut = System.out
         System.setOut(new PrintStream(out))
@@ -170,4 +184,101 @@ class ApplyCommandIntegrationSpec extends Specification {
         System.setOut(oldOut)
     }
 
+    void 'test various successful applies schemas - #planFile'() {
+        setup:
+        ByteArrayOutputStream out = new ByteArrayOutputStream()
+        PrintStream oldOut = System.out
+        System.setOut(new PrintStream(out))
+        String file = TestUtils.getResourceFilePath("plans/schema_registry/${planFile}-plan.json")
+        MainCommand mainCommand = new MainCommand()
+        CommandLine cmd = new CommandLine(mainCommand)
+  
+        when:
+        int exitCode = cmd.execute("-f", file, "apply", "-p", file)
+  
+        then:
+        out.toString() == TestUtils.getResourceFileContent("plans/schema_registry/${planFile}-apply-output.txt")
+        exitCode == 0
+  
+        cleanup:
+        System.setOut(oldOut)
+  
+        where:
+        planFile << [
+                "schema-registry-new-json",
+                "schema-registry-new-avro",
+                "schema-registry-new-proto",
+                "schema-registry-default",
+                "schema-registry-mix"
+        ]
+    }
+
+    void 'test various valid schema registry applies with seed - #planFile #deleteDisabled'() {
+        setup:
+        TestUtils.seedSchemaRegistry()
+        ByteArrayOutputStream out = new ByteArrayOutputStream()
+        PrintStream oldOut = System.out
+        System.setOut(new PrintStream(out))
+        String file = TestUtils.getResourceFilePath("plans/schema_registry/${planFile}-plan.json")
+        MainCommand mainCommand = new MainCommand()
+        CommandLine cmd = new CommandLine(mainCommand)
+
+        when:
+        int exitCode = -1
+        if (deleteDisabled) {
+            exitCode = cmd.execute("-f", file, "--no-delete", "apply", "-p", file)
+        } else {
+            exitCode = cmd.execute("-f", file, "apply", "-p", file)
+        }
+
+        then:
+        if (deleteDisabled) {
+            assert out.toString() == TestUtils.getResourceFileContent("plans/schema_registry/${planFile}-no-delete-apply-output.txt")
+        } else {
+            assert out.toString() == TestUtils.getResourceFileContent("plans/schema_registry/${planFile}-apply-output.txt")
+        }
+        exitCode == 0
+
+        cleanup:
+        System.setOut(oldOut)
+
+        where:
+        planFile                               | deleteDisabled
+          "seed-schema-modification"           | false
+          "seed-schema-modification-2"         | false
+          "seed-schema-modification-3"         | false
+          "seed-schema-modification-4"         | false
+          "seed-schema-modification"           | true
+          "seed-schema-add-with-reference"     | false
+    }
+
+    void 'test Specific for next deferred apply with manual seed'() {
+        setup:
+        CachedSchemaRegistryClient schemaRegistryClient = TestUtils.cachedSchemaRegistryClientRef.get()
+        TestUtils.seedSchemaRegistry()
+        TestUtils.createSchema("schema-10-json", SchemaType.JSON, "{\"type\":\"object\",\"properties\":{\"test2\":{\"type\":\"string\"}}, \"additionalProperties\": false}",
+                        schemaRegistryClient, SchemaCompatibility.BACKWARD)
+        List<SchemaReference> reference = new ArrayList()
+        reference.add(new SchemaReference("otherschema", "schema-10-json", 1))
+        List<Integer> subjects = schemaRegistryClient.getAllVersions("schema-10-json");
+        TestUtils.createSchema("schema-11-json", SchemaType.JSON, '{"type":"object","properties":{"test2":{"\$ref":"otherschema"}}, "additionalProperties": false}',
+            schemaRegistryClient, SchemaCompatibility.BACKWARD, reference)
+        
+        ByteArrayOutputStream out = new ByteArrayOutputStream()
+        PrintStream oldOut = System.out
+        System.setOut(new PrintStream(out))
+        String file = TestUtils.getResourceFilePath("plans/schema_registry/seed-schema-delete-reference-plan.json")
+        MainCommand mainCommand = new MainCommand()
+        CommandLine cmd = new CommandLine(mainCommand)
+
+        when:
+        int exitCode = cmd.execute("apply", "-p", file)
+
+        then:
+        out.toString() == TestUtils.getResourceFileContent("plans/schema_registry/seed-schema-delete-reference-apply-output.txt")
+        exitCode == 0
+
+        cleanup:
+        System.setOut(oldOut)
+    }
 }

@@ -1,0 +1,34 @@
+Executing apply...
+
+Applying: [CREATE]
+
++ [SCHEMA] schema-2-json
+	 + type: JSON
+	 + compatibility: FORWARD
+	 + schema:
+----------------------
+{"type":"object","properties":{"f1":{"$ref":"otherschema"}},"additionalProperties":false}
+----------------------
+	 + references:
+		 + name: otherschema
+		 + subject: schema-1-json
+		 + version: 1
+
+
+Successfully applied.
+
+Applying: [DELETE]
+
+- [SCHEMA] schema-2-avro
+
+
+Successfully applied.
+
+Applying: [DELETE]
+
+- [SCHEMA] schema-3-protobuf
+
+
+Successfully applied.
+
+[SUCCESS] Apply complete! Resources: 1 created, 0 updated, 2 deleted.

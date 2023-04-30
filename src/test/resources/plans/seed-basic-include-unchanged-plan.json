@@ -1,142 +1,143 @@
 {
-    "topicPlans": [
+    "topicPlans" : [
         {
-            "name": "delete-topic",
-            "action": "NO_CHANGE",
-            "topicDetailsPlan": {
-                "partitions": 1,
-                "previousPartitions": null,
-                "partitionsAction": "NO_CHANGE",
-                "replication": 2,
-                "previousReplication": null,
-                "replicationAction": "NO_CHANGE"
+            "name" : "delete-topic",
+            "action" : "NO_CHANGE",
+            "topicDetailsPlan" : {
+                "partitions" : 1,
+                "previousPartitions" : null,
+                "partitionsAction" : "NO_CHANGE",
+                "replication" : 2,
+                "previousReplication" : null,
+                "replicationAction" : "NO_CHANGE"
             },
-            "topicConfigPlans": []
+            "topicConfigPlans" : [ ]
         },
         {
-            "name": "topic-with-configs-1",
-            "action": "UPDATE",
-            "topicDetailsPlan": {
-                "partitions": 3,
-                "previousPartitions": null,
-                "partitionsAction": "NO_CHANGE",
-                "replication": 2,
-                "previousReplication": null,
-                "replicationAction": "NO_CHANGE"
+            "name" : "topic-with-configs-1",
+            "action" : "UPDATE",
+            "topicDetailsPlan" : {
+                "partitions" : 3,
+                "previousPartitions" : null,
+                "partitionsAction" : "NO_CHANGE",
+                "replication" : 2,
+                "previousReplication" : null,
+                "replicationAction" : "NO_CHANGE"
             },
-            "topicConfigPlans": [
+            "topicConfigPlans" : [
                 {
-                    "key": "cleanup.policy",
-                    "value": "compact",
-                    "previousValue": null,
-                    "action": "NO_CHANGE"
+                    "key" : "cleanup.policy",
+                    "value" : "compact",
+                    "previousValue" : null,
+                    "action" : "NO_CHANGE"
                 },
                 {
-                    "key": "segment.bytes",
-                    "value": null,
-                    "previousValue": "100000",
-                    "action": "REMOVE"
+                    "key" : "segment.bytes",
+                    "value" : null,
+                    "previousValue" : "100000",
+                    "action" : "REMOVE"
                 },
                 {
-                    "key": "retention.ms",
-                    "value": "400000",
-                    "previousValue": null,
-                    "action": "ADD"
+                    "key" : "retention.ms",
+                    "value" : "400000",
+                    "previousValue" : null,
+                    "action" : "ADD"
                 }
             ]
         },
         {
-            "name": "topic-with-configs-2",
-            "action": "NO_CHANGE",
-            "topicDetailsPlan": {
-                "partitions": 6,
-                "previousPartitions": null,
-                "partitionsAction": "NO_CHANGE",
-                "replication": 2,
-                "previousReplication": null,
-                "replicationAction": "NO_CHANGE"
+            "name" : "topic-with-configs-2",
+            "action" : "NO_CHANGE",
+            "topicDetailsPlan" : {
+                "partitions" : 6,
+                "previousPartitions" : null,
+                "partitionsAction" : "NO_CHANGE",
+                "replication" : 2,
+                "previousReplication" : null,
+                "replicationAction" : "NO_CHANGE"
             },
-            "topicConfigPlans": [
+            "topicConfigPlans" : [
                 {
-                    "key": "retention.ms",
-                    "value": "60000",
-                    "previousValue": null,
-                    "action": "NO_CHANGE"
+                    "key" : "retention.ms",
+                    "value" : "60000",
+                    "previousValue" : null,
+                    "action" : "NO_CHANGE"
                 }
             ]
         },
         {
-            "name": "new-topic",
-            "action": "ADD",
-            "topicDetailsPlan": {
-                "partitions": 3,
-                "previousPartitions": null,
-                "partitionsAction": "ADD",
-                "replication": 2,
-                "previousReplication": null,
-                "replicationAction": "ADD"
+            "name" : "new-topic",
+            "action" : "ADD",
+            "topicDetailsPlan" : {
+                "partitions" : 3,
+                "previousPartitions" : null,
+                "partitionsAction" : "ADD",
+                "replication" : 2,
+                "previousReplication" : null,
+                "replicationAction" : "ADD"
             },
-            "topicConfigPlans": []
+            "topicConfigPlans" : [ ]
         },
         {
-            "name": "test-topic",
-            "action": "REMOVE",
-            "topicDetailsPlan": null,
-            "topicConfigPlans": []
+            "name" : "test-topic",
+            "action" : "REMOVE",
+            "topicDetailsPlan" : null,
+            "topicConfigPlans" : [ ]
         }
     ],
-    "aclPlans": [
+    "schemaPlans" : [ ],
+    "aclPlans" : [
         {
-            "name": "test-service-0",
-            "aclDetails": {
-                "name": "test-topic",
-                "type": "TOPIC",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "READ",
-                "permission": "ALLOW"
+            "name" : "test-service-0",
+            "aclDetails" : {
+                "name" : "test-topic",
+                "type" : "TOPIC",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "READ",
+                "permission" : "ALLOW"
             },
-            "action": "NO_CHANGE"
+            "action" : "NO_CHANGE"
         },
         {
-            "name": "test-service-1",
-            "aclDetails": {
-                "name": "test-service",
-                "type": "GROUP",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "READ",
-                "permission": "ALLOW"
+            "name" : "test-service-1",
+            "aclDetails" : {
+                "name" : "test-service",
+                "type" : "GROUP",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "READ",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "new-service-0",
-            "aclDetails": {
-                "name": "delete-topic",
-                "type": "TOPIC",
-                "pattern": "LITERAL",
-                "principal": "User:new",
-                "host": "*",
-                "operation": "READ",
-                "permission": "ALLOW"
+            "name" : "new-service-0",
+            "aclDetails" : {
+                "name" : "delete-topic",
+                "type" : "TOPIC",
+                "pattern" : "LITERAL",
+                "principal" : "User:new",
+                "host" : "*",
+                "operation" : "READ",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         },
         {
-            "name": "new-service-1",
-            "aclDetails": {
-                "name": "new-service",
-                "type": "GROUP",
-                "pattern": "LITERAL",
-                "principal": "User:new",
-                "host": "*",
-                "operation": "READ",
-                "permission": "ALLOW"
+            "name" : "new-service-1",
+            "aclDetails" : {
+                "name" : "new-service",
+                "type" : "GROUP",
+                "pattern" : "LITERAL",
+                "principal" : "User:new",
+                "host" : "*",
+                "operation" : "READ",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         }
     ]
 }

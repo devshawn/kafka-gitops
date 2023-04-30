@@ -1,0 +1,17 @@
+{
+    "topicPlans" : [ ],
+    "schemaPlans" : [
+        {
+            "name" : "avro-value",
+            "action" : "ADD",
+            "schemaDetails" : {
+                "type" : "AVRO",
+                "schema" : "{\"type\":\"record\",\"name\":\"TestRecord\",\"namespace\":\"com.devshawn.kafka.gitops\",\"fields\":[{\"name\":\"hello\",\"type\":\"string\"}]}",
+                "file" : null,
+                "compatibility" : "FULL",
+                "references" : [ ]
+            }
+        }
+    ],
+    "aclPlans" : [ ]
+}

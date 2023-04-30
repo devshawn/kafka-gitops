@@ -3,12 +3,14 @@ package com.devshawn.kafka.gitops.util;
 import com.devshawn.kafka.gitops.domain.plan.AclPlan;
 import com.devshawn.kafka.gitops.domain.plan.DesiredPlan;
 import com.devshawn.kafka.gitops.domain.plan.PlanOverview;
+import com.devshawn.kafka.gitops.domain.plan.SchemaPlan;
 import com.devshawn.kafka.gitops.domain.plan.TopicConfigPlan;
 import com.devshawn.kafka.gitops.domain.plan.TopicDetailsPlan;
 import com.devshawn.kafka.gitops.domain.plan.TopicPlan;
 import com.devshawn.kafka.gitops.domain.state.AclDetails;
 import com.devshawn.kafka.gitops.enums.PlanAction;
 import com.devshawn.kafka.gitops.exception.KafkaExecutionException;
+import com.devshawn.kafka.gitops.exception.SchemaRegistryExecutionException;
 import com.devshawn.kafka.gitops.exception.WritePlanOutputException;
 import picocli.CommandLine;
 
@@ -24,6 +26,9 @@ public class LogUtil {
 
         printAclOverview(desiredPlan, deleteDisabled);
         desiredPlan.getAclPlans().forEach(LogUtil::printAclPlan);
+
+        printSchemaOverview(desiredPlan, deleteDisabled);
+        desiredPlan.getSchemaPlans().forEach(LogUtil::printSchemaPlan);
 
         printOverview(desiredPlan, deleteDisabled, skipAclsDisabled);
     }
@@ -58,6 +63,8 @@ public class LogUtil {
             case REMOVE:
                 System.out.println(red(String.format("- [TOPIC] %s", topicPlan.getName())));
                 System.out.println("\n");
+                break;
+            case NO_CHANGE:
                 break;
         }
     }
@@ -112,7 +119,7 @@ public class LogUtil {
                 System.out.println(red(String.format("\t\t- %s (%s)", topicConfigPlan.getKey(), topicConfigPlan.getPreviousValue().get())));
                 break;
             case NO_CHANGE:
-              break;
+                break;
         }
     }
 
@@ -142,6 +149,46 @@ public class LogUtil {
                 System.out.println(red(String.format("\t - permission: %s", aclDetails.getPermission())));
                 System.out.println("\n");
                 break;
+            case UPDATE:
+            case NO_CHANGE:
+                break;
+        }
+    }
+
+    private static void printSchemaPlan(SchemaPlan schemaPlan) {
+        switch (schemaPlan.getAction()) {
+            case ADD:
+                System.out.println(green(String.format("+ [SCHEMA] %s", schemaPlan.getName())));
+                System.out.println(green(String.format("\t + type: %s", schemaPlan.getSchemaDetails().get().getType())));
+                if(schemaPlan.getSchemaDetails().get().getCompatibility().isPresent()) {
+                    System.out.println(green(String.format("\t + compatibility: %s", schemaPlan.getSchemaDetails().get().getCompatibility().get())));
+                }
+                System.out.println(green(String.format("\t + schema:\n----------------------\n%s\n----------------------",
+                    schemaPlan.getSchemaDetails().get().getSchema())));
+                if (!schemaPlan.getSchemaDetails().get().getReferences().isEmpty()) {
+                    schemaPlan.getSchemaDetails().get().getReferences().forEach(referenceDetail -> {
+                        System.out.println(green("\t + references:"));
+                        System.out.println(green(String.format("\t\t + name: %s", referenceDetail.getName())));
+                        System.out.println(green(String.format("\t\t + subject: %s", referenceDetail.getSubject())));
+                        System.out.println(green(String.format("\t\t + version: %s", referenceDetail.getVersion())));
+                    });
+                }
+                System.out.println("\n");
+                break;
+            case UPDATE:
+                System.out.println(yellow(String.format("~ [SCHEMA] %s", schemaPlan.getName())));
+                if(schemaPlan.getDiff().isPresent()) {
+                    System.out.println(yellow(String.format("\t ~ diff:\n----------------------\n%s\n----------------------",
+                        schemaPlan.getDiff().get())));
+                }
+                System.out.println("\n");
+                break;
+            case REMOVE:
+                System.out.println(red(String.format("- [SCHEMA] %s", schemaPlan.getName())));
+                System.out.println("\n");
+                break;
+            case NO_CHANGE:
+                break;
         }
     }
 
@@ -154,6 +201,11 @@ public class LogUtil {
         printTopicPlan(topicPlan);
     }
 
+    public static void printSchemaPreApply(SchemaPlan schemaPlan) {
+        System.out.println(String.format("Applying: [%s]\n", toAction(schemaPlan.getAction())));
+        printSchemaPlan(schemaPlan);
+    }
+
     public static void printAclPreApply(AclPlan aclPlan) {
         System.out.println(String.format("Applying: [%s]\n", toAction(aclPlan.getAction())));
         printAclPlan(aclPlan);
@@ -161,6 +213,10 @@ public class LogUtil {
 
     public static void printPostApply() {
         System.out.println("Successfully applied.\n");
+    }
+
+    public static void printDeferredApply() {
+        System.out.println("Applied deferred...\n");
     }
 
     /*
@@ -183,6 +239,12 @@ public class LogUtil {
         PlanOverview aclPlanOverview = PlanUtil.getAclPlanOverview(desiredPlan, deleteDisabled);
         System.out.println(String.format("ACLs: %s, %s, %s.\n", toCreate(aclPlanOverview.getAdd()),
                 toUpdate(aclPlanOverview.getUpdate()), toDelete(aclPlanOverview.getRemove())));
+    }
+
+    private static void printSchemaOverview(DesiredPlan desiredPlan, boolean deleteDisabled) {
+        PlanOverview schemaPlanOverview = PlanUtil.getSchemaPlanOverview(desiredPlan, deleteDisabled);
+        System.out.println(String.format("Schemas: %s, %s, %s.\n", toCreate(schemaPlanOverview.getAdd()),
+                toUpdate(schemaPlanOverview.getUpdate()), toDelete(schemaPlanOverview.getRemove())));
     }
 
     private static void printLegend(PlanOverview planOverview) {
@@ -225,7 +287,7 @@ public class LogUtil {
         printGenericError(ex, false);
     }
 
-    public static void printGenericError(RuntimeException ex, boolean apply) {
+    public static void printGenericError(Exception ex, boolean apply) {
         System.out.println(String.format("[%s] %s\n", red("ERROR"), ex.getMessage()));
         if (apply) {
             printApplyErrorMessage();
@@ -239,6 +301,19 @@ public class LogUtil {
     }
 
     public static void printKafkaExecutionError(KafkaExecutionException ex, boolean apply) {
+        System.out.println(String.format("[%s] %s:\n%s\n", red("ERROR"), ex.getMessage(), ex.getExceptionMessage()));
+        if (apply) {
+            printApplyErrorMessage();
+        } else {
+            printPlanErrorMessage();
+        }
+    }
+
+    public static void printSchemaRegistryExecutionError(SchemaRegistryExecutionException ex) {
+        printSchemaRegistryExecutionError(ex, false);
+    }
+
+    public static void printSchemaRegistryExecutionError(SchemaRegistryExecutionException ex, boolean apply) {
         System.out.println(String.format("[%s] %s:\n%s\n", red("ERROR"), ex.getMessage(), ex.getExceptionMessage()));
         if (apply) {
             printApplyErrorMessage();
@@ -297,7 +372,8 @@ public class LogUtil {
                 return yellow("UPDATE");
             case REMOVE:
                 return red("DELETE");
+            default:
+                return null;
         }
-        return null;
     }
 }

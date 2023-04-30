@@ -1,57 +1,58 @@
 {
-    "topicPlans": [
+    "topicPlans" : [
         {
-            "name": "test-topic",
-            "action": "UPDATE",
-            "topicDetailsPlan": null,
-            "topicConfigPlans": [
+            "name" : "test-topic",
+            "action" : "UPDATE",
+            "topicDetailsPlan" : null,
+            "topicConfigPlans" : [
                 {
-                    "key": "retention.ms",
-                    "value": "60000",
-                    "previousValue": null,
-                    "action": "ADD"
+                    "key" : "retention.ms",
+                    "value" : "60000",
+                    "previousValue" : null,
+                    "action" : "ADD"
                 }
             ]
         },
         {
-            "name": "topic-with-configs-1",
-            "action": "UPDATE",
-            "topicDetailsPlan": null,
-            "topicConfigPlans": [
+            "name" : "topic-with-configs-1",
+            "action" : "UPDATE",
+            "topicDetailsPlan" : null,
+            "topicConfigPlans" : [
                 {
-                    "key": "cleanup.policy",
-                    "value": null,
-                    "previousValue": "compact",
-                    "action": "REMOVE"
+                    "key" : "cleanup.policy",
+                    "value" : null,
+                    "previousValue" : "compact",
+                    "action" : "REMOVE"
                 },
                 {
-                    "key": "segment.bytes",
-                    "value": null,
-                    "previousValue": "100000",
-                    "action": "REMOVE"
+                    "key" : "segment.bytes",
+                    "value" : null,
+                    "previousValue" : "100000",
+                    "action" : "REMOVE"
                 },
                 {
-                    "key": "retention.ms",
-                    "value": "100000",
-                    "previousValue": null,
-                    "action": "ADD"
+                    "key" : "retention.ms",
+                    "value" : "100000",
+                    "previousValue" : null,
+                    "action" : "ADD"
                 }
             ]
         }
     ],
-    "aclPlans": [
+    "schemaPlans" : [ ],
+    "aclPlans" : [
         {
-            "name": "test-service-1",
-            "aclDetails": {
-                "name": "test-service",
-                "type": "GROUP",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "READ",
-                "permission": "ALLOW"
+            "name" : "test-service-1",
+            "aclDetails" : {
+                "name" : "test-service",
+                "type" : "GROUP",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "READ",
+                "permission" : "ALLOW"
             },
-            "action": "ADD"
+            "action" : "ADD"
         }
     ]
 }

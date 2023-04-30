@@ -1,10 +1,16 @@
 package com.devshawn.kafka.gitops;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import com.devshawn.kafka.gitops.config.KafkaGitopsConfig;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import org.slf4j.LoggerFactory;
 import com.devshawn.kafka.gitops.config.KafkaGitopsConfigLoader;
 import com.devshawn.kafka.gitops.config.ManagerConfig;
+import com.devshawn.kafka.gitops.config.SchemaRegistryConfigLoader;
 import com.devshawn.kafka.gitops.domain.confluent.ServiceAccount;
 import com.devshawn.kafka.gitops.domain.options.GetAclOptions;
 import com.devshawn.kafka.gitops.domain.plan.DesiredPlan;
@@ -12,8 +18,10 @@ import com.devshawn.kafka.gitops.domain.state.AclDetails;
 import com.devshawn.kafka.gitops.domain.state.CustomAclDetails;
 import com.devshawn.kafka.gitops.domain.state.DesiredState;
 import com.devshawn.kafka.gitops.domain.state.DesiredStateFile;
+import com.devshawn.kafka.gitops.domain.state.SchemaDetails;
 import com.devshawn.kafka.gitops.domain.state.TopicDetails;
 import com.devshawn.kafka.gitops.domain.state.service.KafkaStreamsService;
+import com.devshawn.kafka.gitops.enums.SchemaCompatibility;
 import com.devshawn.kafka.gitops.exception.ConfluentCloudException;
 import com.devshawn.kafka.gitops.exception.InvalidAclDefinitionException;
 import com.devshawn.kafka.gitops.exception.MissingConfigurationException;
@@ -25,30 +33,26 @@ import com.devshawn.kafka.gitops.service.ConfluentCloudService;
 import com.devshawn.kafka.gitops.service.KafkaService;
 import com.devshawn.kafka.gitops.service.ParserService;
 import com.devshawn.kafka.gitops.service.RoleService;
+import com.devshawn.kafka.gitops.service.SchemaRegistryService;
 import com.devshawn.kafka.gitops.util.LogUtil;
 import com.devshawn.kafka.gitops.util.StateUtil;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.util.DefaultIndenter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 
 public class StateManager {
-
-    private static org.slf4j.Logger log = LoggerFactory.getLogger(StateManager.class);
 
     private final ManagerConfig managerConfig;
     private final ObjectMapper objectMapper;
     private final ParserService parserService;
     private final KafkaService kafkaService;
+    private final SchemaRegistryService schemaRegistryService;
     private final RoleService roleService;
     private final ConfluentCloudService confluentCloudService;
 
@@ -61,19 +65,22 @@ public class StateManager {
         initializeLogger(managerConfig.isVerboseRequested());
         this.managerConfig = managerConfig;
         this.objectMapper = initializeObjectMapper();
-        KafkaGitopsConfig config = KafkaGitopsConfigLoader.load();
-        this.kafkaService = new KafkaService(config);
+        this.kafkaService = new KafkaService(KafkaGitopsConfigLoader.load());
+        this.schemaRegistryService = new SchemaRegistryService(SchemaRegistryConfigLoader.load());
         this.parserService = parserService;
         this.roleService = new RoleService();
         this.confluentCloudService = new ConfluentCloudService(objectMapper);
-        this.planManager = new PlanManager(managerConfig, kafkaService, objectMapper);
-        this.applyManager = new ApplyManager(managerConfig, kafkaService);
+        this.planManager = new PlanManager(managerConfig, kafkaService, schemaRegistryService, objectMapper);
+        this.applyManager = new ApplyManager(managerConfig, kafkaService, schemaRegistryService);
     }
 
     public DesiredStateFile getAndValidateStateFile() {
         DesiredStateFile desiredStateFile = parserService.parseStateFile();
         validateTopics(desiredStateFile);
         validateCustomAcls(desiredStateFile);
+        if (schemaRegistryService.isEnabled()) {
+            validateSchemas(desiredStateFile);
+        }
         this.describeAclEnabled = StateUtil.isDescribeTopicAclEnabled(desiredStateFile);
         return desiredStateFile;
     }
@@ -92,6 +99,9 @@ public class StateManager {
             planManager.planAcls(desiredState, desiredPlan);
         }
         planManager.planTopics(desiredState, desiredPlan);
+        if (schemaRegistryService.isEnabled()) {
+          planManager.planSchemas(desiredState, desiredPlan);
+        }
         return desiredPlan.build();
     }
 
@@ -106,6 +116,9 @@ public class StateManager {
         applyManager.applyTopics(desiredPlan);
         if (!managerConfig.isSkipAclsDisabled()) {
             applyManager.applyAcls(desiredPlan);
+        }
+        if (schemaRegistryService.isEnabled()) {
+          applyManager.applySchemas(desiredPlan);
         }
 
         return desiredPlan;
@@ -143,10 +156,16 @@ public class StateManager {
 
     private DesiredState getDesiredState() {
         DesiredStateFile desiredStateFile = getAndValidateStateFile();
+        
+        // Topics
         DesiredState.Builder desiredState = new DesiredState.Builder()
                 .addAllPrefixedTopicsToIgnore(getPrefixedTopicsToIgnore(desiredStateFile));
 
         generateTopicsState(desiredState, desiredStateFile);
+
+        // Schemas
+        desiredState.addAllPrefixedSchemasToIgnore(getPrefixedSchemasToIgnore(desiredStateFile));
+        generateSchemasState(desiredState, desiredStateFile);
 
         if (isConfluentCloudEnabled(desiredStateFile)) {
             generateConfluentCloudServiceAcls(desiredState, desiredStateFile);
@@ -160,7 +179,7 @@ public class StateManager {
     }
 
     private void generateTopicsState(DesiredState.Builder desiredState, DesiredStateFile desiredStateFile) {
-        Optional<Integer> defaultReplication = StateUtil.fetchReplication(desiredStateFile);
+        Optional<Integer> defaultReplication = StateUtil.fetchDefaultTopicsReplication(desiredStateFile);
         if (defaultReplication.isPresent()) {
             desiredStateFile.getTopics().forEach((name, details) -> {
                 Integer replication = details.getReplication().isPresent() ? details.getReplication().get() : defaultReplication.get();
@@ -168,6 +187,18 @@ public class StateManager {
             });
         } else {
             desiredState.putAllTopics(desiredStateFile.getTopics());
+        }
+    }
+
+    private void generateSchemasState(DesiredState.Builder desiredState, DesiredStateFile desiredStateFile) {
+        Optional<SchemaCompatibility> defaultSchemaCompatibility = StateUtil.fetchDefaultSchemasCompatibility(desiredStateFile);
+        if (defaultSchemaCompatibility.isPresent()) {
+            desiredStateFile.getSchemas().forEach((s, details) -> {
+                SchemaCompatibility compatibility = details.getCompatibility().isPresent() ? details.getCompatibility().get() : defaultSchemaCompatibility.get();
+                desiredState.putSchemas(s, new SchemaDetails.Builder().mergeFrom(details).setCompatibility(compatibility).build());
+            });
+        } else {
+            desiredState.putAllSchemas(desiredStateFile.getSchemas());
         }
     }
 
@@ -284,6 +315,16 @@ public class StateManager {
         return topics;
     }
 
+    private List<String> getPrefixedSchemasToIgnore(DesiredStateFile desiredStateFile) {
+        List<String> schemas = new ArrayList<>();
+        try {
+            schemas.addAll(desiredStateFile.getSettings().get().getSchemas().get().getBlacklist().get().getPrefixed());
+        } catch (NoSuchElementException ex) {
+            // Do nothing, no blacklist exists
+        }
+        return schemas;
+    }
+
     private GetAclOptions buildGetAclOptions(String serviceName) {
         return new GetAclOptions.Builder().setServiceName(serviceName).setDescribeAclEnabled(describeAclEnabled).build();
     }
@@ -309,7 +350,7 @@ public class StateManager {
     }
 
     private void validateTopics(DesiredStateFile desiredStateFile) {
-        Optional<Integer> defaultReplication = StateUtil.fetchReplication(desiredStateFile);
+        Optional<Integer> defaultReplication = StateUtil.fetchDefaultTopicsReplication(desiredStateFile);
         if (!defaultReplication.isPresent()) {
             desiredStateFile.getTopics().forEach((name, details) -> {
                 if (!details.getReplication().isPresent()) {
@@ -323,6 +364,16 @@ public class StateManager {
         }
     }
 
+    private void validateSchemas(DesiredStateFile desiredStateFile) {
+        Optional<SchemaCompatibility> defaultSchemaCompatibility = StateUtil.fetchDefaultSchemasCompatibility(desiredStateFile);
+        desiredStateFile.getSchemas().forEach((subject, details) -> {
+            if (!defaultSchemaCompatibility.isPresent() && !details.getCompatibility().isPresent()) {
+                throw new ValidationException(String.format("Not set: [compatibility] in state file definition: schema -> %s", subject));
+            }
+            //Schema parsing is deferred in the PlanManager in order not to do it more than one time.
+        });
+    }
+
     private boolean isConfluentCloudEnabled(DesiredStateFile desiredStateFile) {
         if (desiredStateFile.getSettings().isPresent() && desiredStateFile.getSettings().get().getCcloud().isPresent()) {
             return desiredStateFile.getSettings().get().getCcloud().get().isEnabled();
@@ -331,11 +382,17 @@ public class StateManager {
     }
 
     private ObjectMapper initializeObjectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES);
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objectMapper.registerModule(new Jdk8Module());
-        return objectMapper;
+        ObjectMapper gitopsObjectMapper = new ObjectMapper();
+        gitopsObjectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        gitopsObjectMapper.enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES);
+        gitopsObjectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        gitopsObjectMapper.registerModule(new Jdk8Module());
+        DefaultIndenter defaultIndenter = new DefaultIndenter("    ", DefaultIndenter.SYS_LF);
+        DefaultPrettyPrinter printer = new DefaultPrettyPrinter()
+            .withObjectIndenter(defaultIndenter)
+            .withArrayIndenter(defaultIndenter);
+        gitopsObjectMapper.setDefaultPrettyPrinter(printer);
+        return gitopsObjectMapper;
     }
 
     private void initializeLogger(boolean verbose) {

@@ -2,7 +2,9 @@ settings:
   topics:
     defaults:
       replication: 3
-
+    blacklist:
+      prefixed:
+        - _schemas
 topics:
   test-topic:
     partitions: 6

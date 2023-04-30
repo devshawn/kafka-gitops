@@ -3,3 +3,7 @@ settings:
     services: multi-file-services.yaml
     topics: multi-file-topics.yaml
     users: multi-file-users.yaml
+  topics:
+    blacklist:
+      prefixed:
+        - _schemas

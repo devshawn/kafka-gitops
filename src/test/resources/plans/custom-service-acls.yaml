@@ -1,3 +1,9 @@
+settings:
+  topics:
+    blacklist:
+      prefixed:
+        - _schemas
+
 services:
   test-service:
     type: application

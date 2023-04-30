@@ -1,0 +1,45 @@
+{
+    "topicPlans" : [ ],
+    "schemaPlans" : [ ],
+    "aclPlans" : [
+        {
+            "name" : "test-service-0",
+            "aclDetails" : {
+                "name" : "test-topic",
+                "type" : "TOPIC",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "WRITE",
+                "permission" : "ALLOW"
+            },
+            "action" : "ADD"
+        },
+        {
+            "name" : "test-service-1",
+            "aclDetails" : {
+                "name" : "another-test-topic",
+                "type" : "TOPIC",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "READ",
+                "permission" : "ALLOW"
+            },
+            "action" : "ADD"
+        },
+        {
+            "name" : "test-service-2",
+            "aclDetails" : {
+                "name" : "test-service-application-prefixed",
+                "type" : "GROUP",
+                "pattern" : "PREFIXED",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "READ",
+                "permission" : "ALLOW"
+            },
+            "action" : "ADD"
+        }
+    ]
+}

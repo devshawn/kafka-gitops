@@ -1,0 +1,3 @@
+Generating execution plan...
+
+[INVALID] Changing the subject compatibility is not allowed with kafka-gitops(subject: schema-1-json, current compatibilty: BACKWARD, new compatibilty:FORWARD)

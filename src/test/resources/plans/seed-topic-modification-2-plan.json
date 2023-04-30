@@ -1,82 +1,83 @@
 {
-    "topicPlans": [
+    "topicPlans" : [
         {
-            "name": "test-topic",
-            "action": "UPDATE",
-            "topicDetailsPlan": null,
-            "topicConfigPlans": [
+            "name" : "test-topic",
+            "action" : "UPDATE",
+            "topicDetailsPlan" : null,
+            "topicConfigPlans" : [
                 {
-                    "key": "retention.ms",
-                    "value": "60000",
-                    "previousValue": null,
-                    "action": "ADD"
+                    "key" : "retention.ms",
+                    "value" : "60000",
+                    "previousValue" : null,
+                    "action" : "ADD"
                 }
             ]
         },
         {
-            "name": "new-topic",
-            "action": "ADD",
-            "topicDetailsPlan": {
-                "partitions": 6,
-                "previousPartitions": null,
-                "partitionsAction": "ADD",
-                "replication": 2,
-                "previousReplication": null,
-                "replicationAction": "ADD"
+            "name" : "new-topic",
+            "action" : "ADD",
+            "topicDetailsPlan" : {
+                "partitions" : 6,
+                "previousPartitions" : null,
+                "partitionsAction" : "ADD",
+                "replication" : 2,
+                "previousReplication" : null,
+                "replicationAction" : "ADD"
             },
-            "topicConfigPlans": []
+            "topicConfigPlans" : [ ]
         },
         {
-            "name": "topic-with-configs-1",
-            "action": "UPDATE",
-            "topicDetailsPlan": null,
-            "topicConfigPlans": [
+            "name" : "topic-with-configs-1",
+            "action" : "UPDATE",
+            "topicDetailsPlan" : null,
+            "topicConfigPlans" : [
                 {
-                    "key": "cleanup.policy",
-                    "value": null,
-                    "previousValue": "compact",
-                    "action": "REMOVE"
+                    "key" : "cleanup.policy",
+                    "value" : null,
+                    "previousValue" : "compact",
+                    "action" : "REMOVE"
                 },
                 {
-                    "key": "segment.bytes",
-                    "value": null,
-                    "previousValue": "100000",
-                    "action": "REMOVE"
+                    "key" : "segment.bytes",
+                    "value" : null,
+                    "previousValue" : "100000",
+                    "action" : "REMOVE"
                 },
                 {
-                    "key": "retention.ms",
-                    "value": "100000",
-                    "previousValue": null,
-                    "action": "ADD"
+                    "key" : "retention.ms",
+                    "value" : "100000",
+                    "previousValue" : null,
+                    "action" : "ADD"
                 }
             ]
         },
         {
-            "name": "delete-topic",
-            "action": "REMOVE",
-            "topicDetailsPlan": null,
-            "topicConfigPlans": []
+            "name" : "delete-topic",
+            "action" : "REMOVE",
+            "topicDetailsPlan" : null,
+            "topicConfigPlans" : [ ]
         },
         {
-            "name": "topic-with-configs-2",
-            "action": "REMOVE",
-            "topicDetailsPlan": null,
-            "topicConfigPlans": []
+            "name" : "topic-with-configs-2",
+            "action" : "REMOVE",
+            "topicDetailsPlan" : null,
+            "topicConfigPlans" : [ ]
         }
     ],
-    "aclPlans": [
+    "schemaPlans" : [ ],
+    "aclPlans" : [
         {
-            "name": "Unnamed ACL",
-            "aclDetails": {
-                "name": "test-topic",
-                "type": "TOPIC",
-                "pattern": "LITERAL",
-                "principal": "User:test",
-                "host": "*",
-                "operation": "READ",
-                "permission": "ALLOW"
+            "name" : "Unnamed ACL",
+            "aclDetails" : {
+                "name" : "test-topic",
+                "type" : "TOPIC",
+                "pattern" : "LITERAL",
+                "principal" : "User:test",
+                "host" : "*",
+                "operation" : "READ",
+                "permission" : "ALLOW"
             },
-            "action": "REMOVE"
+            "action" : "REMOVE"
         }
     ]
 }

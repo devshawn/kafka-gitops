@@ -55,12 +55,16 @@ public class ParserService {
                 DesiredStateFile usersFile = loadExternalFile(settingsFiles.getUsers().get(), "Users");
                 builder.putAllUsers(usersFile.getUsers());
             }
+            if (settingsFiles.getSchemas().isPresent()) {
+              DesiredStateFile schemasFile = loadExternalFile(settingsFiles.getSchemas().get(), "Schemas");
+              builder.putAllSchemas(schemasFile.getSchemas());
+          }
             return builder.build();
         }
         return desiredStateFile;
     }
 
-    public DesiredStateFile parseStateFile(File stateFile) {
+    private DesiredStateFile parseStateFile(File stateFile) {
         log.info("Parsing desired state file...");
 
         try {
@@ -81,7 +85,15 @@ public class ParserService {
             throw new ValidationException(String.format("Value '%s' is not a valid format for: [%s] in state file definition: %s", value, propertyName, joinedFields));
         } catch (JsonMappingException ex) {
             List<String> fields = getYamlFields(ex);
-            String message = ex.getCause() != null ? ex.getCause().getMessage().split("\n")[0] : ex.getMessage().split("\n")[0];
+            String message = null;
+            if(ex.getCause() != null && ex.getCause().getMessage() != null) {
+              message = ex.getCause().getMessage().split("\n")[0];
+            }
+            if(message == null && ex.getMessage() != null) {
+              message = ex.getMessage().split("\n")[0];
+            } else {
+              message = "Unknown error";
+            }
             String joinedFields = String.join(" -> ", fields);
             throw new ValidationException(String.format("%s in state file definition: %s", message, joinedFields));
         } catch (FileNotFoundException ex) {

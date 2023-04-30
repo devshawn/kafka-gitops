@@ -1,44 +1,45 @@
 {
-    "topicPlans": [
+    "topicPlans" : [
         {
-            "name": "MY_TOPIC",
-            "action": "ADD",
-            "topicDetailsPlan": {
-                "partitions": 6,
-                "previousPartitions": null,
-                "partitionsAction": "ADD",
-                "replication": 1,
-                "previousReplication": null,
-                "replicationAction": "ADD"
+            "name" : "MY_TOPIC",
+            "action" : "ADD",
+            "topicDetailsPlan" : {
+                "partitions" : 6,
+                "previousPartitions" : null,
+                "partitionsAction" : "ADD",
+                "replication" : 1,
+                "previousReplication" : null,
+                "replicationAction" : "ADD"
             },
-            "topicConfigPlans": []
+            "topicConfigPlans" : [ ]
         },
         {
-            "name": "another.topic.0",
-            "action": "ADD",
-            "topicDetailsPlan": {
-                "partitions": 1,
-                "previousPartitions": null,
-                "partitionsAction": "ADD",
-                "replication": 1,
-                "previousReplication": null,
-                "replicationAction": "ADD"
+            "name" : "another.topic.0",
+            "action" : "ADD",
+            "topicDetailsPlan" : {
+                "partitions" : 1,
+                "previousPartitions" : null,
+                "partitionsAction" : "ADD",
+                "replication" : 1,
+                "previousReplication" : null,
+                "replicationAction" : "ADD"
             },
-            "topicConfigPlans": [
+            "topicConfigPlans" : [
                 {
-                    "key": "cleanup.policy",
-                    "value": "compact",
-                    "previousValue": null,
-                    "action": "ADD"
+                    "key" : "cleanup.policy",
+                    "value" : "compact",
+                    "previousValue" : null,
+                    "action" : "ADD"
                 },
                 {
-                    "key": "segment.bytes",
-                    "value": "100000",
-                    "previousValue": null,
-                    "action": "ADD"
+                    "key" : "segment.bytes",
+                    "value" : "100000",
+                    "previousValue" : null,
+                    "action" : "ADD"
                 }
             ]
         }
     ],
-    "aclPlans": []
+    "schemaPlans" : [ ],
+    "aclPlans" : [ ]
 }
